@@ -10,7 +10,14 @@ class Ticket extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'unit_id', 'ticket_code', 'title', 'description', 'status', 'rating', 'created_at', 'updated_at'
+        'user_id',
+        'unit_id',
+        'original_unit_id', // Tambahkan ini
+        'service_id',
+        'ticket_code',
+        'title',
+        'description',
+        'status',
     ];
 
     protected $dates = ['deleted_at'];
@@ -41,5 +48,10 @@ class Ticket extends Model
                     ->withPivot('pic_stats')
                     ->wherePivot('pic_stats', 'active')
                     ->withTimestamps();
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
     }
 }

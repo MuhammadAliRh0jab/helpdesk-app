@@ -20,18 +20,31 @@
         </div>
     @endif
 
-    <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data" class="bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-gray-700">
+    <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data" class="bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-gray-700" id="ticketForm">
         @csrf
 
         <div class="mb-4">
             <label for="unit_id" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Pilih Unit yang Menangani</label>
-            <select name="unit_id" id="unit_id" class="w-full border p-2 rounded dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+            <select name="unit_id" id="unit_id" class="w-full border p-2 rounded dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" required>
                 <option value="">Pilih Unit</option>
                 @foreach ($units as $unit)
                     <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
                 @endforeach
             </select>
             @error('unit_id')
+                <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="mb-4">
+            <label for="service_id" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Pilih Layanan</label>
+            <select name="service_id" id="service_id" class="w-full border p-2 rounded dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" required>
+                <option value="">Pilih Layanan</option>
+                @foreach ($services as $service)
+                    <option value="{{ $service->id }}">{{ $service->svc_name }}</option>
+                @endforeach
+            </select>
+            @error('service_id')
                 <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
@@ -69,5 +82,35 @@
             </a>
         </div>
     </form>
+
+    @section('scripts')
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#unit_id').on('change', function() {
+                    var unitId = $(this).val();
+                    if (unitId) {
+                        $.ajax({
+                            url: '{{ route('get.services', ':unitId') }}'.replace(':unitId', unitId),
+                            method: 'GET',
+                            success: function(data) {
+                                var $serviceSelect = $('#service_id');
+                                $serviceSelect.empty();
+                                $serviceSelect.append('<option value="">Pilih Layanan</option>');
+                                $.each(data, function(index, service) {
+                                    $serviceSelect.append('<option value="' + service.id + '">' + service.svc_name + '</option>');
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                console.log('Error:', error);
+                            }
+                        });
+                    } else {
+                        $('#service_id').empty().append('<option value="">Pilih Layanan</option>');
+                    }
+                });
+            });
+        </script>
+    @endsection
 </body>
 </html>

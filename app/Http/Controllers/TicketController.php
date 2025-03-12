@@ -29,12 +29,12 @@ class TicketController extends Controller
 
         if ($user->role_id == 4) { // Warga Kota (role_id = 4)
             $tickets = Ticket::where('user_id', $user->id)
-                ->with(['responses.user', 'responses.uploads', 'user', 'uploads'])
+                ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
                 ->orderBy('created_at', 'desc')
                 ->get();
         } elseif ($user->role_id == 2) { // Operator (role_id = 2)
             $tickets = Ticket::where('unit_id', $user->unit_id)
-                ->with(['responses.user', 'responses.uploads', 'user', 'uploads'])
+                ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
                 ->orderBy('created_at', 'desc')
                 ->get();
         } elseif ($user->role_id == 3) { // Pegawai (PIC) (role_id = 3)
@@ -47,11 +47,11 @@ class TicketController extends Controller
             }
 
             $tickets = Ticket::where('user_id', $user->id)
-                ->with(['responses.user', 'responses.uploads', 'user', 'uploads'])
+                ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else { // Super_admin (role_id = 1)
-            $tickets = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads'])
+            $tickets = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
@@ -104,7 +104,7 @@ class TicketController extends Controller
             $query->where('user_id', $user->id)
                   ->where('ticket_pic.pic_stats', 'active');
         })
-        ->with(['responses.user', 'responses.uploads', 'user', 'uploads'])
+        ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
         ->whereNull('deleted_at')
         ->orderBy('created_at', 'desc')
         ->get();
@@ -121,8 +121,8 @@ class TicketController extends Controller
             abort(403, 'Anda tidak diizinkan membuat aduan.');
         }
 
-        $services = Service::all();
         $units = Unit::all();
+        $services = Service::all(); // Awalnya kosong, akan diisi dinamis via AJAX
 
         return view('tickets.create', compact('services', 'units'));
     }
@@ -136,16 +136,18 @@ class TicketController extends Controller
 
         $request->validate([
             'unit_id' => 'required|exists:units,id',
+            'service_id' => 'required|exists:services,id',
             'title' => 'required',
             'description' => 'required',
             'images.*' => 'image|max:2048',
         ]);
 
-        \Log::info('Creating ticket with unit_id: ' . $request->unit_id);
+        \Log::info('Creating ticket with unit_id: ' . $request->unit_id . ', service_id: ' . $request->service_id);
 
         $ticket = Ticket::create([
             'user_id' => $user->id,
             'unit_id' => $request->unit_id,
+            'service_id' => $request->service_id,
             'ticket_code' => 'TCK' . now()->format('Ymd') . rand(1000, 9999),
             'title' => $request->title,
             'description' => $request->description,
@@ -166,6 +168,12 @@ class TicketController extends Controller
         }
 
         return redirect()->route('tickets.index')->with('success', 'Aduan berhasil dibuat.');
+    }
+
+    public function getServices($unitId)
+    {
+        $services = Service::where('unit_id', $unitId)->get(['id', 'svc_name']);
+        return response()->json($services);
     }
 
     public function assign(Request $request, Ticket $ticket)
@@ -199,7 +207,7 @@ class TicketController extends Controller
         $pic = Pic::firstOrCreate(
             ['user_id' => $picUser->id],
             [
-                'services_id' => 1, // Sesuaikan dengan services_id yang relevan
+                'services_id' => $ticket->service_id, // Gunakan service_id dari tiket
                 'pic_start' => now(),
                 'pic_desc' => 'Pegawai ditugaskan untuk tiket ' . $ticket->ticket_code,
                 'pic_stats' => 'active',
@@ -209,7 +217,7 @@ class TicketController extends Controller
         if ($pic->wasRecentlyCreated) {
             \Log::info('New PIC entry created for user ID: ' . $picUser->id);
         } else {
-            $pic->update(['pic_stats' => 'active', 'pic_start' => now()]);
+            $pic->update(['pic_stats' => 'active', 'pic_start' => now(), 'services_id' => $ticket->service_id]);
             \Log::info('Existing PIC entry updated for user ID: ' . $picUser->id);
         }
 
@@ -305,6 +313,47 @@ class TicketController extends Controller
         return $exists;
     }
 
+    public function transfer(Request $request, Ticket $ticket)
+{
+    // Pastikan hanya operator (role_id = 2) yang dapat mengalihkan aduan
+    if (auth()->user()->role_id != 2) {
+        abort(403, 'Anda tidak diizinkan mengalihkan aduan.');
+    }
+
+    // Pastikan aduan masih dalam status Pending (status = 0)
+    if ($ticket->status != 0) {
+        return redirect()->route('tickets.index')->with('error', 'Aduan hanya dapat dialihkan jika masih dalam status Pending.');
+    }
+
+    // Validasi input
+    $request->validate([
+        'unit_id' => 'required|exists:units,id',
+        'service_id' => 'required|exists:services,id',
+    ]);
+
+    $originalUnit = \App\Models\Unit::find($ticket->unit_id);
+    $newUnit = \App\Models\Unit::find($request->unit_id);
+
+    // Simpan unit asal sebelum pengalihan (jika belum ada)
+    if (!$ticket->original_unit_id) {
+        $ticket->original_unit_id = $ticket->unit_id;
+    }
+
+    // Update unit_id dan service_id ke unit dan layanan baru
+    $ticket->unit_id = $request->unit_id;
+    $ticket->service_id = $request->service_id;
+    $ticket->save();
+
+    // Tambahkan pesan otomatis ke riwayat percakapan
+    \App\Models\TicketResponse::create([
+        'ticket_id' => $ticket->id,
+        'user_id' => auth()->user()->id,
+        'message' => "Aduan telah dialihkan dari unit {$originalUnit->unit_name} ke unit {$newUnit->unit_name}.",
+    ]);
+
+    return redirect()->route('tickets.index')->with('success', 'Aduan berhasil dialihkan ke unit lain.');
+}
+    
     public function update(Request $request, Ticket $ticket)
     {
         $user = auth()->user();
