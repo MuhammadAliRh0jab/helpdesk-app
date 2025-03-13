@@ -1,36 +1,47 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Kota - @yield('title')</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4/dist/tailwind.min.css" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{{ route('tickets.index') }}" class="text-white text-xl font-bold">Helpdesk Kota</a>
+            <div class="space-x-4">
+                @if (auth()->user()->role_id == 2)
+                    <a href="{{ route('tickets.index') }}" class="text-white hover:text-gray-300">Daftar Aduan</a>
+                    <a href="{{ route('services.index') }}" class="text-white hover:text-gray-300">Kelola Layanan</a>
+                    <a href="{{ route('tickets.created') }}" class="text-white hover:text-gray-300">Riwayat Aduan Saya</a>
+                    <a href="{{ route('tickets.create') }}" class="text-white hover:text-gray-300">Buat Aduan Baru</a>
+                    <a href="{{ route('dashboard.index') }}" class="text-white hover:text-gray-300">Dashboard</a>
+                @elseif (auth()->user()->role_id == 3)
+                    <a href="{{ route('tickets.index') }}" class="text-white hover:text-gray-300">Daftar Aduan Saya</a>
+                    <a href="{{ route('tickets.assigned') }}" class="text-white hover:text-gray-300">Aduan Ditugaskan</a>
+                    <a href="{{ route('tickets.create') }}" class="text-white hover:text-gray-300">Buat Aduan Baru</a>
+                @else
+                    <a href="{{ route('tickets.index') }}" class="text-white hover:text-gray-300">Daftar Aduan</a>
+                    <a href="{{ route('tickets.create') }}" class="text-white hover:text-gray-300">Buat Aduan Baru</a>
+                @endif
+                <a href="{{ route('logout') }}" class="text-white hover:text-gray-300" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    Logout
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                    @csrf
+                </form>
+            </div>
         </div>
-    </body>
+    </nav>
+
+    <!-- Content -->
+    <div class="p-6">
+        @yield('content')
+    </div>
+
+    @yield('scripts')
+</body>
 </html>
