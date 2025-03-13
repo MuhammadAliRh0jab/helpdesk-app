@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Aduan - Helpdesk Kota</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4/dist/tailwind.min.css" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 p-6">
+@extends('layouts.app')
+
+@section('title', 'Daftar Aduan')
+
+@section('content')
     <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Daftar Aduan</h1>
 
     @if (session('success'))
@@ -19,14 +14,6 @@
     @if (session('error'))
         <div class="bg-red-100 text-red-800 p-4 mb-4 rounded dark:bg-red-900 dark:text-red-200">
             {{ session('error') }}
-        </div>
-    @endif
-
-    @if ($canCreateTicket)
-        <div class="mb-4">
-            <a href="{{ route('tickets.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
-                Buat Aduan Baru
-            </a>
         </div>
     @endif
 
@@ -101,11 +88,6 @@
                                         </select>
                                         <select name="service_id" id="service_id-{{ $ticket->id }}" class="border p-1 rounded mt-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" required>
                                             <option value="">Pilih Layanan</option>
-                                            @foreach (\App\Models\Service::all() as $service)
-                                                @if ($service->id != $ticket->svc_id)
-                                                    <option value="{{ $service->id }}">{{ $service->svc_name }}</option>
-                                                @endif
-                                            @endforeach
                                         </select>
                                         <button type="submit" class="bg-yellow-500 text-white px-2 py-1 rounded mt-2 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700">
                                             Alihkan
@@ -143,7 +125,6 @@
                                             <br>
                                             {{ $response->message }}
                                         </p>
-                                        <!-- Tampilkan gambar yang dilampirkan -->
                                         @forelse($response->uploads as $upload)
                                             <div class="mt-2">
                                                 <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
@@ -154,7 +135,6 @@
                                         @empty
                                             <p class="text-sm text-gray-500 dark:text-gray-400">Tidak ada lampiran gambar.</p>
                                         @endforelse
-                                        <!-- Form untuk pengadu membalas, hanya untuk respons terakhir dan bukan dari operator -->
                                         @if (auth()->user()->role_id == 4 && $ticket->user_id == auth()->user()->id && $ticket->status != 2 && $response === $ticket->responses->last() && $response->user_id != auth()->user()->id && $response->user->role_id != 2)
                                             <form action="{{ route('tickets.reply', $response->id) }}" method="POST" enctype="multipart/form-data" class="mt-2">
                                                 @csrf
@@ -181,16 +161,6 @@
                 @endforelse
             </tbody>
         </table>
-    </div>
-
-    <div class="mt-4">
-        <a href="{{ route('logout') }}" class="inline-block bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-            Logout
-        </a>
-
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-            @csrf
-        </form>
     </div>
 
     @section('scripts')
@@ -225,5 +195,4 @@
             });
         </script>
     @endsection
-</body>
-</html>
+@endsection

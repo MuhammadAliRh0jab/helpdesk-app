@@ -14,6 +14,8 @@ class Service extends Model
         'svc_name',
         'svc_desc',
         'svc_icon',
+        'category_id',
+        'status',
     ];
 
     public function unit()

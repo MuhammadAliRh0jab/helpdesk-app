@@ -7,6 +7,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ServiceManagementController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('landing');
@@ -27,10 +29,10 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 Route::middleware(['auth'])->group(function () {
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/assigned', [TicketController::class, 'assigned'])->name('tickets.assigned');
-    Route::get('/tickets/create', [TicketController::class, 'create'])->middleware('role:4')->name('tickets.create');
+    Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create'); // Hapus middleware role:4
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
     Route::post('/tickets/{ticket}/assign', [TicketController::class, 'assign'])->middleware('role:2')->name('tickets.assign');
-    Route::post('/tickets/{ticket}/transfer', [TicketController::class, 'transfer'])->middleware('role:2')->name('tickets.transfer'); // Rute baru
+    Route::post('/tickets/{ticket}/transfer', [TicketController::class, 'transfer'])->middleware('role:2')->name('tickets.transfer');
     Route::post('/tickets/{ticket}/respond', [TicketController::class, 'respond'])->middleware('role:3')->name('tickets.respond');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->middleware('role:3')->name('tickets.update');
     Route::post('/tickets/reply/{response}', [TicketController::class, 'reply'])->middleware('role:4')->name('tickets.reply');
@@ -38,6 +40,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('units', UnitController::class)->middleware('role:1');
     Route::resource('services', ServiceController::class)->middleware('role:1');
     Route::get('/get-services/{unitId}', [TicketController::class, 'getServices'])->name('get.services');
+    Route::get('/services', [ServiceManagementController::class, 'index'])->middleware('role:2')->name('services.index');
+    Route::patch('/services/{service}/status', [ServiceManagementController::class, 'updateStatus'])->middleware('role:2')->name('services.updateStatus');
+    Route::get('/tickets/created', [TicketController::class, 'created'])->middleware('role:2')->name('tickets.created');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });
 
 // Tambahkan route untuk favicon agar tidak mengganggu log

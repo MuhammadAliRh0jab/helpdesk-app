@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Aduan Ditugaskan')
+@section('title', 'Riwayat Aduan Saya')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Aduan Ditugaskan</h1>
+    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Riwayat Aduan Saya</h1>
 
     @if (session('success'))
         <div class="bg-green-100 text-green-800 p-4 mb-4 rounded dark:bg-green-900 dark:text-green-200">
@@ -24,7 +24,8 @@
                     <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Kode Tiket</th>
                     <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Judul</th>
                     <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Layanan</th>
-                    <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Unit</th>
+                    <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Unit Asal</th>
+                    <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Unit Saat Ini</th>
                     <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Status</th>
                     <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Tanggal Dibuat</th>
                 </tr>
@@ -35,6 +36,7 @@
                         <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $ticket->ticket_code }}</td>
                         <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $ticket->title }}</td>
                         <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                        <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
                         <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
                         <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">
                             @if($ticket->status == 0) Pending
@@ -44,8 +46,9 @@
                         </td>
                         <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
                     </tr>
+                    <!-- Bagian untuk menampilkan riwayat percakapan -->
                     <tr>
-                        <td colspan="6" class="py-2 px-4 border-b dark:border-gray-600">
+                        <td colspan="7" class="py-2 px-4 border-b dark:border-gray-600">
                             <div class="ml-4">
                                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Percakapan untuk {{ $ticket->ticket_code }}</h3>
                                 @forelse($ticket->responses as $response)
@@ -81,33 +84,13 @@
                                 @empty
                                     <p class="text-gray-500 dark:text-gray-400">Belum ada percakapan untuk tiket ini.</p>
                                 @endforelse
-                                @if ($ticket->status != 2)
-                                    <form action="{{ route('tickets.respond', $ticket->id) }}" method="POST" enctype="multipart/form-data" class="mt-4">
-                                        @csrf
-                                        <textarea name="message" class="border p-2 rounded dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 w-full mb-2" placeholder="Masukkan tanggapan Anda..." required></textarea>
-                                        <input type="file" name="images[]" multiple class="border p-1 rounded dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 mb-2">
-                                        <button type="submit" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
-                                            Kirim Tanggapan
-                                        </button>
-                                    </form>
-                                    @if ($ticket->status == 1)
-                                        <form action="{{ route('tickets.update', $ticket->id) }}" method="POST" class="mt-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="2">
-                                            <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700">
-                                                Tandai Selesai
-                                            </button>
-                                        </form>
-                                    @endif
-                                @endif
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200 text-center">
-                            Tidak ada aduan yang ditugaskan.
+                        <td colspan="7" class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200 text-center">
+                            Anda belum membuat aduan.
                         </td>
                     </tr>
                 @endforelse
