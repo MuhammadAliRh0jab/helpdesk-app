@@ -1,22 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Helpdesk Kota</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4/dist/tailwind.min.css" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center h-screen">
-    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full max-w-md">
+<x-layouts.auth title="Login - Helpdesk Kota">
+    <!--begin::Form-->
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('landing') }}" action="{{ route('login') }}" method="POST">
+        @csrf
+
+        <!--begin::Heading-->
+        <div class="text-center mb-11">
+            <!--begin::Title-->
+            <h1 class="text-gray-900 fw-bolder mb-3">Sign In</h1>
+            <!--end::Title-->
+            <!--begin::Subtitle-->
+            <div class="text-gray-500 fw-semibold fs-6">Your Social Campaigns</div>
+            <!--end::Subtitle-->
+        </div>
+        <!--end::Heading-->
+
+        <!-- Session Success Message -->
         @if (session('success'))
-            <div class="bg-green-100 text-green-800 p-4 mb-4 rounded dark:bg-green-900 dark:text-green-200">
+            <div class="alert alert-success bg-light-success text-success p-4 mb-4">
                 {{ session('success') }}
             </div>
         @endif
 
+        <!-- Validation Errors -->
         @if ($errors->any())
-            <div class="bg-red-100 text-red-800 p-4 mb-4 rounded dark:bg-red-900 dark:text-red-200">
+            <div class="alert alert-danger bg-light-danger text-danger p-4 mb-4">
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -25,39 +32,84 @@
             </div>
         @endif
 
-        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Login</h2>
-
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <div class="mb-4">
-                <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
-                <input type="text" id="username" name="username" value="{{ old('username') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200" required autocomplete="username">
-                @error('username')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
+        <!--begin::Login options-->
+        <div class="row g-3 mb-9">
+            <!--begin::Col-->
+            <div class="col-md-6">
+                <!--begin::Google link-->
+                <a href="{{ url('/auth/redirect/google') }}?redirect_uri={{ url()->current() }}" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+                    <img alt="Logo" src="{{ asset('assets/media/svg/brand-logos/google-icon.svg') }}" class="h-15px me-3"/>
+                    Sign in with Google
+                </a>
+                <!--end::Google link-->
             </div>
+            <!--end::Col-->
 
-            <div class="mb-4">
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                <input type="password" id="password" name="password" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200" required autocomplete="current-password">
-                @error('password')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
+            <!--begin::Col-->
+            <div class="col-md-6">
+                <!--begin::Apple link-->
+                <a href="#" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+                    <img alt="Logo" src="{{ asset('assets/media/svg/brand-logos/apple-black.svg') }}" class="theme-light-show h-15px me-3"/>
+                    <img alt="Logo" src="{{ asset('assets/media/svg/brand-logos/apple-black-dark.svg') }}" class="theme-dark-show h-15px me-3"/>
+                    Sign in with Apple
+                </a>
+                <!--end::Apple link-->
             </div>
+            <!--end::Col-->
+        </div>
+        <!--end::Login options-->
 
-            <div class="mb-4">
-                <label for="remember_me" class="inline-flex items-center">
-                    <input id="remember_me" type="checkbox" name="remember" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
-                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+        <!--begin::Separator-->
+        <div class="separator separator-content my-14">
+            <span class="w-125px text-gray-500 fw-semibold fs-7">Or with email</span>
+        </div>
+        <!--end::Separator-->
+
+        <!--begin::Input group-->
+        <div class="fv-row mb-8">
+            <input type="text" placeholder="Email" name="username" autocomplete="off" class="form-control bg-transparent" value="{{ old('email', 'demo@demo.com') }}"/>
+            @error('email')
+                <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @endif
+        </div>
+
+        <div class="fv-row mb-3">
+            <input type="password" placeholder="Password" name="password" autocomplete="off" class="form-control bg-transparent" value="demo"/>
+            @error('password')
+                <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @endif
+        </div>
+        <!--end::Input group-->
+
+        <!--begin::Wrapper-->
+        <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
+            <div>
+                <label class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="remember" id="remember_me"/>
+                    <span class="form-check-label text-gray-700">Remember me</span>
                 </label>
             </div>
+            <a href="{{ route('password.request') }}" class="link-primary">Forgot Password?</a>
+        </div>
+        <!--end::Wrapper-->
 
-            <div class="flex items-center justify-end">
-                <a href="{{ route('password.request') }}" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">Forgot your password?</a>
-                <button type="submit" class="ms-3 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Login</button>
-            </div>
-        </form>
-    </div>
-</body>
-</html>
+        <!--begin::Submit button-->
+        <div class="d-grid mb-10">
+            <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
+                <span class="indicator-label">Sign In</span>
+                <span class="indicator-progress">Please wait...
+                    <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                </span>
+            </button>
+        </div>
+        <!--end::Submit button-->
+
+        <!--begin::Sign up-->
+        <div class="text-gray-500 text-center fw-semibold fs-6">
+            Not a Member yet?
+            <a href="{{ route('register') }}" class="link-primary">Sign up</a>
+        </div>
+        <!--end::Sign up-->
+    </form>
+    <!--end::Form-->
+</x-layouts.auth>
