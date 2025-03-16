@@ -151,7 +151,7 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-        if ($user->role_id != 4 || $user->role_id != 2 || $user->role_id != 3) {
+        if (!in_array($user->role_id, [2, 3, 4])) {
             abort(403, 'Anda tidak diizinkan membuat aduan.');
         }
 
@@ -204,124 +204,208 @@ class TicketController extends Controller
     $services = $servicesQuery->get(['id', 'svc_name']);
     return response()->json($services);
 }
-    public function assign(Request $request, Ticket $ticket)
-    {
-        $user = auth()->user();
-        \Log::info('User ID in assign(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
+public function assign(Request $request, Ticket $ticket)
+{
+    $user = auth()->user();
+    \Log::info('User ID in assign(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
 
-        if ($user->role_id != 2) {
-            abort(403, 'Unauthorized action.');
-        }
+    if ($user->role_id != 2) {
+        abort(403, 'Unauthorized action.');
+    }
 
+    $request->validate([
+        'pic_id' => 'required|exists:users,id',
+    ]);
+
+    $picUser = User::where('id', $request->pic_id)
+        ->where('unit_id', $user->unit_id)
+        ->where('role_id', 3)
+        ->first();
+
+    if (!$picUser) {
+        \Log::warning('Selected PIC ID ' . $request->pic_id . ' does not match unit_id ' . $user->unit_id . ' or role_id 3');
+        return redirect()->back()->with('error', 'PIC tidak valid atau tidak berada di unit yang sama.');
+    }
+
+    if ($ticket->unit_id != $user->unit_id) {
+        \Log::warning('Ticket unit_id ' . $ticket->unit_id . ' does not match Operator unit_id ' . $user->unit_id);
+        return redirect()->back()->with('error', 'Tiket tidak berada di unit Anda.');
+    }
+
+    // Cek apakah PIC ini sudah ditugaskan ke tiket ini
+    $existingPic = Pic::where('user_id', $picUser->id)
+        ->whereHas('tickets', function ($query) use ($ticket) {
+            $query->where('ticket_id', $ticket->id)
+                  ->where('pic_stats', 'active');
+        })
+        ->first();
+
+    if ($existingPic) {
+        \Log::info('PIC ID ' . $picUser->id . ' already assigned to ticket ' . $ticket->id);
+        return redirect()->back()->with('error', 'PIC ini sudah ditugaskan ke tiket ini.');
+    }
+
+    // Buat atau perbarui entri PIC
+    $pic = Pic::firstOrCreate(
+        ['user_id' => $picUser->id],
+        [
+            'services_id' => $ticket->service_id,
+            'pic_start' => now(),
+            'pic_desc' => 'Pegawai ditugaskan untuk tiket ' . $ticket->ticket_code,
+            'pic_stats' => 'active',
+        ]
+    );
+
+    if ($pic->wasRecentlyCreated) {
+        \Log::info('New PIC entry created for user ID: ' . $picUser->id);
+    } else {
+        $pic->update(['pic_stats' => 'active', 'pic_start' => now(), 'services_id' => $ticket->service_id]);
+        \Log::info('Existing PIC entry updated for user ID: ' . $picUser->id);
+    }
+
+    // Tambahkan PIC ke tiket
+    DB::table('ticket_pic')->insert([
+        'ticket_id' => $ticket->id,
+        'pic_id' => $pic->id,
+        'pic_stats' => 'active',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    // Update status tiket menjadi "Ditugaskan" (status = 1) jika belum
+    if ($ticket->status == 0) {
+        $ticket->update(['status' => 1]);
+        \Log::info('Ticket status updated to Ditugaskan for ticket ID: ' . $ticket->id);
+    }
+
+    \Log::info('New PIC ID: ' . $pic->id . ' assigned to ticket ID: ' . $ticket->id);
+
+    // Tambahkan pesan otomatis ke riwayat percakapan
+    TicketResponse::create([
+        'ticket_id' => $ticket->id,
+        'user_id' => $user->id,
+        'message' => "PIC baru ({$picUser->username}) telah ditambahkan ke tiket ini.",
+    ]);
+
+    return redirect()->back()->with('success', 'PIC baru berhasil ditugaskan ke tiket.');
+}
+public function respond(Request $request, Ticket $ticket)
+{
+    $user = auth()->user();
+    \Log::info('User ID in respond(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
+
+    if ($user->role_id != 3) {
+        \Log::warning('Unauthorized role: ' . $user->role_id);
+        abort(403, 'Unauthorized action.');
+    }
+
+    if (!$user->isAssignedAsPic()) {
+        \Log::warning('User not assigned as PIC: ' . $user->id);
+        abort(403, 'Anda belum ditugaskan sebagai PIC.');
+    }
+
+    $isAssignedToTicket = $this->isPicAssignedToTicket($user->id, $ticket);
+    \Log::info('Is user assigned to this ticket in respond(): ' . ($isAssignedToTicket ? 'Yes' : 'No'));
+
+    if (!$isAssignedToTicket) {
+        \Log::warning('User ' . $user->id . ' not assigned to ticket ' . $ticket->id);
+        abort(403, 'Anda belum ditugaskan sebagai PIC untuk tiket ini.');
+    }
+
+    try {
         $request->validate([
-            'pic_id' => 'required|exists:users,id',
+            'message' => 'required',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $picUser = User::where('id', $request->pic_id)
-            ->where('unit_id', $user->unit_id)
-            ->where('role_id', 3)
-            ->first();
+        $response = $ticket->responses()->create([
+            'user_id' => $user->id,
+            'message' => $request->message,
+        ]);
 
-        if (!$picUser) {
-            \Log::warning('Selected PIC ID ' . $request->pic_id . ' does not match unit_id ' . $user->unit_id . ' or role_id 3');
-            return redirect()->back()->with('error', 'PIC tidak valid atau tidak berada di unit yang sama.');
-        }
-
-        if ($ticket->unit_id != $user->unit_id) {
-            \Log::warning('Ticket unit_id ' . $ticket->unit_id . ' does not match Operator unit_id ' . $user->unit_id);
-            return redirect()->back()->with('error', 'Tiket tidak berada di unit Anda.');
-        }
-
-        $pic = Pic::firstOrCreate(
-            ['user_id' => $picUser->id],
-            [
-                'services_id' => $ticket->service_id, // Gunakan service_id dari tiket
-                'pic_start' => now(),
-                'pic_desc' => 'Pegawai ditugaskan untuk tiket ' . $ticket->ticket_code,
-                'pic_stats' => 'active',
-            ]
-        );
-
-        if ($pic->wasRecentlyCreated) {
-            \Log::info('New PIC entry created for user ID: ' . $picUser->id);
-        } else {
-            $pic->update(['pic_stats' => 'active', 'pic_start' => now(), 'services_id' => $ticket->service_id]);
-            \Log::info('Existing PIC entry updated for user ID: ' . $picUser->id);
-        }
-
-        DB::table('ticket_pic')->updateOrInsert(
-            ['ticket_id' => $ticket->id, 'pic_id' => $pic->id],
-            ['pic_stats' => 'active', 'created_at' => now(), 'updated_at' => now()]
-        );
-
-        $ticket->update(['status' => 1]);
-
-        \Log::info('Ticket assigned to PIC ID: ' . $pic->id . ', New Status: ' . $ticket->status);
-
-        return redirect()->back()->with('success', 'Tiket berhasil ditugaskan ke PIC.');
-    }
-
-    public function respond(Request $request, Ticket $ticket)
-    {
-        $user = auth()->user();
-        \Log::info('User ID in respond(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
-
-        if ($user->role_id != 3) {
-            \Log::warning('Unauthorized role: ' . $user->role_id);
-            abort(403, 'Unauthorized action.');
-        }
-
-        if (!$user->isAssignedAsPic()) {
-            \Log::warning('User not assigned as PIC: ' . $user->id);
-            abort(403, 'Anda belum ditugaskan sebagai PIC.');
-        }
-
-        $isAssignedToTicket = $this->isPicAssignedToTicket($user->id, $ticket);
-        \Log::info('Is user assigned to this ticket in respond(): ' . ($isAssignedToTicket ? 'Yes' : 'No'));
-
-        if (!$isAssignedToTicket) {
-            \Log::warning('User ' . $user->id . ' not assigned to ticket ' . $ticket->id);
-            abort(403, 'Anda belum ditugaskan sebagai PIC untuk tiket ini.');
-        }
-
-        try {
-            $request->validate([
-                'message' => 'required',
-                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
-
-            $response = $ticket->responses()->create([
-                'user_id' => $user->id,
-                'message' => $request->message,
-            ]);
-
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $uuid = Str::uuid();
-                    $directory = 'uploads/' . now()->format('Ymd');
-                    $filename = $uuid . '.' . $image->extension();
-                    $path = $image->storeAs($directory, $filename, 'public');
-                    \Log::info('File stored at: ' . $path);
-                    if ($path) {
-                        TicketResponseUpload::create([
-                            'ticket_response_id' => $response->id,
-                            'uuid' => $uuid,
-                            'filename_ori' => $image->getClientOriginalName(),
-                            'filename_path' => $path,
-                        ]);
-                    } else {
-                        \Log::error('Failed to store file: ' . $filename);
-                    }
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $uuid = Str::uuid();
+                $directory = 'uploads/' . now()->format('Ymd');
+                $filename = $uuid . '.' . $image->extension();
+                $path = $image->storeAs($directory, $filename, 'public');
+                \Log::info('File stored at: ' . $path);
+                if ($path) {
+                    TicketResponseUpload::create([
+                        'ticket_response_id' => $response->id,
+                        'uuid' => $uuid,
+                        'filename_ori' => $image->getClientOriginalName(),
+                        'filename_path' => $path,
+                    ]);
+                } else {
+                    \Log::error('Failed to store file: ' . $filename);
                 }
             }
-
-            \Log::info('Response created successfully for ticket: ' . $ticket->id);
-            return redirect()->back()->with('success', 'Respons berhasil ditambahkan.');
-        } catch (\Exception $e) {
-            \Log::error('Exception in respond: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim respons.');
         }
+
+        \Log::info('Response created successfully for ticket: ' . $ticket->id);
+        return redirect()->back()->with('success', 'Respons berhasil ditambahkan.');
+    } catch (\Exception $e) {
+        \Log::error('Exception in respond: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim respons.');
     }
+}
+    public function removePic(Request $request, Ticket $ticket)
+{
+    $user = auth()->user();
+    \Log::info('User ID in removePic(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
+
+    if ($user->role_id != 2) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $request->validate([
+        'pic_id' => 'required|exists:pics,id',
+    ]);
+
+    $pic = Pic::findOrFail($request->pic_id);
+
+    // Pastikan PIC ini terkait dengan tiket
+    $ticketPic = DB::table('ticket_pic')
+        ->where('ticket_id', $ticket->id)
+        ->where('pic_id', $pic->id)
+        ->where('pic_stats', 'active')
+        ->first();
+
+    if (!$ticketPic) {
+        \Log::warning('PIC ID ' . $pic->id . ' not assigned to ticket ' . $ticket->id);
+        return redirect()->back()->with('error', 'PIC ini tidak ditugaskan ke tiket ini.');
+    }
+
+    // Nonaktifkan PIC dari tiket
+    DB::table('ticket_pic')
+        ->where('ticket_id', $ticket->id)
+        ->where('pic_id', $pic->id)
+        ->update(['pic_stats' => 'inactive', 'updated_at' => now()]);
+
+    \Log::info('PIC ID ' . $pic->id . ' removed from ticket ID ' . $ticket->id);
+
+    // Tambahkan pesan otomatis ke riwayat percakapan
+    $picUser = User::find($pic->user_id);
+    TicketResponse::create([
+        'ticket_id' => $ticket->id,
+        'user_id' => $user->id,
+        'message' => "PIC ({$picUser->username}) telah dinonaktifkan dari tiket ini.",
+    ]);
+
+    // Jika tidak ada PIC aktif lagi, ubah status tiket kembali ke Pending
+    $activePics = DB::table('ticket_pic')
+        ->where('ticket_id', $ticket->id)
+        ->where('pic_stats', 'active')
+        ->count();
+
+    if ($activePics == 0) {
+        $ticket->update(['status' => 0]);
+        \Log::info('No active PICs left, ticket status changed to Pending for ticket ID: ' . $ticket->id);
+    }
+
+    return redirect()->back()->with('success', 'PIC berhasil dinonaktifkan dari tiket.');
+}
 
     private function isPicAssignedToTicket($userId, $ticket)
     {
@@ -397,61 +481,74 @@ public function created()
 
     return view('tickets.created', compact('tickets'));
 }
-    public function update(Request $request, Ticket $ticket)
-    {
-        $user = auth()->user();
-        \Log::info('User ID in update(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
+public function update(Request $request, Ticket $ticket)
+{
+    $user = auth()->user();
+    \Log::info('User ID in update(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
 
-        if ($user->role_id != 3) {
-            abort(403, 'Unauthorized action.');
-        }
+    if ($user->role_id != 3) {
+        abort(403, 'Unauthorized action.');
+    }
 
-        if (!$user->isAssignedAsPic()) {
-            abort(403, 'Anda belum ditugaskan sebagai PIC.');
-        }
+    if (!$user->isAssignedAsPic()) {
+        abort(403, 'Anda belum ditugaskan sebagai PIC.');
+    }
 
-        $isAssignedToTicket = $this->isPicAssignedToTicket($user->id, $ticket);
-        \Log::info('Is user assigned to this ticket in update(): ' . ($isAssignedToTicket ? 'Yes' : 'No'));
+    $isAssignedToTicket = $this->isPicAssignedToTicket($user->id, $ticket);
+    \Log::info('Is user assigned to this ticket in update(): ' . ($isAssignedToTicket ? 'Yes' : 'No'));
 
-        if (!$isAssignedToTicket) {
-            abort(403, 'Anda belum ditugaskan sebagai PIC untuk tiket ini.');
-        }
+    if (!$isAssignedToTicket) {
+        abort(403, 'Anda belum ditugaskan sebagai PIC untuk tiket ini.');
+    }
 
-        $request->validate([
-            'status' => 'required|in:0,1,2',
-        ]);
+    $request->validate([
+        'status' => 'required|in:0,1,2',
+    ]);
 
-        if ($request->status == 2) {
-            $pic = Pic::where('user_id', $user->id)
-                      ->where('pic_stats', 'active')
-                      ->first();
-            
+    // Jika PIC mengubah status menjadi 2 (Resolved), tiket langsung selesai
+    if ($request->status == 2) {
+        // Nonaktifkan semua PIC yang terkait dengan tiket ini
+        $assignments = DB::table('ticket_pic')
+            ->where('ticket_id', $ticket->id)
+            ->where('pic_stats', 'active')
+            ->get();
+
+        foreach ($assignments as $assignment) {
+            DB::table('ticket_pic')
+                ->where('ticket_id', $ticket->id)
+                ->where('pic_id', $assignment->pic_id)
+                ->update(['pic_stats' => 'inactive', 'updated_at' => now()]);
+
+            \Log::info('Removed ticket_pic relation for ticket: ' . $ticket->ticket_code . ' and PIC: ' . $assignment->pic_id);
+
+            // Cek apakah PIC ini masih memiliki tiket aktif lainnya
+            $pic = Pic::find($assignment->pic_id);
             if ($pic) {
-                DB::table('ticket_pic')
-                    ->where('ticket_id', $ticket->id)
-                    ->where('pic_id', $pic->id)
-                    ->delete();
-
-                \Log::info('Removed ticket_pic relation for ticket: ' . $ticket->ticket_code . ' and PIC: ' . $pic->id);
-
                 $otherTickets = $pic->tickets()
                     ->where('tickets.id', '!=', $ticket->id)
                     ->where('tickets.status', '!=', 2)
                     ->exists();
 
-                if ($otherTickets) {
-                    \Log::info('PIC ' . $pic->id . ' still has unresolved tickets. Not deleting PIC entry for user: ' . $user->username);
-                } else {
+                if (!$otherTickets) {
                     $pic->delete();
-                    \Log::info('PIC entry deleted for user: ' . $user->username . ' after ticket resolved: ' . $ticket->ticket_code);
+                    \Log::info('PIC entry deleted for PIC ID: ' . $pic->id . ' after ticket resolved: ' . $ticket->ticket_code);
+                } else {
+                    \Log::info('PIC ID ' . $pic->id . ' still has unresolved tickets. Not deleting PIC entry.');
                 }
             }
         }
 
+        // Ubah status tiket menjadi Resolved
+        $ticket->update(['status' => 2]);
+        \Log::info('Ticket resolved by PIC ID: ' . $user->id . ' for ticket: ' . $ticket->ticket_code);
+    } else {
+        // Jika status bukan 2, hanya perbarui status tanpa memengaruhi PIC lain
         $ticket->update(['status' => $request->status]);
-
-        return redirect()->back()->with('success', 'Status tiket berhasil diperbarui.');
+        \Log::info('Ticket status updated to ' . $request->status . ' by PIC ID: ' . $user->id);
     }
+
+    return redirect()->back()->with('success', 'Status tiket berhasil diperbarui.');
+}
 
     public function reply(Request $request, TicketResponse $response)
     {

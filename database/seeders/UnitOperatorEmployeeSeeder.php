@@ -12,9 +12,7 @@ class UnitOperatorEmployeeSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Buat Unit Baru: "Unit Lingkungan"
 
-        // 2. Buat Operator untuk Unit Lingkungan (role_id = 2)
         $operator = User::create([
             'username' => 'operator_lingkungan',
             'name' => 'opt2',

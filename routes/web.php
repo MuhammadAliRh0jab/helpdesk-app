@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tickets/{ticket}/assign', [TicketController::class, 'assign'])->middleware('role:2')->name('tickets.assign');
     Route::post('/tickets/{ticket}/transfer', [TicketController::class, 'transfer'])->middleware('role:2')->name('tickets.transfer');
     Route::post('/tickets/{ticket}/respond', [TicketController::class, 'respond'])->middleware('role:3')->name('tickets.respond');
+    Route::post('/tickets/{ticket}/remove-pic', [TicketController::class, 'removePic'])->middleware('role:2')->name('tickets.removePic');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->middleware('role:3')->name('tickets.update');
     Route::post('/tickets/reply/{response}', [TicketController::class, 'reply'])->middleware('role:4')->name('tickets.reply');
     Route::resource('users', UserController::class)->middleware('role:1');
