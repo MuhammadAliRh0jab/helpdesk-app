@@ -41,16 +41,24 @@ class TicketController extends Controller
     } elseif ($user->role_id == 3) { // Pegawai (PIC) (role_id = 3)
         $isPicActive = $user->isAssignedAsPic();
 
-        \Log::info('User ID: ' . $user->id . ', Is PIC Active in index(): ' . ($isPicActive ? 'Yes' : 'No'));
+        Log::info('User ID: ' . $user->id . ', Is PIC Active in index(): ' . ($isPicActive ? 'Yes' : 'No'));
 
+        // Jika PIC aktif, ambil tiket yang ditugaskan; jika tidak, ambil tiket yang dibuat
         if ($isPicActive) {
-            return redirect()->route('tickets.assigned');
-        }
-
-        $tickets = Ticket::where('user_id', $user->id)
+            $tickets = Ticket::whereHas('pics', function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->where('ticket_pic.pic_stats', 'active');
+            })
+            ->orWhere('user_id', $user->id)
             ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
             ->orderBy('created_at', 'desc')
             ->get();
+        } else {
+            $tickets = Ticket::where('user_id', $user->id)
+                ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
     } else { // Super_admin (role_id = 1)
         $tickets = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
             ->orderBy('created_at', 'desc')
@@ -65,12 +73,11 @@ class TicketController extends Controller
     $services = $servicesQuery->with('unit')->get();
 
     // Tentukan apakah pengguna dapat membuat aduan
-    // Pegawai (role_id = 3) dan Warga (role_id = 4) dapat membuat aduan, terlepas dari status PIC
-    $canCreateTicket = True;
-    \Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ', Can Create Ticket: ' . ($canCreateTicket ? 'Yes' : 'No'));
+    $canCreateTicket = in_array($user->role_id, [3, 4]);
+    Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ', Can Create Ticket: ' . ($canCreateTicket ? 'Yes' : 'No'));
 
     // Ambil daftar PIC untuk operator
-    $pics = collect(); // Default kosong untuk non-operator
+    $pics = collect();
     if ($user->role_id == 2 && $user->unit_id) {
         $pics = User::where('role_id', 3)
             ->where('unit_id', $user->unit_id)
@@ -87,15 +94,22 @@ class TicketController extends Controller
                 ];
             });
 
-        \Log::info('Operator unit_id: ' . $user->unit_id);
-        \Log::info('PICs found: ' . $pics->pluck('username')->implode(', ') . ' (Count: ' . $pics->count() . ')');
+        Log::info('Operator unit_id: ' . $user->unit_id);
+        Log::info('PICs found: ' . $pics->pluck('username')->implode(', ') . ' (Count: ' . $pics->count() . ')');
         if ($pics->isEmpty()) {
-            \Log::info('No PICs found for unit_id: ' . $user->unit_id);
+            Log::info('No PICs found for unit_id: ' . $user->unit_id);
         }
     }
 
     return view('tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
 }
+    // Tambahkan method isAssignedAsPic ke model User jika belum ada
+    public function isAssignedAsPic()
+    {
+        return Pic::where('user_id', $this->id)
+            ->where('pic_stats', 'active')
+            ->exists();
+    }
 
     public function assigned()
     {
@@ -522,20 +536,20 @@ public function update(Request $request, Ticket $ticket)
             \Log::info('Removed ticket_pic relation for ticket: ' . $ticket->ticket_code . ' and PIC: ' . $assignment->pic_id);
 
             // Cek apakah PIC ini masih memiliki tiket aktif lainnya
-            $pic = Pic::find($assignment->pic_id);
-            if ($pic) {
-                $otherTickets = $pic->tickets()
-                    ->where('tickets.id', '!=', $ticket->id)
-                    ->where('tickets.status', '!=', 2)
-                    ->exists();
+            // $pic = Pic::find($assignment->pic_id);
+            // if ($pic) {
+            //     $otherTickets = $pic->tickets()
+            //         ->where('tickets.id', '!=', $ticket->id)
+            //         ->where('tickets.status', '!=', 2)
+            //         ->exists();
 
-                if (!$otherTickets) {
-                    $pic->delete();
-                    \Log::info('PIC entry deleted for PIC ID: ' . $pic->id . ' after ticket resolved: ' . $ticket->ticket_code);
-                } else {
-                    \Log::info('PIC ID ' . $pic->id . ' still has unresolved tickets. Not deleting PIC entry.');
-                }
-            }
+            //     if (!$otherTickets) {
+            //         $pic->delete();
+            //         \Log::info('PIC entry deleted for PIC ID: ' . $pic->id . ' after ticket resolved: ' . $ticket->ticket_code);
+            //     } else {
+            //         \Log::info('PIC ID ' . $pic->id . ' still has unresolved tickets. Not deleting PIC entry.');
+            //     }
+            // }
         }
 
         // Ubah status tiket menjadi Resolved

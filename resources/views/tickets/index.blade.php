@@ -3,18 +3,25 @@
 @section('title', 'Daftar Aduan')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Daftar Aduan</h1>
+    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+        @if (auth()->user()->role_id == 3)
+            Daftar Aduan Saya
+        @else
+            Daftar Aduan
+        @endif
+    </h1>
 
-    @if (session('success'))
-        <div class="bg-green-100 text-green-800 p-4 mb-4 rounded dark:bg-green-900 dark:text-green-200">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="bg-red-100 text-red-800 p-4 mb-4 rounded dark:bg-red-900 dark:text-red-200">
-            {{ session('error') }}
-        </div>
+    @if (auth()->user()->role_id == 3)
+        @php
+            $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
+                ->where('pic_stats', 'active')
+                ->exists();
+        @endphp
+        @if (!$isPicActive)
+            <div class="bg-yellow-100 text-yellow-800 p-4 mb-4 rounded dark:bg-yellow-900 dark:text-yellow-200">
+                Anda belum ditugaskan sebagai PIC. Anda hanya dapat membuat atau melihat aduan yang Anda buat.
+            </div>
+        @endif
     @endif
 
     <div class="overflow-x-auto">
@@ -115,7 +122,7 @@
                                         <select name="service_id" id="service_id-{{ $ticket->id }}" class="border p-1 rounded mt-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" required>
                                             <option value="">Pilih Layanan</option>
                                         </select>
-                                        <button type="submit" class="bg-yellow-500 text-white px-2 py-1 rounded mt-2 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700">
+                                        <button type="submit" class="bg-yellow-500 text-white px-2 py-1 rounded mt-2 hover:bg-yellow-600 dark:bg-yellow-700 dark:hover:bg-yellow-800">
                                             Alihkan
                                         </button>
                                     </form>

@@ -48,11 +48,6 @@ class RoleMiddleware
                 if (!$this->isPicAssignedToTicket($user->id, $ticket)) {
                     abort(403, 'Anda belum ditugaskan sebagai PIC untuk tiket ini.');
                 }
-            } else {
-                // Jika tidak ada tiket spesifik, batasi seperti Warga biasa kecuali sudah ditugaskan
-                if (!Pic::where('user_id', $user->id)->where('pic_stats', 'active')->exists()) {
-                    return redirect()->route('tickets.index')->with('error', 'Anda hanya dapat membuat atau melihat aduan seperti Warga biasa.');
-                }
             }
         }
 

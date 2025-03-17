@@ -27,6 +27,10 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 
 // Routes yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard/warga', [DashboardController::class, 'warga'])->name('dashboard.warga')->middleware('role:4');
+    Route::get('/dashboard/pegawai', [DashboardController::class, 'pegawai'])->name('dashboard.pegawai')->middleware('role:3');
+    Route::get('/dashboard/operator', [DashboardController::class, 'operator'])->name('dashboard.operator')->middleware('role:2');
+    Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin')->middleware('role:1');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/assigned', [TicketController::class, 'assigned'])->name('tickets.assigned');
     Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create'); // Hapus middleware role:4
@@ -44,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/services', [ServiceManagementController::class, 'index'])->middleware('role:2')->name('services.index');
     Route::patch('/services/{service}/status', [ServiceManagementController::class, 'updateStatus'])->middleware('role:2')->name('services.updateStatus');
     Route::get('/tickets/created', [TicketController::class, 'created'])->middleware('role:2')->name('tickets.created');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
+    // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });
 
 // Tambahkan route untuk favicon agar tidak mengganggu log
