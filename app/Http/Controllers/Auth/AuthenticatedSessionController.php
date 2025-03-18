@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\Pic; // Impor model Pic
 
 class AuthenticatedSessionController extends Controller
@@ -16,10 +17,10 @@ class AuthenticatedSessionController extends Controller
     }
 
     public function store(LoginRequest $request)
-    {
-        $request->authenticate();
+{
+    $request->authenticate();
 
-        $request->session()->regenerate();
+    $request->session()->regenerate();
 
         $user = Auth::user();
 
@@ -27,27 +28,25 @@ class AuthenticatedSessionController extends Controller
         $isPicActive = Pic::where('user_id', $user->id)
                         ->where('pic_stats', 'active')
                         ->exists();
+    $user = auth()->user();
+    $isPicActive = Pic::where('user_id', $user->id)
+    ->where('pic_stats', 'active')
+    ->exists();
 
-        // Tentukan redirect berdasarkan role_id
-        if ($user->role_id == 4) { // Warga Kota (role_id = 4)
-            return redirect()->intended(route('tickets.index'));
-        } elseif ($user->role_id == 3) { // Pegawai (PIC, role_id = 3)
-            if ($isPicActive) {
-                // Jika sudah ditugaskan, redirect ke view khusus
-                return redirect()->intended(route('tickets.assigned'));
-            }
-            // Jika belum ditugaskan, redirect ke tickets.index
-            return redirect()->intended(route('tickets.index'));
-        } elseif ($user->role_id == 2) { // Operator (role_id = 2)
-            return redirect()->intended(route('tickets.index'));
-        } elseif ($user->role_id == 1) { // Super_admin (role_id = 1)
-            return redirect()->intended(route('users.index'));
-        }
+    Log::info('User logged in: ' . $user->id . ', Role: ' . $user->role_id . ', Is PIC Active: ' . ($isPicActive ? 'Yes' : 'No') . ', Redirect to: ' . url()->current());
 
-        // Default redirect ke menu aduan jika role_id tidak dikenali
-        return redirect()->intended(route('tickets.index'));
+    if ($user->role_id == 4) { // Warga Kota (role_id = 4)
+        return redirect()->intended(route('dashboard.warga'));
+    } elseif ($user->role_id == 3) { // Pegawai (PIC, role_id = 3)
+        {return redirect()->intended(route('dashboard.pegawai'));}
+    } elseif ($user->role_id == 2) { // Operator (role_id = 2)
+        return redirect()->intended(route('dashboard.operator'));
+    } elseif ($user->role_id == 1) { // Super_admin (role_id = 1)
+        return redirect()->intended(route('dashboard.admin'));
     }
 
+    return redirect()->intended(route('dashboard.admin'));
+}
     public function destroy(Request $request)
     {
         Auth::guard('web')->logout();

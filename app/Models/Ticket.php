@@ -26,7 +26,11 @@ class Ticket extends Model
     {
         return $this->belongsTo(User::class);
     }
-
+    public function picsHistory()
+{
+    return $this->belongsToMany(Pic::class, 'ticket_pic', 'ticket_id', 'pic_id')
+                ->withPivot('pic_stats');
+}
     public function unit()
     {
         return $this->belongsTo(Unit::class);

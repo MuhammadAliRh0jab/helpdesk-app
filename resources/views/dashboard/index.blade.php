@@ -148,4 +148,4 @@
             console.log('Alpine.js diinisialisasi');
         });
     </script>
-@endsection
+@endsection 
