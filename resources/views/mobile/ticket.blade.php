@@ -29,7 +29,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <h5 class="card-title m-0">Semua Tiket</h5>
-                        <a class="btn rounded-pill btn-primary" href="{{ route('mobile.ticket.create') }}">Buat Aduan</a>
+                        <a class="btn rounded-pill btn-primary" href="{{ route('tickets.create') }}">Buat Aduan</a>
                     </div>
                     <hr>
                     <div class="table-responsive mt-3">
@@ -39,33 +39,47 @@
                                     <th scope="col">#</th>
                                     <th>No Tiket</th>
                                     <th>Judul Aduan</th>
+                                    <th>Unit</th>
+                                    <th>Layanan</th>
                                     <th>Status</th>
                                     <th>Dibuat</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="text-nowrap">
-                                    <th>1</th>
-                                    <td>TK12409572N0124P</td>
-                                    <td>Air Kotor</td>
-                                    <td>Pending</td>
-                                    <td>17 Agustus 1945</td>
-                                    <td>
-                                        <a class="btn m-1 rounded-pill btn-primary" href="#">Lihat</a>
-                                    </td>
-                                </tr>
-                                {{-- <tr>
-                                    <td colspan="6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="alert alert-info m-0">
-                                                    Anda belum memiliki tiket. Silahkan buka halaman tiket dan klik Buat Aduan untuk membuat tiket.
+                                @if ($tickets)
+                                    @foreach ($tickets as $ticket)
+                                        <tr class="text-nowrap">
+                                            <th>1</th>
+                                            <td>{{ $ticket->ticket_code }}</td>
+                                            <td>{{ $ticket->title }}</td>
+                                            <td>{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
+                                            <td>{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                                            <td>
+                                                @if($ticket->status == 0) Belum Direspon
+                                                @elseif($ticket->status == 1) Direspon
+                                                @else Selesai
+                                                @endif
+                                            </td>
+                                            <td>{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
+                                            <td>
+                                                <a class="btn m-1 rounded-pill btn-primary" href="#">Lihat</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="6">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="alert alert-info m-0">
+                                                        Anda belum memiliki tiket. Silahkan buka halaman tiket dan klik Buat Aduan untuk membuat tiket.
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr> --}}
+                                        </td>
+                                    </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>

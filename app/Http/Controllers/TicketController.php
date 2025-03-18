@@ -101,7 +101,7 @@ class TicketController extends Controller
         }
     }
 
-    return view('tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
+    return view('mobile.ticket', compact('tickets', 'canCreateTicket', 'pics', 'services'));
 }
     // Tambahkan method isAssignedAsPic ke model User jika belum ada
     public function isAssignedAsPic()

@@ -22,7 +22,7 @@
         <img class="mb-4" src="img/bg-img/19.png" alt="">
         <h2 class="display-4 text-white mb-3">Build your website easier with Affan</h2>
         <p class="text-white">Affan is a modern and latest technology based PWA mobile HTML template.</p>
-        <a class="btn btn-warning btn-lg w-100" href="{{ route('login') }}">Get Started</a>
+        <a class="btn btn-warning btn-lg w-100" href="{{ route('dashboard.warga') }}">Get Started</a>
       </div>
     </div>
   </div>
