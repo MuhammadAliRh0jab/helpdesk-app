@@ -12,7 +12,7 @@ class AuthenticatedSessionController extends Controller
 {
     public function create()
     {
-        return view('auth.login'); // Mengembalikan view login kustom
+        return view('mobile.auth.login'); // Mengembalikan view login kustom
     }
 
     public function store(LoginRequest $request)
@@ -22,7 +22,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        
+
         // Gunakan query langsung ke tabel pics untuk memeriksa status PIC
         $isPicActive = Pic::where('user_id', $user->id)
                         ->where('pic_stats', 'active')

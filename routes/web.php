@@ -11,7 +11,7 @@ use App\Http\Controllers\ServiceManagementController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
-    return view('landing');
+    return view('mobile.auth.landing');
 })->name('landing');
 
 // Routes untuk guest (belum login)

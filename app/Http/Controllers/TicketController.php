@@ -145,13 +145,14 @@ class TicketController extends Controller
     }
     $services = $servicesQuery->with('unit')->get();
 
-    return view('tickets.create', compact('units', 'services'));
+    return view('mobile.create_ticket', compact('units', 'services'));
+    // return view('tickets.create', compact('units', 'services'));
 }
 
     public function store(Request $request)
     {
         $user = auth()->user();
-        if ($user->role_id != 4 || $user->role_id != 2 || $user->role_id != 3) {
+        if (!in_array($user->role_id, [2, 3, 4])) {
             abort(403, 'Anda tidak diizinkan membuat aduan.');
         }
 
@@ -425,7 +426,7 @@ public function created()
             $pic = Pic::where('user_id', $user->id)
                       ->where('pic_stats', 'active')
                       ->first();
-            
+
             if ($pic) {
                 DB::table('ticket_pic')
                     ->where('ticket_id', $ticket->id)
