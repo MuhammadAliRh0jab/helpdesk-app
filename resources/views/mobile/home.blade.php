@@ -1,5 +1,7 @@
 @extends('mobile.master.app')
 
+@section('title', 'Dashboard')
+
 @section('header')
     @include('mobile.master.header')
 @endsection
@@ -12,10 +14,10 @@
 <div class="page-content-wrapper py-3">
 
     <div class="container">
-        <div class="card bg-primary my-3 bg-img shadow" style="background-image: url('mobile/img/core-img/1.png')">
+        <div class="card bg-primary my-3 bg-img shadow" style="background-image: url('{{ asset('mobile/img/core-img/1.png') }}')">
             <div class="card-body p-4">
                 <h2 class="text-white">Dashboard</h2>
-                <h5 class="my-2 text-white">Selamat Datang, User!</h5>
+                <h5 class="my-2 text-white">Selamat Datang, {{ Auth::user()->name }}!</h5>
                 <small class="text-white">Helpdesk DISKOMINFOTIK Kota Blitar | Sistem Pengaduan Dinas Komunikasi, Informatika, dan Statistik Kota Blitar</small>
             </div>
         </div>
@@ -39,7 +41,7 @@
                                 <h6 class="mb-0 text-white">Semua</h6>
                             </div>
                         </div>
-                        <span class="badge bg-white text-danger p-2 fs-6">0</span>
+                        <span class="badge bg-white text-danger p-2 fs-6">{{ $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'] }}</span>
                     </a>
 
                     <!-- Belum Direspon Status -->
@@ -50,7 +52,7 @@
                                 <h6 class="mb-0 text-white">Belum Direspon</h6>
                             </div>
                         </div>
-                        <span class="badge bg-white text-warning p-2 fs-6">0</span>
+                        <span class="badge bg-white text-warning p-2 fs-6">{{ $ticketStats['pending'] }}</span>
                     </a>
 
                     <!-- Direspon Status -->
@@ -61,7 +63,7 @@
                                 <h6 class="mb-0 text-white">Direspon</h6>
                             </div>
                         </div>
-                        <span class="badge bg-white text-primary p-2 fs-6">0</span>
+                        <span class="badge bg-white text-primary p-2 fs-6">{{ $ticketStats['assigned'] }}</span>
                     </a>
 
                     <!-- Selesai Status -->
@@ -72,7 +74,7 @@
                                 <h6 class="mb-0 text-white">Selesai</h6>
                             </div>
                         </div>
-                        <span class="badge bg-white text-success p-2 fs-6">0</span>
+                        <span class="badge bg-white text-success p-2 fs-6">{{ $ticketStats['completed'] }}</span>
                     </a>
                 </div>
             </div>
@@ -84,43 +86,49 @@
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between">
                     <h5 class="card-title m-0">Tiket Terbaru</h5>
-                    <a class="btn m-1 rounded-pill btn-primary" href="{{ route('mobile.ticket')}}">Lihat Semua</a>
+                    <a class="btn m-1 rounded-pill btn-primary" href="{{ route('tickets.index')}}">Lihat Semua</a>
                 </div>
                 <hr>
                 <div class="table-responsive mt-3">
                     <table class="table table-bordered align-items-center align-middle text-center mb-0">
                         <thead>
                             <tr class="text-nowrap">
-                                <th scope="col">#</th>
                                 <th>No Tiket</th>
                                 <th>Judul Aduan</th>
+                                <th>Unit</th>
+                                <th>Layanan</th>
                                 <th>Status</th>
                                 <th>Dibuat</th>
-                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- <tr class="text-nowrap">
-                                <th>1</th>
-                                <td>TK12409572N0124P</td>
-                                <td>Air Kotor</td>
-                                <td>Pending</td>
-                                <td>17 Agustus 1945</td>
-                                <td>
-                                    <a class="btn m-1 rounded-pill btn-primary" href="#">Lihat</a>
-                                </td>
-                            </tr> --}}
-                            <tr>
-                                <td colspan="6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="alert alert-info m-0">
-                                                Anda belum memiliki tiket. Silahkan buka halaman tiket dan klik Buat Aduan untuk membuat tiket.
+                            @if ($latestTicket)
+                                <tr class="text-nowrap">
+                                    <td>{{ $latestTicket->ticket_code }}</td>
+                                    <td>{{ $latestTicket->title }}</td>
+                                    <td>{{ $latestTicket->original_unit_id ? \App\Models\Unit::find($latestTicket->original_unit_id)->unit_name : ($latestTicket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
+                                    <td>{{ $latestTicket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                                    <td>
+                                        @if($latestTicket->status == 0) Pending
+                                        @elseif($latestTicket->status == 1) Ditugaskan
+                                        @else Resolved
+                                        @endif
+                                    </td>
+                                    <td>{{ $latestTicket->created_at->format('d-m-Y H:i') }}</td>
+                                </tr>
+                            @else
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="alert alert-info m-0">
+                                                    Anda belum memiliki tiket. Silahkan buka halaman tiket dan klik Buat Aduan untuk membuat tiket.
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

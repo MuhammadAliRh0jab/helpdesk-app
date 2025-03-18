@@ -9,8 +9,9 @@
                 </div>
             </div>
             <div class="logo-wrapper">
-                <a href="{{ route('mobile.home') }}">
-                    <img src="{{ asset('mobile/img/core-img/HELPDESK.png') }}" alt="">
+                {{-- <a href="{{ route('mobile.home') }}"> --}}
+                <a href="{{ route('dashboard.warga') }}">
+                    <img src="{{ asset('mobile/img/core-img/logo.png') }}" alt="">
                 </a>
             </div>
             <div class="user-profile-wrapper">

@@ -1,5 +1,7 @@
 @extends('mobile.master.app')
 
+@section('title', 'Semua Tiket')
+
 @section('header')
   @include('mobile.master.header')
 @endsection

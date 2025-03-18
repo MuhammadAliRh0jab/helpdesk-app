@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0134d4">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>Affan - PWA Mobile HTML Template</title>
+    <title>Helpdesk Kota - @yield('title')</title>
     <link rel="icon" href="{{ asset('mobile/img/core-img/favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ asset('mobile/img/icons/icon-96x96.png') }}">
     <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('mobile/img/icons/icon-152x152.png') }}">

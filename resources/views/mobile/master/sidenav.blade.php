@@ -8,12 +8,12 @@
                     <img src="{{ asset('mobile/img/bg-img/2.jpg') }}" alt="">
                 </div>
                 <div class="user-info">
-                    <h6 class="user-name mb-0">User</h6>
+                    <h6 class="user-name mb-0">{{ Auth::user()->name }}</h6>
                 </div>
             </div>
             <ul class="sidenav-nav ps-0">
-                <li @if(request()->routeIs('mobile.home')) class="active" @endif>
-                    <a href="{{ route('mobile.home') }}">
+                <li @if(request()->routeIs('dashboard.warga')) class="active" @endif>
+                    <a href="{{ route('dashboard.warga') }}">
                         <i class="bi bi-house-door"></i> Dashboard
                     </a>
                 </li>
@@ -21,23 +21,30 @@
                     <a href="#"><i class="bi bi-ticket"></i> Ticket</a>
                     <ul>
                       <li>
-                        <a href="{{ route('mobile.ticket') }}"> All</a>
+                        <a href="{{ route('tickets.index') }}"> All</a>
                       </li>
                       <li>
-                        <a href="{{ route('mobile.ticket.pending') }}"> Belum Direspon</a>
+                        {{-- <a href="{{ route('mobile.ticket.pending') }}"> Belum Direspon</a> --}}
+                        <a href="#"> Belum Direspon</a>
                       </li>
                       <li>
-                        <a href="{{ route('mobile.ticket.assigned') }}"> Direspon</a>
+                        {{-- <a href="{{ route('mobile.ticket.assigned') }}"> Direspon</a> --}}
+                        <a href="#"> Direspon</a>
                       </li>
                       <li>
-                        <a href="{{ route('mobile.ticket.resolve') }}"> Selesai</a>
+                        {{-- <a href="{{ route('mobile.ticket.resolve') }}"> Selesai</a> --}}
+                        <a href="#"> Selesai</a>
                       </li>
                     </ul>
                   </li>
-                <li @if(request()->routeIs('mobile.account')) class="active" @endif>
-                    <a href="{{ route('mobile.account') }}">
+                {{-- <li @if(request()->routeIs('mobile.account')) class="active" @endif> --}}
+                <li>
+                    <a href="#">
                         <i class="bi bi-person"></i> Akun
                     </a>
+                    {{-- <a href="{{ route('mobile.account') }}">
+                        <i class="bi bi-person"></i> Akun
+                    </a> --}}
                 </li>
                 <li>
                     <div class="night-mode-nav">

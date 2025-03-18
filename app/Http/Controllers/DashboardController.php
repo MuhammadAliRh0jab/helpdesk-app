@@ -22,7 +22,14 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $ticketStats = $this->getTicketStatsForWarga($user->id);
-        return view('dashboard.warga', compact('user', 'ticketStats'));
+
+        $latestTicket = Ticket::where('user_id', $user->id)
+            ->with(['service', 'unit'])
+            ->orderBy('created_at', 'desc')
+            ->first();
+        $tickets = Ticket::where('user_id', $user->id)->get();
+
+        return view('mobile.home', compact('user', 'ticketStats', 'latestTicket'));
     }
 
     public function pegawai()
@@ -42,7 +49,7 @@ private function getPersonalStatsForPegawai($userId)
 {
     // Dapatkan semua ID pic yang terkait dengan user
     $picIds = Pic::where('user_id', $userId)->pluck('id')->toArray();
-    
+
     // Gunakan Query Builder langsung
     $resolved = DB::table('tickets')
         ->join('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
@@ -52,10 +59,10 @@ private function getPersonalStatsForPegawai($userId)
         ->whereNull('tickets.deleted_at')
         ->distinct()
         ->count('tickets.id');
-    
+
     Log::info('Resolved Tickets Query Result for User ' . $userId . ': ' . $resolved);
     Log::info('Associated PIC IDs for User ' . $userId . ': ' . json_encode($picIds));
-    
+
     return [
         'resolved' => $resolved,
     ];
