@@ -1,100 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Helpdesk Kota</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4/dist/tailwind.min.css" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center h-screen">
-    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full max-w-md">
+<x-layouts.auth>
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('landing') }}" action="{{ route('register') }}" method="POST">
+        @csrf
+
+        <div class="text-center mb-11">
+            <h1 class="text-gray-900 fw-bolder mb-3">Buat Akun</h1>
+            <div class="text-gray-500 fw-semibold fs-6">Helpdesk Pemerintah Kota Blitar</div>
+        </div>
         @if (session('success'))
-            <div class="bg-green-100 text-green-800 p-4 mb-4 rounded dark:bg-green-900 dark:text-green-200">
-                {{ session('success') }}
-            </div>
+        <div class="alert alert-success bg-light-success text-success p-4 mb-4">
+            {{ session('success') }}
+        </div>
         @endif
 
-        @if ($errors->any())
-            <div class="bg-red-100 text-red-800 p-4 mb-4 rounded dark:bg-red-900 dark:text-red-200">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <!-- @if ($errors->any())
+        <div class="alert alert-danger bg-light-danger text-danger p-4 mb-4">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif -->
+        <div class="fv-row mb-8">
+            <label>Nama *</label>
+            <input type="text" placeholder="Masukkan Nama" name="name" autocomplete="off" class="form-control bg-transparent" value="{{ old('name') }}" />
+            @error('name')
+            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @endif
+        </div>
+        <div class="fv-row mb-8">
+            <label>Username *</label>
+            <input type="text" placeholder="Masukkan Username" name="username" autocomplete="off" class="form-control bg-transparent" value="{{ old('username') }}" />
+            @error('username')
+            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @endif
+        </div>
+        <div class="fv-row mb-8">
+            <label>Email</label>
+            <input type="email" placeholder="Masukkan Email (Opsional)" name="email" autocomplete="off" class="form-control bg-transparent" value="{{ old('email') }}" />
+            @error('email')
+            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @endif
+        </div>
 
-        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Register</h2>
+        <div class="fv-row mb-8">
+            <label>Telp</label>
+            <input type="text" placeholder="Masukkan Telepon (Opsional)" name="phone" autocomplete="off" class="form-control bg-transparent" value="{{ old('phone') }}" />
+            @error('phone')
+            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @endif
+        </div>
 
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
+        <div class="fv-row mb-3">
+            <label>Password *</label>
+            <input type="password" placeholder="Masukkan Password" name="password" autocomplete="off" class="form-control bg-transparent" />
+            @error('password')
+            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @endif
+        </div>
 
-            <div class="mb-4">
-                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama</label>
-                <input type="text" id="name" name="name" value="{{ old('name') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200" required>
-                @error('name')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
-            </div>
+        <div class="fv-row mb-3">
+            <Label>Konfirmasi Password *</Label>
+            <input type="password" placeholder="Konfirmasi Password" name="password_confirmation" autocomplete="off" class="form-control bg-transparent" />
+            @error('password')
+            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @endif
+        </div>
 
-            <div class="mb-4">
-                <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
-                <input type="text" id="username" name="username" value="{{ old('username') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200" required>
-                @error('username')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
-            </div>
+        <div class="fv-row mb-3">
+            <label for="role_id" autocomplete="off" class="form-label text-gray-700 dark:text-gray-300">Role Pengguna</label>
+            <select id="role_id" name="role_id" class="form-control bg-transparent" required>
+                <option value="" disabled selected>Pilih Role</option>
+                <option value="4" {{ old('role_id') == 4 ? 'selected' : '' }}>Warga Kota</option>
+                <option value="3" {{ old('role_id') == 3 ? 'selected' : '' }}>Pegawai</option>
+                <option value="2" {{ old('role_id') == 2 ? 'selected' : '' }}>Operator</option>
+                <option value="1" {{ old('role_id') == 1 ? 'selected' : '' }}>Super Admin</option>
+            </select>
+            @error('role_id')
+            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
+            @enderror
+        </div>
+        <style>
+            #role_id:invalid {
+                color:rgba(125, 125, 125, 0.6);
+            }
+        </style>
 
-            <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email (Optional)</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200">
-                @error('email')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
-            </div>
 
-            <div class="mb-4">
-                <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Telepon (Optional)</label>
-                <input type="text" id="phone" name="phone" value="{{ old('phone') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200">
-                @error('phone')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
-            </div>
+        <div class="d-grid mb-10">
+            <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
+                <span class="indicator-label">Daftar</span>
+                <span class="indicator-progress">Mohon Tunggu...
+                    <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                </span>
+            </button>
+        </div>
 
-            <div class="mb-4">
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                <input type="password" id="password" name="password" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200" required>
-                @error('password')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
-            </div>
-
-            <div class="mb-4">
-                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Konfirmasi Password</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200" required>
-                @error('password_confirmation')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
-            </div>
-
-            <div class="mb-4">
-                <label for="role_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role Pengguna</label>
-                <select id="role_id" name="role_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:border-indigo-300 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 focus:ring-opacity-50 dark:bg-gray-900 dark:text-gray-200" required>
-                    <option value="1" {{ old('role_id') == 1 ? 'selected' : '' }}>Super_admin</option>
-                    <option value="2" {{ old('role_id') == 2 ? 'selected' : '' }}>Operator</option>
-                    <option value="3" {{ old('role_id') == 3 ? 'selected' : '' }}>Pegawai</option>
-                    <option value="4" {{ old('role_id') == 4 ? 'selected' : '' }}>Warga Kota</option>
-                </select>
-                @error('role_id')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @endif
-            </div>
-
-            <div class="flex items-center justify-end">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Register</button>
-            </div>
-        </form>
-    </div>
-</body>
-</html>
+        <div class="text-gray-500 text-center fw-semibold fs-6">
+            Sudah Punya Akun?
+            <a href="{{ route('login') }}" class="link-primary">Masuk</a>
+        </div>
+    </form>
+</x-layouts.auth>
