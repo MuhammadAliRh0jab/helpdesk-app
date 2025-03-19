@@ -11,8 +11,8 @@
                 <a href="{{ route('services.index') }}" class="nav-link fs-6">Kelola Layanan</a>
                 <a href="{{ route('tickets.created') }}" class="nav-link fs-6">Riwayat Aduan Saya</a>
                 <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
-                <a href="{{ route('dashboard.index') }}" class="nav-link fs-6">Dashboard</a>
-                @elseif (auth()->user()->role_id == 6)
+                <a href="{{ route('dashboard.operator') }}" class="nav-link fs-6">Dashboard</a>
+                @elseif (auth()->user()->role_id == 3)
                 <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan Saya</a>
                 <a href="{{ route('tickets.assigned') }}" class="nav-link fs-6">Aduan Ditugaskan</a>
                 <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
