@@ -16,6 +16,7 @@
                 <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan Saya</a>
                 <a href="{{ route('tickets.assigned') }}" class="nav-link fs-6">Aduan Ditugaskan</a>
                 <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
+                <a href="{{ route('dashboard.pegawai') }}" class="nav-link fs-6">Dashboard</a>
                 @else
                 <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan</a>
                 <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
