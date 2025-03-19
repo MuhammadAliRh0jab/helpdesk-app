@@ -5,16 +5,17 @@
 @section('content')
     <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200" style="margin-top: 100px;">Daftar Aduan</h1>
 
-    @if (session('success'))
-        <div class="bg-green-100 text-green-800 p-4 mb-4 rounded dark:bg-green-900 dark:text-green-200">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="bg-red-100 text-red-800 p-4 mb-4 rounded dark:bg-red-900 dark:text-red-200">
-            {{ session('error') }}
-        </div>
+    @if (auth()->user()->role_id == 3)
+        @php
+            $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
+                ->where('pic_stats', 'active')
+                ->exists();
+        @endphp
+        @if (!$isPicActive)
+            <div class="bg-yellow-100 text-yellow-800 p-4 mb-4 rounded dark:bg-yellow-900 dark:text-yellow-200">
+                Anda belum ditugaskan sebagai PIC. Anda hanya dapat membuat atau melihat aduan yang Anda buat.
+            </div>
+        @endif
     @endif
 
     <div class="overflow-x-auto">
@@ -51,9 +52,10 @@
                         <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
                         @if (auth()->user()->role_id == 2)
                             <td class="py-2 px-4 border-b dark:border-gray-600">
-                                @if ($ticket->status == 0)
+                                @if ($ticket->status != 2) <!-- Hanya jika tiket belum resolved -->
                                     @if ($pics->isNotEmpty())
-                                        <form action="{{ route('tickets.assign', $ticket) }}" method="POST">
+                                        <!-- Form untuk menugaskan PIC baru -->
+                                        <form action="{{ route('tickets.assign', $ticket) }}" method="POST" class="mb-2">
                                             @csrf
                                             <select name="pic_id" class="border p-1 rounded dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
                                                 <option value="">Pilih PIC</option>
@@ -61,22 +63,47 @@
                                                     <option value="{{ $pic->id }}">{{ $pic->username }} ({{ $pic->pic_desc }})</option>
                                                 @endforeach
                                             </select>
-                                            <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700">
+                                            <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 ml-2">
                                                 Tugaskan
                                             </button>
                                         </form>
+
+                                        <!-- Daftar PIC yang ditugaskan -->
+                                        @php
+                                            $activePics = DB::table('ticket_pic')
+                                                ->join('pics', 'ticket_pic.pic_id', '=', 'pics.id')
+                                                ->join('users', 'pics.user_id', '=', 'users.id')
+                                                ->where('ticket_pic.ticket_id', $ticket->id)
+                                                ->where('ticket_pic.pic_stats', 'active')
+                                                ->select('users.id as user_id', 'users.username', 'pics.id as pic_id')
+                                                ->get();
+                                        @endphp
+                                        @if($activePics->isNotEmpty())
+                                            <ul class="list-disc ml-4 text-gray-700 dark:text-gray-300">
+                                                @foreach($activePics as $pic)
+                                                    <li>
+                                                        {{ $pic->username }}
+                                                        <form action="{{ route('tickets.removePic', $ticket) }}" method="POST" class="inline ml-2">
+                                                            @csrf
+                                                            <input type="hidden" name="pic_id" value="{{ $pic->pic_id }}">
+                                                            <button type="submit" class="text-red-500 hover:text-red-700 text-sm">Hapus</button>
+                                                        </form>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            <span class="text-gray-500 dark:text-gray-400">Belum ada PIC ditugaskan.</span>
+                                        @endif
                                     @else
                                         <span class="text-red-500 dark:text-red-400">Tidak ada PIC tersedia untuk unit ini.</span>
                                     @endif
                                 @else
-                                    <span class="text-gray-500 dark:text-gray-400">
-                                        Sudah ditugaskan
-                                    </span>
+                                    <span class="text-gray-500 dark:text-gray-400">Tiket sudah resolved</span>
                                 @endif
                             </td>
                             <td class="py-2 px-4 border-b dark:border-gray-600">
                                 @if ($ticket->status == 0)
-                                    <form action="{{ route('tickets.transfer', $ticket) }}" method="POST" id="transferForm-{{ $ticket->id }}">
+                                    <form action="{{ route('tickets.transfer', $ticket) }}" method="POST" id="transferForm-{{ $ticket->id }}" class="transfer-form">
                                         @csrf
                                         <select name="unit_id" id="unit_id-{{ $ticket->id }}" class="border p-1 rounded dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" required>
                                             <option value="">Pilih Unit</option>
@@ -89,7 +116,7 @@
                                         <select name="service_id" id="service_id-{{ $ticket->id }}" class="border p-1 rounded mt-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" required>
                                             <option value="">Pilih Layanan</option>
                                         </select>
-                                        <button type="submit" class="bg-yellow-500 text-white px-2 py-1 rounded mt-2 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700">
+                                        <button type="submit" class="bg-yellow-500 text-white px-2 py-1 rounded mt-2 hover:bg-yellow-600 dark:bg-yellow-700 dark:hover:bg-yellow-800">
                                             Alihkan
                                         </button>
                                     </form>
