@@ -3,7 +3,7 @@
 @section('title', 'Daftar Aduan')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Daftar Aduan</h1>
+    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200" style="margin-top: 100px;">Daftar Aduan</h1>
 
     @if (session('success'))
         <div class="bg-green-100 text-green-800 p-4 mb-4 rounded dark:bg-green-900 dark:text-green-200">

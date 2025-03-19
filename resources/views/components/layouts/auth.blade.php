@@ -1,70 +1,43 @@
-<x-layouts.master title="Auth - Helpdesk Kota">
-    <!--begin::App-->
-    <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
-        <!--begin::Wrapper-->
+<x-layouts.master title="Helpdesk Pemerintah Kota Blitar">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html,
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        a,
+        button,
+        input,
+        textarea {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+
+    <div class="d-flex flex-column flex-root app-root bgi-size-cover bgi-position-center" id="kt_app_root" style="background-image: url({{ image('img/bg-auth-1.png') }})">
         <div class="d-flex flex-column flex-lg-row flex-column-fluid">
-            <!--begin::Body-->
             <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1">
-                <!--begin::Form-->
                 <div class="d-flex flex-center flex-column flex-lg-row-fluid">
-                    <!--begin::Wrapper-->
                     <div class="w-lg-500px p-10">
-                        <!--begin::Page-->
                         {{ $slot }}
-                        <!--end::Page-->
                     </div>
-                    <!--end::Wrapper-->
                 </div>
-                <!--end::Form-->
-
-                <!--begin::Footer-->
-                <div class="d-flex flex-center flex-wrap px-5">
-                    <!--begin::Links-->
-                    <div class="d-flex fw-semibold text-primary fs-base">
-                        <a href="#" class="px-5" target="_blank">Terms</a>
-                        <a href="#" class="px-5" target="_blank">Plans</a>
-                        <a href="#" class="px-5" target="_blank">Contact Us</a>
-                    </div>
-                    <!--end::Links-->
-                </div>
-                <!--end::Footer-->
+                <div class="d-flex flex-center flex-wrap px-5"></div>
             </div>
-            <!--end::Body-->
-
-            <!--begin::Aside-->
-            <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center order-1 order-lg-2" style="background-image: url({{ image('misc/auth-bg.png') }})">
-                <!--begin::Content-->
+            <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center order-1 order-lg-2" style="background-image: url({{ image('img/bg-auth.png') }})">
                 <div class="d-flex flex-column flex-center py-7 py-lg-15 px-5 px-md-15 w-100">
-                    <!--begin::Logo-->
                     <a href="{{ route('landing') }}" class="mb-12">
-                        <img alt="Logo" src="{{ image('logos/custom-1.png') }}" class="h-60px h-lg-75px"/>
+                        <img alt="Logo" src="{{ image('img/logo-helpdesk-black.png') }}" class="h-200px" />
                     </a>
-                    <!--end::Logo-->
-
-                    <!--begin::Image-->
-                    <img class="d-none d-lg-block mx-auto w-275px w-md-50 w-xl-500px mb-10 mb-lg-20" src="{{ image('misc/auth-screens.png') }}" alt=""/>
-                    <!--end::Image-->
-
-                    <!--begin::Title-->
-                    <h1 class="d-none d-lg-block text-white fs-2qx fw-bolder text-center mb-7">
-                        Fast, Efficient and Productive
-                    </h1>
-                    <!--end::Title-->
-
-                    <!--begin::Text-->
-                    <div class="d-none d-lg-block text-white fs-base text-center">
-                        In this kind of post, <a href="#" class="opacity-75-hover text-warning fw-bold me-1">the blogger</a>
-                        introduces a person they’ve interviewed <br/> and provides some background information about
-                        <a href="#" class="opacity-75-hover text-warning fw-bold me-1">the interviewee</a>
-                        and their <br/> work following this is a transcript of the interview.
-                    </div>
-                    <!--end::Text-->
                 </div>
-                <!--end::Content-->
             </div>
-            <!--end::Aside-->
         </div>
-        <!--end::Wrapper-->
     </div>
-    <!--end::App-->
 </x-layouts.master>

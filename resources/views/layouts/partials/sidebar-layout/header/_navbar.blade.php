@@ -1,63 +1,89 @@
-<!--begin::Navbar-->
-<div class="app-navbar flex-shrink-0">
-    <!--begin::Search-->
-    <div class="app-navbar-item align-items-stretch ms-1 ms-md-3">
-        @include(config('settings.KT_THEME_LAYOUT_DIR').'/partials/sidebar-layout/search/_dropdown')
-    </div>
-    <!--end::Search-->
-    <!--begin::Activities-->
-	<div class="app-navbar-item ms-1 ms-md-4">
-        <!--begin::Drawer toggle-->
-		<div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px" id="kt_activities_toggle">{!! getIcon('messages', 'fs-2') !!}</div>
-        <!--end::Drawer toggle-->
-    </div>
-    <!--end::Activities-->
-    <!--begin::Notifications-->
-	<div class="app-navbar-item ms-1 ms-md-4">
-        <!--begin::Menu- wrapper-->
-		<div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end" id="kt_menu_item_wow">{!! getIcon('notification-status', 'fs-2') !!}</div>
-        @include('partials/menus/_notifications-menu')
-        <!--end::Menu wrapper-->
-    </div>
-    <!--end::Notifications-->
-    <!--begin::Chat-->
-	<div class="app-navbar-item ms-1 ms-md-4">
-        <!--begin::Menu wrapper-->
-		<div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px position-relative" id="kt_drawer_chat_toggle">{!! getIcon('message-text-2', 'fs-2') !!} 
-		<span class="bullet bullet-dot bg-success h-6px w-6px position-absolute translate-middle top-0 start-50 animation-blink"></span></div>
-        <!--end::Menu wrapper-->
-    </div>
-    <!--end::Chat-->
-    <!--begin::My apps links-->
-	<div class="app-navbar-item ms-1 ms-md-4">
-        <!--begin::Menu wrapper-->
-		<div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">{!! getIcon('element-11', 'fs-2') !!}</div>
-        @include('partials/menus/_my-apps-menu')
-        <!--end::Menu wrapper-->
-    </div>
-    <!--end::My apps links-->
-    <!--begin::User menu-->
-	<div class="app-navbar-item ms-1 ms-md-4" id="kt_header_user_menu_toggle">
-        <!--begin::Menu wrapper-->
-		<div class="cursor-pointer symbol symbol-35px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-            @if(Auth::user()->profile_photo_url)
-                <img src="{{ \Auth::user()->profile_photo_url }}" class="rounded-3" alt="user" />
-            @else
-                <div class="symbol-label fs-3 {{ app(\App\Actions\GetThemeType::class)->handle('bg-light-? text-?', Auth::user()->name) }}">
-                    {{ substr(Auth::user()->name, 0, 1) }}
-                </div>
-            @endif
+<div class="app-navbar flex-shrink-0 bg-gray-800 p-4">
+    <div class="container mx-auto d-flex align-items-center justify-between">
+        <div class="d-flex align-items-center navbar-container">
+            <a href="{{ route('tickets.index') }}" class="app-navbar-item">
+                <img src="{{ asset('assets/media/img/logo-helpdesk-1.png') }}" class="logo">
+            </a>
+
+            <nav class="d-flex align-items-center gap-1">
+                @if (auth()->user()->role_id == 2)
+                <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan</a>
+                <a href="{{ route('services.index') }}" class="nav-link fs-6">Kelola Layanan</a>
+                <a href="{{ route('tickets.created') }}" class="nav-link fs-6">Riwayat Aduan Saya</a>
+                <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
+                <a href="{{ route('dashboard.index') }}" class="nav-link fs-6">Dashboard</a>
+                @elseif (auth()->user()->role_id == 6)
+                <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan Saya</a>
+                <a href="{{ route('tickets.assigned') }}" class="nav-link fs-6">Aduan Ditugaskan</a>
+                <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
+                @else
+                <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan</a>
+                <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
+                @endif
+                <a href="{{ route('logout') }}" class="nav-link-logout fs-6" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    Logout
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </nav>
         </div>
-        @include('partials/menus/_user-account-menu')
-        <!--end::Menu wrapper-->
     </div>
-    <!--end::User menu-->
-    <!--begin::Header menu toggle-->
-	<div class="app-navbar-item d-lg-none ms-2 me-n2" title="Show header menu">
-		<div class="btn btn-flex btn-icon btn-active-color-primary w-30px h-30px" id="kt_app_header_menu_toggle">{!! getIcon('element-4', 'fs-1') !!}</div>
-    </div>
-    <!--end::Header menu toggle-->
-	<!--begin::Aside toggle-->
-	<!--end::Header menu toggle-->
 </div>
-<!--end::Navbar-->
+
+
+<style>
+    .app-navbar {
+        background-color: #0f88df;
+        padding: 1rem 3rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+    }
+
+    .app-navbar-item img.logo {
+        max-width: 150px;
+        vertical-align: middle;
+    }
+
+    .nav-link,
+    .nav-link-logout {
+        color: white !important;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .nav-link:hover {
+        color: #0f88df !important;
+        background-color: white;
+        border-radius: 50px;
+        transform: scale(1.05);
+    }
+
+    .nav-link-logout:hover {
+        color:rgb(255, 255, 255) !important;
+        background-color:rgb(223, 15, 15);
+        border-radius: 50px;
+        transform: scale(1.05);
+    }
+
+    .navbar-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    nav {
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+    }
+</style>
