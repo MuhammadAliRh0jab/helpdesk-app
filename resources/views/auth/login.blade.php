@@ -12,15 +12,6 @@
         </div>
         @endif
 
-        <!-- @if ($errors->any())
-        <div class="alert alert-danger bg-light-danger text-danger p-4 mb-4">
-            <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif -->
         <div class="fv-row mb-8">
             <label>Username</label>
             <input type="text" placeholder="Username" name="username" autocomplete="off" class="form-control bg-transparent" value="{{ old('email') }}" required />
@@ -41,10 +32,6 @@
             <div class="text-danger fs-7 mt-2">{{ $message }}</div>
             @endif
         </div>
-
-        <!-- <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
-            <a href="{{ route('password.request') }}" class="link-dark">Lupa Kata Sandi?</a>
-        </div> -->
 
         <div class="d-grid mb-10">
             <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">

@@ -160,10 +160,12 @@
         .gradient {
             background: linear-gradient(90deg, #1572e8 0%, rgb(21, 68, 144) 100%);
         }
+
         html,
         body {
             font-family: 'Poppins', sans-serif;
         }
+
         h1,
         h2,
         h3,
@@ -177,19 +179,22 @@
         textarea {
             font-family: 'Poppins', sans-serif;
         }
-        
+
         #header {
             transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             background-color: transparent !important;
+            border-bottom: 3px solid #1572e8;
         }
-        
+
         #header .nav-link {
             color: white !important;
             transition: color 0.3s ease-in-out;
         }
+
         #header.scrolled .nav-link {
             color: black !important;
         }
+
         #header .nav-link:hover,
         #header.scrolled .nav-link:hover {
             color: #1572e8 !important;
@@ -199,21 +204,26 @@
             background-color: white !important;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .nav-link:hover {
             color: #1572e8 !important;
         }
+
         .btn-primary:hover {
             color: #1572e8 !important;
             background-color: #f8f9fa;
         }
+
         .card:hover {
             transform: scale(1.05) !important;
             border-color: #1572e8;
             z-index: 10;
         }
+
         .row {
             overflow: visible;
         }
+
         #particles-js {
             position: absolute;
             width: 100%;
@@ -224,21 +234,36 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
     <script>
         AOS.init();
     </script>
 
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var navbar = document.getElementById("header");
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var navbar = document.getElementById("header");
+        
+        window.addEventListener("scroll", function() {
+            if (window.scrollY > 50) {
+                navbar.classList.add("scrolled");
+            } else {
+                navbar.classList.remove("scrolled");
+            }
+        });
+    });
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        var navbar = document.getElementById("header");
+            var logo = document.getElementById("nav-logo");
 
             window.addEventListener("scroll", function() {
                 if (window.scrollY > 50) {
                     navbar.classList.add("scrolled");
+                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-black.png') }}";
                 } else {
                     navbar.classList.remove("scrolled");
+                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
                 }
             });
         });
@@ -275,20 +300,6 @@
             },
         });
 
-        document.addEventListener("DOMContentLoaded", function() {
-            var navbar = document.getElementById("header");
-            var logo = document.getElementById("nav-logo");
-
-            window.addEventListener("scroll", function() {
-                if (window.scrollY > 50) {
-                    navbar.classList.add("scrolled");
-                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-black.png') }}";
-                } else {
-                    navbar.classList.remove("scrolled");
-                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
-                }
-            });
-        });
     </script>
 </body>
 

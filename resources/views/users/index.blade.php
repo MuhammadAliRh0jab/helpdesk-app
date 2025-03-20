@@ -1,57 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Pengguna</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4/dist/tailwind.min.css" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 p-6">
-    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Daftar Pengguna</h1>
+@extends('layouts.app')
 
+@section('title', 'Daftar Pengguna')
+
+@section('content')
+<div>
+    <h1 class="h4 mb-4 text-dark fs-2">Daftar Pengguna</h1>
     @if (session('success'))
-        <div class="bg-green-100 text-green-800 p-4 mb-4 rounded dark:bg-green-900 dark:text-green-200">
-            {{ session('success') }}
-        </div>
+    <div class="alert alert-success p-4 mb-4 rounded">
+        {{ session('success') }}
+    </div>
     @endif
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white dark:bg-gray-800 border dark:border-gray-700">
-            <thead>
-                <tr class="bg-gray-200 dark:bg-gray-700">
-                    <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Nama</th>
-                    <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Username</th>
-                    <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Email</th>
-                    <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Fungsi</th>
-                    <th class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">Aksi</th>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th class="p-2 text-dark">Nama</th>
+                    <th class="p-2 text-dark">Username</th>
+                    <th class="p-2 text-dark">Email</th>
+                    <th class="p-2 text-dark">Fungsi</th>
+                    <th class="p-2 text-dark">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($users as $user)
-                    <tr>
-                        <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $user->name }}</td>
-                        <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $user->username }}</td>
-                        <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $user->email ?? 'Tidak ada' }}</td>
-                        <td class="py-2 px-4 border-b dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $user->getUserFunction() }}</td>
-                        <td class="py-2 px-4 border-b dark:border-gray-600">
-                            <a href="{{ route('users.show', $user->id) }}" class="text-blue-500 hover:underline dark:text-blue-400">Lihat Detail</a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td class="p-2 text-dark">{{ $user->name }}</td>
+                    <td class="p-2 text-dark">{{ $user->username }}</td>
+                    <td class="p-2 text-dark">{{ $user->email ?? 'Tidak ada' }}</td>
+                    <td class="p-2 text-dark">{{ $user->getUserFunction() }}</td>
+                    <td class="p-2">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#userDetailModal">
+                            Detail
+                        </button>
+                    </td>
+                </tr>
                 @endforeach
             </tbody>
         </table>
+        <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userDetailModalLabel">Detail Pengguna: {{ $user->name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Nama:</strong> {{ $user->name }}</p>
+                <p><strong>Username:</strong> {{ $user->username }}</p>
+                <p><strong>Email:</strong> {{ $user->email ?? 'Tidak ada' }}</p>
+                <p><strong>Telepon:</strong> {{ $user->phone ?? 'Tidak ada' }}</p>
+                <p><strong>Unit Kerja:</strong> {{ $user->unit ? $user->unit->unit_name : 'Tidak ada' }}</p>
+                <p><strong>Role:</strong> {{ $user->role ? $user->role->role_name : 'Tidak ada' }}</p>
+                <p><strong>Fungsi:</strong> {{ $user->getUserFunction() }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
     </div>
-
-    <div class="mt-4">
-        <a href="{{ route('tickets.index') }}" class="inline-block bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700">Kembali ke Aduan</a>
-        <a href="{{ route('logout') }}" class="ml-4 inline-block bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-            Logout
-        </a>
-
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-            @csrf
-        </form>
+</div>
     </div>
-</body>
-</html>
+</div>
+@endsection

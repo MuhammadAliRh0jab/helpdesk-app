@@ -12,15 +12,6 @@
         </div>
         @endif
 
-        <!-- @if ($errors->any())
-        <div class="alert alert-danger bg-light-danger text-danger p-4 mb-4">
-            <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif -->
         <div class="fv-row mb-8">
             <label>Nama *</label>
             <input type="text" placeholder="Masukkan Nama" name="name" autocomplete="off" class="form-control bg-transparent" value="{{ old('name') }}" />

@@ -1,90 +1,102 @@
-<div class="app-navbar flex-shrink-0 bg-gray-800 p-4">
-    <div class="container mx-auto d-flex align-items-center justify-between">
-        <div class="d-flex align-items-center navbar-container">
-            <a href="{{ route('tickets.index') }}" class="app-navbar-item">
-                <img src="{{ asset('assets/media/img/logo-helpdesk-1.png') }}" class="logo">
-            </a>
-
-            <nav class="d-flex align-items-center gap-1">
+<nav id="header" class="navbar navbar-expand-lg navbar-light fixed-top bg-white text-white">
+    <div class="container">
+        <a class="navbar-brand" href="{{ route('tickets.index') }}">
+            <img id="nav-logo" src="{{ asset('assets/media/img/logo-helpdesk-1.png') }}" class="img-fluid" style="width: 150px; height: auto;">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-content" aria-controls="nav-content" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav-content">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 @if (auth()->user()->role_id == 2)
-                <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan</a>
-                <a href="{{ route('services.index') }}" class="nav-link fs-6">Kelola Layanan</a>
-                <a href="{{ route('tickets.created') }}" class="nav-link fs-6">Riwayat Aduan Saya</a>
-                <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
-                <a href="{{ route('dashboard.operator') }}" class="nav-link fs-6">Dashboard</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('dashboard.operator') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.index') }}">Daftar Aduan</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('services.index') }}">Kelola Layanan</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.created') }}">Riwayat Aduan Saya</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.create') }}">Buat Aduan Baru</a>
+                </li>
                 @elseif (auth()->user()->role_id == 3)
-                <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan Saya</a>
-                <a href="{{ route('tickets.assigned') }}" class="nav-link fs-6">Aduan Ditugaskan</a>
-                <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
-                <a href="{{ route('dashboard.pegawai') }}" class="nav-link fs-6">Dashboard</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('dashboard.pegawai') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.index') }}">Daftar Aduan Saya</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.assigned') }}">Aduan Ditugaskan</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.create') }}">Buat Aduan Baru</a>
+                </li>
+                @elseif (auth()->user()->role_id == 1)
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('dashboard.admin') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.index') }}">Daftar Aduan</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('users.index') }}">Kelola Pengguna</a>
+                </li>
                 @else
-                <a href="{{ route('tickets.index') }}" class="nav-link fs-6">Daftar Aduan</a>
-                <a href="{{ route('tickets.create') }}" class="nav-link fs-6">Buat Aduan Baru</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('dashboard.warga') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.index') }}">Daftar Aduan</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('tickets.create') }}">Buat Aduan Baru</a>
+                </li>
                 @endif
-                <a href="{{ route('logout') }}" class="nav-link-logout fs-6" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    Logout
-                </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                    @csrf
-                </form>
-            </nav>
+            </ul>
+            <button class="btn btn-danger text-white fw-bold rounded-pill ms-3 mt-3 mt-lg-0 px-4 py-2 shadow" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                Logout
+            </button>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                @csrf
+            </form>
         </div>
     </div>
-</div>
-
+</nav>
 
 <style>
-    .app-navbar {
-        background-color: #0f88df;
-        padding: 1rem 3rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        display: flex;
-        align-items: center;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1000;
+    #header {
+        transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        background: linear-gradient(90deg, #1572e8 0%, rgb(21, 68, 144) 100%);
+
+        border-bottom: 3px solid #1572e8;
     }
 
-    .app-navbar-item img.logo {
-        max-width: 150px;
-        vertical-align: middle;
-    }
-
-    .nav-link,
-    .nav-link-logout {
+    #header .nav-link {
         color: white !important;
-        text-decoration: none;
-        padding: 0.5rem 1rem;
-        transition: all 0.3s ease;
-        display: inline-block;
-        white-space: nowrap;
+        transition: color 0.3s ease-in-out;
     }
 
-    .nav-link:hover {
-        color: #0f88df !important;
-        background-color: white;
+    #header .nav-link:hover,
+    #header.scrolled .nav-link:hover {
+        color:rgb(4, 23, 47) !important;
+        background-color: rgba(18, 58, 125, 0.2);
         border-radius: 50px;
-        transform: scale(1.05);
+        padding: 0.5rem 0.5rem;
     }
 
-    .nav-link-logout:hover {
-        color:rgb(255, 255, 255) !important;
-        background-color:rgb(223, 15, 15);
-        border-radius: 50px;
-        transform: scale(1.05);
+    #header.scrolled {
+        background-color: white !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
-    .navbar-container {
-        display: flex;
-        align-items: center;
-        width: 100%;
-    }
-
-    nav {
-        display: flex;
-        align-items: center;
-        margin-left: auto;
+    .btn-danger:hover {
+        color: rgb(157, 0, 0) !important;
+        background-color: #f8f9fa;
     }
 </style>

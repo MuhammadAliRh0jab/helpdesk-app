@@ -1,22 +1,20 @@
 <x-layouts.auth>
-
-    <form class="form w-100" novalidate="novalidate" id="kt_password_reset_form" data-kt-redirect-url="{{ route('login') }}" action="{{ route('password.email') }}">
+    <form class="w-100" id="kt_password_reset_form" data-kt-redirect-url="{{ route('login') }}" action="{{ route('password.email') }}" method="POST">
         @csrf
-        <div class="text-center mb-10">
-            <h1 class="text-gray-900 fw-bolder mb-3">Lupa Kata Sandi?</h1>
-            <div class="text-gray-500 fw-semibold fs-6">Masukkan email Anda untuk mengatur ulang kata sandi.</div>
+        <div class="text-center mb-4">
+            <h1 class="h4 fw-bold mb-3 text-dark">Lupa Kata Sandi?</h1>
+            <div class="text-muted small">Masukkan email Anda untuk mengatur ulang kata sandi.</div>
         </div>
 
-        <div class="fv-row mb-8">
-            <input type="text" placeholder="Email" name="email" autocomplete="off" class="form-control bg-transparent" required/>
+        <div class="mb-3">
+            <input type="email" placeholder="Email" name="email" autocomplete="off" class="form-control" required />
         </div>
 
-        <div class="d-flex flex-wrap justify-content-center pb-lg-0">
-            <button type="submit" id="kt_password_reset_submit" class="btn btn-danger me-4">
+        <div class="d-flex justify-content-center gap-3">
+            <button type="submit" id="kt_password_reset_submit" class="btn btn-danger">
                 @include('layouts/partials/_button-indicator', ['label' => 'Kirim'])
             </button>
-            <a href="{{ route('login') }}" class="btn btn-dark">Batal</a>
+            <a href="{{ route('login') }}" class="btn btn-secondary">Batal</a>
         </div>
     </form>
-
 </x-layouts.auth>
