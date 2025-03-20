@@ -5076,7 +5076,7 @@ form .btn-lg {
   display: flex;
   -webkit-box-align: end;
       -ms-flex-align: end;
-          align-items: flex-end;
+          align-items: center;
 }
 
 .hero-block-content {

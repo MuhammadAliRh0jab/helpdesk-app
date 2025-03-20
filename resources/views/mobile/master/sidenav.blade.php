@@ -54,7 +54,14 @@
                         </div>
                     </div>
                 </li>
-                <li><a href="login.html"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                <li>
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </li>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
             </ul>
         </div>
     </div>

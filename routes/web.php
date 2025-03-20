@@ -11,7 +11,7 @@ use App\Http\Controllers\ServiceManagementController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
-    return view('mobile.auth.landing');
+    return view('theme::auth.landing');
 })->name('landing');
 
 // Routes untuk guest (belum login)
@@ -57,4 +57,4 @@ Route::get('/favicon.ico', function () {
 });
 
 // Sertakan route autentikasi tambahan jika ada
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

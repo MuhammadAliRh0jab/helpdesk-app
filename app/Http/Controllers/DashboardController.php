@@ -33,48 +33,48 @@ class DashboardController extends Controller
     }
 
     public function pegawai()
-{
-    $user = Auth::user();
-    $userId = $user->id;
+    {
+        $user = Auth::user();
+        $userId = $user->id;
 
-    Log::info('Loading dashboard for user: ' . $userId . ', Role: ' . $user->role_id);
+        Log::info('Loading dashboard for user: ' . $userId . ', Role: ' . $user->role_id);
 
-    $personalStats = $this->getPersonalStatsForPegawai($userId);
-    $createdStats = $this->getCreatedStatsForPegawai($userId);
+        $personalStats = $this->getPersonalStatsForPegawai($userId);
+        $createdStats = $this->getCreatedStatsForPegawai($userId);
 
-    return view('dashboard.pegawai', compact( 'personalStats', 'createdStats'));
-}
+        return view('dashboard.pegawai', compact('personalStats', 'createdStats'));
+    }
 
-private function getPersonalStatsForPegawai($userId)
-{
-    // Dapatkan semua ID pic yang terkait dengan user
-    $picIds = Pic::where('user_id', $userId)->pluck('id')->toArray();
+    private function getPersonalStatsForPegawai($userId)
+    {
+        // Dapatkan semua ID pic yang terkait dengan user
+        $picIds = Pic::where('user_id', $userId)->pluck('id')->toArray();
 
-    // Gunakan Query Builder langsung
-    $resolved = DB::table('tickets')
-        ->join('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
-        ->whereIn('ticket_pic.pic_id', $picIds)
-        ->where('ticket_pic.pic_stats', 'inactive')
-        ->where('tickets.status', 2)
-        ->whereNull('tickets.deleted_at')
-        ->distinct()
-        ->count('tickets.id');
+        // Gunakan Query Builder langsung
+        $resolved = DB::table('tickets')
+            ->join('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
+            ->whereIn('ticket_pic.pic_id', $picIds)
+            ->where('ticket_pic.pic_stats', 'inactive')
+            ->where('tickets.status', 2)
+            ->whereNull('tickets.deleted_at')
+            ->distinct()
+            ->count('tickets.id');
 
-    Log::info('Resolved Tickets Query Result for User ' . $userId . ': ' . $resolved);
-    Log::info('Associated PIC IDs for User ' . $userId . ': ' . json_encode($picIds));
+        Log::info('Resolved Tickets Query Result for User ' . $userId . ': ' . $resolved);
+        Log::info('Associated PIC IDs for User ' . $userId . ': ' . json_encode($picIds));
 
-    return [
-        'resolved' => $resolved,
-    ];
-}
+        return [
+            'resolved' => $resolved,
+        ];
+    }
 
-private function getCreatedStatsForPegawai($userId)
-{
-    return [
-        'created' => Ticket::where('user_id', $userId) // Tiket yang diajukan oleh pegawai
-            ->count(),
-    ];
-}
+    private function getCreatedStatsForPegawai($userId)
+    {
+        return [
+            'created' => Ticket::where('user_id', $userId) // Tiket yang diajukan oleh pegawai
+                ->count(),
+        ];
+    }
 
     public function operator()
     {
@@ -100,33 +100,33 @@ private function getCreatedStatsForPegawai($userId)
         ];
     }
 
-//     private function getTicketStatsForPegawai($userId)
-// {
-//     return [
-//         'completed' => Ticket::whereHas('pics', function ($query) use ($userId) {
-//             $query->where('user_id', $userId)
-//                   ->where('ticket_pic.pic_stats', 'inactive');
-//         })->where('status', 2)->count(),
-//         'pending' => Ticket::whereHas('pics', function ($query) use ($userId) {
-//             $query->where('user_id', $userId)
-//                   ->where('ticket_pic.pic_stats', 'active');
-//         })->where('status', 0)->count(),
-//         'assigned' => Ticket::whereHas('pics', function ($query) use ($userId) {
-//             $query->where('user_id', $userId)
-//                   ->where('ticket_pic.pic_stats', 'active');
-//         })->where('status', 1)->count(),
-//     ];
-// }
+    //     private function getTicketStatsForPegawai($userId)
+    // {
+    //     return [
+    //         'completed' => Ticket::whereHas('pics', function ($query) use ($userId) {
+    //             $query->where('user_id', $userId)
+    //                   ->where('ticket_pic.pic_stats', 'inactive');
+    //         })->where('status', 2)->count(),
+    //         'pending' => Ticket::whereHas('pics', function ($query) use ($userId) {
+    //             $query->where('user_id', $userId)
+    //                   ->where('ticket_pic.pic_stats', 'active');
+    //         })->where('status', 0)->count(),
+    //         'assigned' => Ticket::whereHas('pics', function ($query) use ($userId) {
+    //             $query->where('user_id', $userId)
+    //                   ->where('ticket_pic.pic_stats', 'active');
+    //         })->where('status', 1)->count(),
+    //     ];
+    // }
 
-//     private function getPersonalStatsForPegawai($userId)
-// {
-//     return [
-//         'resolved' => Ticket::whereHas('pics', function ($query) use ($userId) {
-//             $query->where('user_id', $userId)
-//                   ->where('ticket_pic.pic_stats', 'inactive'); // Tentukan tabel ticket_pic secara eksplisit
-//         })->where('status', 2)->count(),
-//     ];
-// }
+    //     private function getPersonalStatsForPegawai($userId)
+    // {
+    //     return [
+    //         'resolved' => Ticket::whereHas('pics', function ($query) use ($userId) {
+    //             $query->where('user_id', $userId)
+    //                   ->where('ticket_pic.pic_stats', 'inactive'); // Tentukan tabel ticket_pic secara eksplisit
+    //         })->where('status', 2)->count(),
+    //     ];
+    // }
 
     private function getTicketStatsForOperator($unitId)
     {
@@ -144,14 +144,14 @@ private function getCreatedStatsForPegawai($userId)
         ];
     }
     private function getHistoricalResolvedStatsForPegawai($userId)
-{
-    return [
-        'historical_resolved' => Ticket::whereHas('picsHistory', function ($query) use ($userId) {
-            $query->where('user_id', $userId)
-                  ->where('ticket_pic.pic_stats', 'inactive');
-        })->where('status', 2)->count(),
-    ];
-}
+    {
+        return [
+            'historical_resolved' => Ticket::whereHas('picsHistory', function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->where('ticket_pic.pic_stats', 'inactive');
+            })->where('status', 2)->count(),
+        ];
+    }
     private function getTicketStatsForAdmin()
     {
         return [

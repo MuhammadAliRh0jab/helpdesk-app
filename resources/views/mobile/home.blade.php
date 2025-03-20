@@ -109,8 +109,8 @@
                                     <td>{{ $latestTicket->original_unit_id ? \App\Models\Unit::find($latestTicket->original_unit_id)->unit_name : ($latestTicket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
                                     <td>{{ $latestTicket->service->svc_name ?? 'Tidak ditentukan' }}</td>
                                     <td>
-                                        @if($ticket->status == 0) Belum Direspon
-                                        @elseif($ticket->status == 1) Direspon
+                                        @if($latestTicket->status == 0) Belum Direspon
+                                        @elseif($latestTicket->status == 1) Direspon
                                         @else Selesai
                                         @endif
                                     </td>
