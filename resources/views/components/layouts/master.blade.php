@@ -43,7 +43,7 @@
     @endforeach
     <!--end::Custom Stylesheets-->
 
-    @livewireStyles
+    {{-- @livewireStyles --}}
 </head>
 <!--end::Head-->
 
@@ -105,7 +105,7 @@
         });
     </script>
 
-    @livewireScripts
+    {{-- @livewireScripts --}}
 </body>
 <!--end::Body-->
 
