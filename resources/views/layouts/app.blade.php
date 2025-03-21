@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="{{ asset('js/chart.min.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
 
     </head>
 
@@ -23,7 +23,7 @@
             html,
             body {
                 font-family: 'Poppins', sans-serif;
-                margin-top: 50px;
+                margin-top: 30px;
                 padding: 20px;
             }
 
@@ -41,6 +41,23 @@
                 font-family: 'Poppins', sans-serif;
             }
 
+            .card-header {
+                width: 100%;
+                height: 5rem;
+                padding: 0.5rem 2rem;
+                background: linear-gradient(90deg, #1572e8 0%, rgb(21, 68, 144) 100%);
+                border-radius: 20px !important;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-header p {
+                margin-top: -10px;
+            }
+            .card{
+                background-color:rgba(21, 113, 232, 0.1);
+            }
         </style>
     </body>
 

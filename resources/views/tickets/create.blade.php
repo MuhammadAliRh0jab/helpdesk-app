@@ -3,9 +3,11 @@
 @section('title', 'Buat Aduan Baru')
 
 @section('content')
-<h1 class="h4 mb-4 text-dark fs-2">Buat Aduan Baru</h1>
-
-<form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data" class="card p-4 shadow">
+<div class="card-header shadow mb-4">
+    <h1 class="h4 text-white fs-4">Buat Aduan Baru</h1>
+    <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
+</div>
+<form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data" class="card-form p-4 shadow">
     @csrf
     <div class="mb-3">
         <label for="unit_id" class="form-label fw-semibold text-dark">Unit</label>

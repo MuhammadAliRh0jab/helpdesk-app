@@ -3,7 +3,10 @@
 @section('title', 'Daftar Aduan')
 
 @section('content')
-<h1 class="mb-4 text-dark fs-2">Daftar Aduan</h1>
+<div class="card-header shadow mb-4">
+    <h1 class="h4 text-white fs-4">Daftar Aduan</h1>
+    <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
+</div>
 
 @if (auth()->user()->role_id == 3)
 @php
