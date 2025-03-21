@@ -11,7 +11,7 @@ class RegisteredUserController extends Controller
 {
     public function create()
     {
-        return view('mobile.auth.register');
+        return view('theme::auth.register');
     }
 
     public function store(Request $request)
