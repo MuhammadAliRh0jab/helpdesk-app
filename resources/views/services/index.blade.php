@@ -3,15 +3,17 @@
 @section('title', 'Kelola Layanan')
 
 @section('content')
-<h1 class="mb-4 text-dark fs-2">Kelola Layanan</h1>
-
+    <div class="card-header shadow">
+        <h1 class="h4 text-white fs-4">Kelola Layanan</h1>
+        <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
+    </div>
     @if (session('success'))
     <div class="alert alert-success p-4 mb-4 rounded">
         {{ session('success') }}
     </div>
     @endif
 
-    <div class="table-responsive">
+    <div class="table-responsive mb-4 mt-3">
         <table class="table table-bordered">
             <thead class="table-light">
                 <tr>
