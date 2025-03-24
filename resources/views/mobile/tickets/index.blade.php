@@ -74,32 +74,34 @@
                                             </td>
                                             <td>{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
                                             <td>
-                                                <button class="btn m-1 rounded-pill btn-primary show-ticket-detail"
-                                                        data-ticket='{{ json_encode([
-                                                            "ticket_code" => $ticket->ticket_code,
-                                                            "title" => $ticket->title,
-                                                            "unit" => $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name ?? "Tidak ditentukan" : ($ticket->unit->unit_name ?? "Tidak ditentukan"),
-                                                            "service" => $ticket->service->svc_name ?? "Tidak ditentukan",
-                                                            "status" => $ticket->status,
-                                                            "created_at" => $ticket->created_at,
-                                                            "description" => $ticket->description,
-                                                            "uploads" => $ticket->uploads,
-                                                            "responses" => $ticket->responses
-                                                        ]) }}'>
-                                                    Detail
-                                                </button>
-                                                @if($ticket->status == 1)
-                                                    <button class="btn m-1 rounded-pill btn-info show-ticket-responses"
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <button class="btn m-1 rounded-pill btn-info show-ticket-detail"
                                                             data-ticket='{{ json_encode([
-                                                                "id" => $ticket->id,
                                                                 "ticket_code" => $ticket->ticket_code,
-                                                                "responses" => $ticket->responses,
+                                                                "title" => $ticket->title,
+                                                                "unit" => $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name ?? "Tidak ditentukan" : ($ticket->unit->unit_name ?? "Tidak ditentukan"),
+                                                                "service" => $ticket->service->svc_name ?? "Tidak ditentukan",
                                                                 "status" => $ticket->status,
-                                                                "user_id" => $ticket->user_id
+                                                                "created_at" => $ticket->created_at,
+                                                                "description" => $ticket->description,
+                                                                "uploads" => $ticket->uploads,
+                                                                "responses" => $ticket->responses
                                                             ]) }}'>
-                                                        Respon
+                                                        Detail
                                                     </button>
-                                                @endif
+                                                    @if($ticket->status == 1)
+                                                        <button class="btn m-1 rounded-pill btn-warning show-ticket-responses"
+                                                                data-ticket='{{ json_encode([
+                                                                    "id" => $ticket->id,
+                                                                    "ticket_code" => $ticket->ticket_code,
+                                                                    "responses" => $ticket->responses,
+                                                                    "status" => $ticket->status,
+                                                                    "user_id" => $ticket->user_id
+                                                                ]) }}'>
+                                                            Respon
+                                                        </button>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -123,23 +125,23 @@
             </div>
             <div class="modal-body">
                 <div class="row justify-content-start align-middle">
-                    <div class="col-4"><p class="m-0 fw-bold">Judul Aduan</p></div>
-                    <div class="col-8"><p class="m-0" id="modal-title"></p></div>
+                    <div class="col-4"><p class="m-0 text-dark fw-bold">Judul Aduan</p></div>
+                    <div class="col-8"><p class="m-0 text-dark" id="modal-title"></p></div>
                     <div class="w-100"></div>
-                    <div class="col-4"><p class="m-0 fw-bold">Unit</p></div>
-                    <div class="col-8"><p class="m-0" id="modal-unit"></p></div>
+                    <div class="col-4"><p class="m-0 text-dark fw-bold">Unit</p></div>
+                    <div class="col-8"><p class="m-0 text-dark" id="modal-unit"></p></div>
                     <div class="w-100"></div>
-                    <div class="col-4"><p class="m-0 fw-bold">Layanan</p></div>
-                    <div class="col-8"><p class="m-0" id="modal-service"></p></div>
+                    <div class="col-4"><p class="m-0 text-dark fw-bold">Layanan</p></div>
+                    <div class="col-8"><p class="m-0 text-dark" id="modal-service"></p></div>
                     <div class="w-100"></div>
-                    <div class="col-4"><p class="m-0 fw-bold">Status</p></div>
-                    <div class="col-8"><p class="m-0" id="modal-status"></p></div>
+                    <div class="col-4"><p class="m-0 text-dark fw-bold">Status</p></div>
+                    <div class="col-8"><p class="m-0 text-dark" id="modal-status"></p></div>
                     <div class="w-100"></div>
-                    <div class="col-4"><p class="m-0 fw-bold">Dibuat</p></div>
-                    <div class="col-8"><p class="m-0" id="modal-created"></p></div>
+                    <div class="col-4"><p class="m-0 text-dark fw-bold">Dibuat</p></div>
+                    <div class="col-8"><p class="m-0 text-dark" id="modal-created"></p></div>
                     <div class="w-100"></div>
-                    <div class="col-4"><p class="m-0 fw-bold">Deskripsi</p></div>
-                    <div class="col-8"><p class="m-0" id="modal-description"></p></div>
+                    <div class="col-4"><p class="m-0 text-dark fw-bold">Deskripsi</p></div>
+                    <div class="col-8"><p class="m-0 text-dark" id="modal-description"></p></div>
                     <div class="w-100"></div>
                     <div id="modal-uploads" class="mt-3"></div>
                 </div>
@@ -152,7 +154,7 @@
 </div>
 
 <!-- Modal Respon Tiket (Chat Bubble Style) -->
-<div class="modal fade" id="ticketResponsesModal" tabindex="-1" aria-labelledby="ticketResponsesModalLabel" aria-hidden="true">
+<div class="modal fade" id="ticketResponsesModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="ticketResponsesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
@@ -197,7 +199,7 @@
             const uploadsContainer = $('#modal-uploads');
             uploadsContainer.empty();
             if (ticket.uploads && ticket.uploads.length > 0) {
-                uploadsContainer.append('<p class="m-0 fw-bold">Gambar:</p>');
+                uploadsContainer.append('<p class="m-0 text-dark fw-bold">Gambar:</p>');
                 ticket.uploads.forEach(upload => {
                     uploadsContainer.append(
                         `<img src="{{ asset('storage') }}/${upload.filename_path}" alt="Upload" class="img-fluid mb-2" style="max-width: 300px;">`
@@ -262,6 +264,12 @@
                                 <button type="submit" class="btn btn-primary btn-sm w-100">Kirim Balasan</button>
                             </form>
                         `);
+                    } else {
+                        const footerContainer = $('#modal-responses-footer');
+                        footerContainer.empty();
+                        footerContainer.append(`
+                                <div class="text-dark text-center w-100">Menunggu balasan PIC terkait</div>
+                            `);
                     }
                 });
             } else {

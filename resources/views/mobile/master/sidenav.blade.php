@@ -21,7 +21,7 @@
                     <a href="#"><i class="bi bi-ticket"></i> Ticket</a>
                     <ul>
                       <li>
-                        <a href="{{ route('tickets.index') }}"> All</a>
+                        <a href="{{ route('tickets.index') }}"> Semua</a>
                       </li>
                       <li>
                         {{-- <a href="{{ route('mobile.ticket.pending') }}"> Belum Direspon</a> --}}
