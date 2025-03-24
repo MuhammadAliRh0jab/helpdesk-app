@@ -101,6 +101,7 @@ class TicketController extends Controller
             }
         }
 
+        // return view('mobile.tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
         return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
     }
     // Tambahkan method isAssignedAsPic ke model User jika belum ada

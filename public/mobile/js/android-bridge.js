@@ -10,6 +10,17 @@ var AndroidBridge = {
             document.getElementById('errorMessage').innerText = "Error: " + e.message;
         }
     },
+    openPhotoPicker: function() {
+        try {
+            if (typeof window.Android === 'undefined') {
+                throw new Error('Android interface not available');
+            }
+            window.Android.openPhotoPicker();
+        } catch (e) {
+            console.error(e.message);
+            document.getElementById('errorMessage').innerText = "Error: " + e.message;
+        }
+    },
     showImagePreview: function(base64Image) {
         try {
             // Tampilkan preview

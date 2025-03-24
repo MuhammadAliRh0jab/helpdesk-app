@@ -4222,6 +4222,43 @@ a.affan-element-item:hover, a.affan-element-item:focus {
   color: var(--primary-950);
 }
 
+.chat-bubble {
+    max-width: 80%;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 15px;
+    position: relative;
+}
+.chat-bubble.left {
+    background-color: #e9ecef; /* Abu-abu untuk operator/pegawai */
+    margin-left: 10px;
+    float: left;
+    clear: both;
+}
+.chat-bubble.right {
+    background-color: #d4edda; /* Hijau muda untuk pengadu */
+    margin-right: 10px;
+    float: right;
+    clear: both;
+}
+.chat-bubble .sender {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.chat-bubble .time {
+    font-size: 0.8em;
+}
+.chat-bubble .message {
+    margin: 5px 0;
+}
+.chat-bubble .uploads img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
 .video-calling-popup-wrap {
   position: fixed;
   background-color: rgba(6, 18, 56, 0.9);

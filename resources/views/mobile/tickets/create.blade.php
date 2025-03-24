@@ -71,7 +71,8 @@
                             <input type="hidden" name="images[]" id="imageBase64Input">
                             <img class="m-1" id="imagePreview" src="" alt="No image yet" style="display:none; max-width:100%;">
                             <div>
-                                <button type="button" id="openCameraBtn" class="btn btn-sm btn-primary">Pilih Gambar</button>
+                                <button type="button" id="openCameraBtn" class="btn btn-sm btn-primary me-2">Pilih Gambar (Kamera)</button>
+                                <button type="button" id="openGalleryBtn" class="btn btn-sm btn-primary">Pilih dari Galeri</button>
                             </div>
                             <p id="errorMessage" class="text-red-500 text-sm mt-1"></p>
                         </div>
@@ -165,14 +166,18 @@
                     }
                 });
             });
+
+            $('#openCameraBtn').on('click', function() {
+                console.log('Opening camera');
+                AndroidBridge.openCamera('AndroidBridge.showImagePreview');
+            });
+
+            $('#openGalleryBtn').on('click', function() {
+                console.log('Opening photo picker');
+                AndroidBridge.openPhotoPicker();
+            });
         });
     </script>
 
     <script src="{{ asset('mobile/js/android-bridge.js') }}"></script>
-    <script>
-        document.getElementById('openCameraBtn').addEventListener('click', function () {
-            console.log('Opening camera');
-            AndroidBridge.openCamera('AndroidBridge.showImagePreview');
-        });
-    </script>
 @endsection
