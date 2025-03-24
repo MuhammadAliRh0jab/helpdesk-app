@@ -36,6 +36,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                 <th class="p-2 text-dark">Tugaskan PIC</th>
                 <th class="p-2 text-dark">Alihkan Unit</th>
                 @endif
+                <th class="p-2 text-dark">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -44,9 +45,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                 <td class="p-2 text-dark">{{ $ticket->ticket_code }}</td>
                 <td class="p-2 text-dark">{{ $ticket->title }}</td>
                 <td class="p-2 text-dark">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
-                <td class="p-2 text-dark">{{ $ticket->original_unit_id ?
-                    \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak
-                    ditentukan') }}</td>
+                <td class="p-2 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
                 <td class="p-2 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
                 <td class="p-2 text-dark">
                     @if($ticket->status == 0) Pending
@@ -67,11 +66,8 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                             <option value="{{ $pic->id }}">{{ $pic->username }} ({{ $pic->pic_desc }})</option>
                             @endforeach
                         </select>
-                        <button type="submit" class="btn btn-success btn-sm">
-                            Tugaskan
-                        </button>
+                        <button type="submit" class="btn btn-success btn-sm">Tugaskan</button>
                     </form>
-
                     @php
                     $activePics = DB::table('ticket_pic')
                     ->join('pics', 'ticket_pic.pic_id', '=', 'pics.id')
@@ -89,8 +85,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                             <form action="{{ route('tickets.removePic', $ticket) }}" method="POST" class="d-inline">
                                 @csrf
                                 <input type="hidden" name="pic_id" value="{{ $pic->pic_id }}">
-                                <button type="submit"
-                                    class="btn btn-link text-danger text-decoration-none p-0">Hapus</button>
+                                <button type="submit" class="btn btn-link text-danger text-decoration-none p-0">Hapus</button>
                             </form>
                         </li>
                         @endforeach
@@ -107,8 +102,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                 </td>
                 <td class="p-2">
                     @if ($ticket->status == 0)
-                    <form action="{{ route('tickets.transfer', $ticket) }}" method="POST"
-                        id="transferForm-{{ $ticket->id }}" class="transfer-form">
+                    <form action="{{ route('tickets.transfer', $ticket) }}" method="POST" id="transferForm-{{ $ticket->id }}" class="transfer-form">
                         @csrf
                         <select name="unit_id" id="unit_id-{{ $ticket->id }}" class="form-select mb-2" required>
                             <option value="">Pilih Unit</option>
@@ -121,79 +115,89 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                         <select name="service_id" id="service_id-{{ $ticket->id }}" class="form-select mb-2" required>
                             <option value="">Pilih Layanan</option>
                         </select>
-                        <button type="submit" class="btn btn-warning btn-sm">
-                            Alihkan
-                        </button>
+                        <button type="submit" class="btn btn-warning btn-sm">Alihkan</button>
                     </form>
                     @else
-                    <span class="text-muted">
-                        Tidak dapat dialihkan
-                    </span>
+                    <span class="text-muted">Tidak dapat dialihkan</span>
                     @endif
                 </td>
                 @endif
-            </tr>
-            <tr>
-                <td colspan="{{ auth()->user()->role_id == 2 ? 9 : 7 }}" class="p-2">
-                    <div class="ms-3">
-                        <h3 class="h5 fw-bold text-dark">Percakapan untuk {{ $ticket->ticket_code }}</h3>
-                        @forelse($ticket->responses as $response)
-                        <div
-                            class="border-start border-4 ps-3 mt-2 {{ $response->user->role_id == 4 ? 'border-success' : ($response->user->role_id == 2 ? 'border-warning' : 'border-primary') }}">
-                            <p class="text-dark">
-                                <strong>
-                                    @if ($response->user->role_id == 2)
-                                    Sistem (Operator)
-                                    @else
-                                    {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' :
-                                    'PIC' }})
-                                    @endif
-                                    - {{ $response->created_at->format('d-m-Y H:i') }}:
-                                </strong>
-                                @if ($response->ticket_id_quote)
-                                <span class="fst-italic text-muted">
-                                    (Membalas: "{{ $response->quotedResponse->message }}")
-                                </span>
-                                @endif
-                                <br>
-                                {{ $response->message }}
-                            </p>
-                            @forelse($response->uploads as $upload)
-                            <div class="mt-2">
-                                <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
-                                    <img src="{{ asset('storage/' . $upload->filename_path) }}"
-                                        alt="{{ $upload->filename_ori }}" class="img-thumbnail"
-                                        style="width: 128px; height: 128px; object-fit: cover;">
-                                </a>
-                                <p class="small text-muted">{{ $upload->filename_ori }}</p>
-                            </div>
-                            @empty
-                            <p class="small text-muted">Tidak ada lampiran gambar.</p>
-                            @endforelse
-                            @if (auth()->user()->role_id == 4 && $ticket->user_id == auth()->user()->id &&
-                            $ticket->status != 2 && $response === $ticket->responses->last() && $response->user_id !=
-                            auth()->user()->id && $response->user->role_id != 2)
-                            <form action="{{ route('tickets.reply', $response->id) }}" method="POST"
-                                enctype="multipart/form-data" class="mt-2">
-                                @csrf
-                                <textarea name="message" class="form-control mb-2"
-                                    placeholder="Masukkan balasan Anda..." required></textarea>
-                                <input type="file" name="images[]" multiple class="form-control mb-2">
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    Kirim Balasan
-                                </button>
-                            </form>
-                            @endif
-                        </div>
-                        @empty
-                        <p class="text-muted">Belum ada percakapan untuk tiket ini.</p>
-                        @endforelse
-                    </div>
+                <td class="p-2">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#chatModal-{{ $ticket->id }}">
+                        Detail
+                    </button>
                 </td>
             </tr>
+
+            <!-- Modal untuk Percakapan -->
+            <div class="modal fade" id="chatModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="chatModalLabel-{{ $ticket->id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="chatModalLabel-{{ $ticket->id }}">Percakapan untuk {{ $ticket->ticket_code }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="chat-container" style="max-height: 400px; overflow-y: auto; padding: 10px;">
+                                @forelse($ticket->responses as $response)
+                                <div class="message-wrapper mb-3" style="display: flex; flex-direction: column; align-items: {{ $response->user->role_id == 4 ? 'flex-start' : 'flex-end' }};">
+                                    <div class="message-box p-3 rounded shadow-sm"
+                                        style="max-width: 70%; background-color: {{ $response->user->role_id == 4 ? '#e9ecef' : ($response->user->role_id == 2 ? '#fff3cd' : '#d1e7dd') }}; border: 1px solid {{ $response->user->role_id == 4 ? '#ced4da' : ($response->user->role_id == 2 ? '#ffc107' : '#28a745') }};">
+                                        <p class="text-dark mb-1">
+                                            <strong>
+                                                @if ($response->user->role_id == 2)
+                                                Sistem (Operator)
+                                                @else
+                                                {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
+                                                @endif
+                                            </strong> - {{ $response->created_at->format('d-m-Y H:i') }}
+                                        </p>
+                                        @if ($response->ticket_id_quote)
+                                        <span class="fst-italic text-muted small d-block mb-1">
+                                            (Membalas: "{{ $response->quotedResponse->message }}")
+                                        </span>
+                                        @endif
+                                        <p class="mb-0">{{ $response->message }}</p>
+                                        @forelse($response->uploads as $upload)
+                                        <div class="mt-2">
+                                            <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $upload->filename_path) }}"
+                                                    alt="{{ $upload->filename_ori }}"
+                                                    class="img-thumbnail"
+                                                    style="width: 128px; height: 128px; object-fit: cover;">
+                                            </a>
+                                            <p class="small text-muted mt-1">{{ $upload->filename_ori }}</p>
+                                        </div>
+                                        @empty
+                                        <p class="small text-muted mt-1">Tidak ada lampiran gambar.</p>
+                                        @endforelse
+                                    </div>
+                                </div>
+                                @empty
+                                <p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>
+                                @endforelse
+
+                                @if (auth()->user()->role_id == 4 && $ticket->user_id == auth()->user()->id && $ticket->status != 2 && $ticket->responses->last() && $ticket->responses->last()->user_id != auth()->user()->id && $ticket->responses->last()->user->role_id != 2)
+                                <div class="reply-form mt-3" style="display: flex; justify-content: flex-start;">
+                                    <form action="{{ route('tickets.reply', $ticket->responses->last()->id) }}" method="POST" enctype="multipart/form-data" style="width: 100%;">
+                                        @csrf
+                                        <textarea name="message" class="form-control mb-2" placeholder="Masukkan balasan Anda..." required></textarea>
+                                        <input type="file" name="images[]" multiple class="form-control mb-2">
+                                        <button type="submit" class="btn btn-primary btn-sm">Kirim Balasan</button>
+                                    </form>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             @empty
             <tr>
-                <td colspan="{{ auth()->user()->role_id == 2 ? 9 : 7 }}" class="p-2 text-dark text-center">
+                <td colspan="{{ auth()->user()->role_id == 2 ? 10 : 8 }}" class="p-2 text-dark text-center">
                     Tidak ada aduan.
                 </td>
             </tr>
@@ -204,6 +208,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function() {
         $('.transfer-form').each(function() {
@@ -212,7 +217,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                 var unitId = $(this).val();
                 if (unitId) {
                     $.ajax({
-                        url: '{{ route('get.services',' : unitId ') }}'.replace(':unitId', unitId),
+                        url: '{{ route("get.services", ":unitId") }}'.replace(':unitId', unitId),
                         method: 'GET',
                         success: function(data) {
                             var $serviceSelect = $('#service_id-' + ticketId);

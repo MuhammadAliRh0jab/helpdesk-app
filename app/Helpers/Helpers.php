@@ -62,7 +62,7 @@ if (!function_exists('includeFavicon')) {
      */
     function includeFavicon()
     {
-        return '<link rel="shortcut icon" href="' . asset('assets/media/logos/favicon.ico') . '" />';
+        return '<link rel="shortcut icon" href="' . asset('assets/media/img/logo.png') . '" />';
     }
 }
 

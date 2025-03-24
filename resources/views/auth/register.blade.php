@@ -1,4 +1,5 @@
 <x-layouts.auth>
+
     <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('landing') }}" action="{{ route('register') }}" method="POST">
         @csrf
 
@@ -73,7 +74,7 @@
         </div>
         <style>
             #role_id:invalid {
-                color:rgba(125, 125, 125, 0.6);
+                color: rgba(125, 125, 125, 0.6);
             }
         </style>
 
