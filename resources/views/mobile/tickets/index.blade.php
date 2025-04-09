@@ -161,8 +161,9 @@
                 <h6 class="modal-title" id="ticketResponsesModalLabel">Percakapan Tiket <span id="modal-responses-ticket-code"></span></h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="modal-responses-body" style="max-height: 400px; overflow-y: auto;">
+            <div class="modal-body" id="modal-responses-body" style="max-height: 400px; overflow-y: auto; position: relative;">
                 <!-- Daftar respon akan ditampilkan di sini -->
+                <img class="m-1" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 150px; position: absolute; bottom: 10px; left: 10px; z-index: 10; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
             </div>
             <div class="modal-footer" id="modal-responses-footer">
                 <!-- Form balasan akan ditampilkan di sini jika memenuhi syarat -->
@@ -180,11 +181,22 @@
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script src="{{ asset('mobile/js/android-bridge.js') }}"></script>
 <script>
     $(document).ready(function() {
+        // Fungsi untuk mengontrol scroll body
+        function toggleBodyScroll(enableScroll) {
+            if (enableScroll) {
+                $('body').css('overflow', 'auto');
+            } else {
+                $('body').css('overflow', 'hidden');
+            }
+        }
+
         // Modal Detail Tiket
         $('.show-ticket-detail').on('click', function() {
             const ticket = $(this).data('ticket');
+            const $triggerButton = $(this);
 
             $('#modal-ticket-code').text(ticket.ticket_code);
             $('#modal-title').text(ticket.title);
@@ -207,12 +219,14 @@
                 });
             }
 
+            toggleBodyScroll(false);
             $('#ticketDetailModal').modal('show');
         });
 
         // Modal Respon Tiket (Chat Bubble Style)
         $('.show-ticket-responses').on('click', function() {
             const ticket = $(this).data('ticket');
+            const $triggerButton = $(this);
             const currentUserId = {{ auth()->user()->id }};
             const currentUserRoleId = {{ auth()->user()->role_id }};
 
@@ -245,8 +259,6 @@
                                 <img src="{{ asset('storage') }}/${upload.filename_path}" alt="${upload.filename_ori}">
                             `;
                         });
-                    } else {
-                        responseHtml += ``;
                     }
 
                     responseHtml += `</div></div>`;
@@ -259,25 +271,77 @@
                         footerContainer.append(`
                             <form action="{{ route('tickets.reply', '') }}/${response.id}" method="POST" enctype="multipart/form-data" class="w-100 p-2" id="replyForm">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <textarea name="message" class="form-control mb-2" placeholder="Masukkan balasan Anda..." required></textarea>
-                                <input type="file" name="images[]" multiple class="form-control mb-2">
-                                <button type="submit" class="btn btn-primary btn-sm w-100">Kirim Balasan</button>
+                                <textarea name="message" class="form-control form-control-clicked mb-2" placeholder="Masukkan balasan Anda..." style="height: 50px;" required></textarea>
+                                <div class="form-group mb-2">
+                                    <input type="hidden" name="images[]" id="imageBase64Input">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <button type="button" id="openCameraBtn" class="btn btn-sm btn-outline-primary me-2">Buka Kamera</button>
+                                        <button type="button" id="openGalleryBtn" class="btn btn-sm btn-outline-primary me-2">Pilih dari Galeri</button>
+                                        <button type="submit" class="btn btn-sm btn-primary">Kirim Balasan</button>
+                                    </div>
+                                    <p id="errorMessage" class="text-danger text-sm mt-1"></p>
+                                </div>
                             </form>
                         `);
+
+                        // Event handler untuk tombol kamera dan galeri
+                        $('#openCameraBtn').off('click').on('click', function() {
+                            console.log('Opening camera');
+                            // Pastikan modal terbuka sebelum memanggil AndroidBridge
+                            if ($('#ticketResponsesModal').is(':visible')) {
+                                AndroidBridge.openCamera('showImagePreview');
+                            } else {
+                                $('#ticketResponsesModal').one('shown.bs.modal', function() {
+                                    AndroidBridge.openCamera('showImagePreview');
+                                });
+                            }
+                        });
+
+                        $('#openGalleryBtn').off('click').on('click', function() {
+                            console.log('Opening photo picker');
+                            // Pastikan modal terbuka sebelum memanggil AndroidBridge
+                            if ($('#ticketResponsesModal').is(':visible')) {
+                                AndroidBridge.openPhotoPicker();
+                            } else {
+                                $('#ticketResponsesModal').one('shown.bs.modal', function() {
+                                    AndroidBridge.openPhotoPicker();
+                                });
+                            }
+                        });
                     } else {
                         const footerContainer = $('#modal-responses-footer');
                         footerContainer.empty();
                         footerContainer.append(`
-                                <div class="text-dark text-center w-100">Menunggu balasan PIC terkait</div>
-                            `);
+                            <div class="text-dark text-center w-100">Menunggu balasan PIC terkait</div>
+                        `);
                     }
                 });
             } else {
                 responsesContainer.append('<p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>');
+                const footerContainer = $('#modal-responses-footer');
+                footerContainer.empty();
+                footerContainer.append('<div class="text-dark text-center w-100">Menunggu balasan PIC terkait</div>');
             }
 
-            // Tampilkan modal
+            toggleBodyScroll(false);
             $('#ticketResponsesModal').modal('show');
+        });
+
+        // Kelola fokus saat modal ditutup
+        $('#ticketDetailModal, #ticketResponsesModal').on('hidden.bs.modal', function () {
+            toggleBodyScroll(true);
+            $('#imagePreview').css('display', 'none'); // Sembunyikan pratinjau saat modal ditutup
+            const $trigger = $('.show-ticket-detail:focus, .show-ticket-responses:focus');
+            if ($trigger.length) {
+                $trigger.focus();
+            } else {
+                $('body').find('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])').first().focus();
+            }
+        });
+
+        // Kelola fokus saat modal dibuka
+        $('#ticketDetailModal, #ticketResponsesModal').on('shown.bs.modal', function () {
+            $(this).find('.btn-close').focus();
         });
 
         // Handle submit form balasan via AJAX
@@ -286,8 +350,28 @@
             const form = $(this);
             const formData = new FormData(this);
 
+            // Jika ada Base64, konversi ke file blob
+            const base64Image = $('#imageBase64Input').val();
+            if (base64Image) {
+                try {
+                    const byteString = atob(base64Image.split(',')[1]); // Hapus header Base64
+                    const arrayBuffer = new ArrayBuffer(byteString.length);
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    for (let i = 0; i < byteString.length; i++) {
+                        uint8Array[i] = byteString.charCodeAt(i);
+                    }
+                    const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+                    formData.set('images[]', blob, 'photo.jpg');
+                    console.log('Image blob size:', blob.size / 1024, 'KB');
+                } catch (e) {
+                    console.log('Error converting Base64 to blob:', e);
+                    $('#errorMessage').text('Error converting image');
+                    return;
+                }
+            }
+
             $.ajax({
-                url: form.attr('action'),
+                url: form.action,
                 method: 'POST',
                 data: formData,
                 processData: false,
@@ -299,10 +383,41 @@
                 },
                 error: function(xhr) {
                     console.log('Error submitting reply:', xhr.responseJSON);
-                    alert('Gagal mengirim balasan: ' + (xhr.responseJSON.message || 'Unknown error'));
+                    const errors = xhr.responseJSON.errors || {};
+                    let errorMessage = 'Error: ';
+                    for (let field in errors) {
+                        errorMessage += errors[field][0] + ' ';
+                    }
+                    $('#errorMessage').text(errorMessage || 'Unknown error occurred');
                 }
             });
         });
+
+        // Fungsi untuk menampilkan pratinjau gambar dari AndroidBridge
+        window.showImagePreview = function(base64Image) {
+            console.log('Showing image preview with base64:', base64Image.substring(0, 50) + '...');
+            const $preview = $('#imagePreview');
+            const $modal = $('#ticketResponsesModal');
+            if ($preview.length && $modal.is(':visible')) {
+                $preview.attr('src', base64Image);
+                $preview.css('display', 'block');
+                $('#imageBase64Input').val(base64Image);
+            } else {
+                console.error('Element #imagePreview not found or modal not visible');
+                console.log('Preview exists:', $preview.length, 'Modal visible:', $modal.is(':visible'));
+                // Tunggu modal terbuka jika belum
+                $modal.one('shown.bs.modal', function() {
+                    const $newPreview = $('#imagePreview');
+                    if ($newPreview.length) {
+                        $newPreview.attr('src', base64Image);
+                        $newPreview.css('display', 'block');
+                        $('#imageBase64Input').val(base64Image);
+                    } else {
+                        console.error('Still no #imagePreview after modal shown');
+                    }
+                });
+            }
+        };
     });
 </script>
 @endsection
