@@ -8,10 +8,17 @@
         <h1 class="h4 text-white fs-4">Daftar Pengguna</h1>
         <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
     </div>
+
     @if (session('success'))
-    <div class="alert alert-success p-4 mb-4 rounded">
-        {{ session('success') }}
-    </div>
+        <div class="alert alert-success p-4 mb-4 rounded">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger p-4 mb-4 rounded">
+            {{ session('error') }}
+        </div>
     @endif
 
     <div class="table-responsive mb-4 mt-4">
@@ -33,6 +40,7 @@
                     <td class="p-2 text-dark">{{ $user->email ?? 'Tidak ada' }}</td>
                     <td class="p-2 text-dark">{{ $user->getUserFunction() }}</td>
                     <td class="p-2">
+                        <!-- Tombol Detail -->
                         <button type="button" class="btn btn-primary btn-sm detail-btn" 
                                 data-bs-toggle="modal" 
                                 data-bs-target="#userDetailModal"
@@ -46,6 +54,25 @@
                                 data-function="{{ $user->getUserFunction() }}">
                             Detail
                         </button>
+
+                        <!-- Tombol Reset Password -->
+                        <form action="{{ route('users.resetPassword', $user->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-warning btn-sm ml-2" onclick="return confirm('Apakah Anda yakin ingin mereset password pengguna ini? Password akan disetel menjadi username mereka.')">
+                                Reset Password
+                            </button>
+                        </form>
+
+                        <!-- Tombol Hapus (tidak ditampilkan untuk Super_admin) -->
+                        @if ($user->role_id != 1)
+                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm ml-2" onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
+                                    Hapus
+                                </button>
+                            </form>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

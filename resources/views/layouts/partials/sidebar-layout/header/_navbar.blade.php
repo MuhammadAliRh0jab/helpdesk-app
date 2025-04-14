@@ -32,7 +32,7 @@
                 <a class="nav-link text-dark" href="{{ route('tickets.create') }}"><i class="fa-solid fa-marker"></i> Buat Aduan Baru</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-dark" href="#"><i class="fa-solid fa-gears"></i> Pengaturan Akun</a>
+                <a class="nav-link text-dark" href="{{ route('profile') }}"><i class="fa-solid fa-gears"></i> Pengaturan Akun</a>
             </li>
             @elseif (auth()->user()->role_id == 3)
             <li class="nav-item">
@@ -48,7 +48,7 @@
                 <a class="nav-link text-dark" href="{{ route('tickets.create') }}"><i class="fa-solid fa-marker"></i> Buat Aduan Baru</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-dark" href="#"><i class="fa-solid fa-gears"></i> Pengaturan Akun</a>
+                <a class="nav-link text-dark" href="{{ route('profile') }}"><i class="fa-solid fa-gears"></i> Pengaturan Akun</a>
             </li>
             @elseif (auth()->user()->role_id == 1)
             <li class="nav-item">
@@ -61,7 +61,7 @@
                 <a class="nav-link text-dark" href="{{ route('users.index') }}"><i class="fa-solid fa-users"></i> Kelola Pengguna</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-dark" href="#"><i class="fa-solid fa-gears"></i> Pengaturan Akun</a>
+                <a class="nav-link text-dark" href="{{ route('profile') }}"><i class="fa-solid fa-gears"></i> Pengaturan Akun</a>
             </li>
             @else
             <li class="nav-item">
@@ -74,7 +74,7 @@
                 <a class="nav-link text-dark" href="{{ route('tickets.create') }}"><i class="fa-solid fa-marker"></i> Buat Aduan Baru</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-dark" href="#"><i class="fa-solid fa-gears"></i> Pengaturan Akun</a>
+                <a class="nav-link text-dark" href="{{ route('profile') }}"><i class="fa-solid fa-gears"></i> Pengaturan Akun</a>
             </li>
             @endif
         </ul>
