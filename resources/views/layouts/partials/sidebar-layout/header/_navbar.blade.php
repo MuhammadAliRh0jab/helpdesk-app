@@ -1,19 +1,10 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
-
-<nav id="header" class="navbar fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <img id="nav-logo" src="{{ asset('assets/media/img/logo-helpdesk-1.png') }}" class="img-fluid" style="width: 150px; height: auto;">
-        </a>
-        <button class="navbar-toggler d-lg-none" type="button" id="sidebarToggle">
-            <i class="fas fa-bars text-white"></i>
-        </button>
-    </div>
-</nav>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
 <div id="sidebar" class="sidebar">
     <div class="sidebar-content">
-        <br><br><br>
+        <div class="sidebar-header text-center my-3">
+            <img id="nav-logo" src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" class="img-fluid" style="width: 150px;">
+        </div>
+
         <ul class="nav flex-column mt-3">
             @if (auth()->user()->role_id == 2)
             <li class="nav-item">

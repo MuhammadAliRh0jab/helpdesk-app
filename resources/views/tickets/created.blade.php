@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="card-header shadow">
-    <h1 class="h4 text-white fs-4">Riwayat Aduan</h1>
+    <h1 class="h4 text-white fs-4 mt-2">Riwayat Aduan</h1>
     <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
 </div>
 @if (session('success'))

@@ -3,7 +3,7 @@
 @section('title', 'Buat Aduan Baru')
 
 @section('content')
-<div class="card-header shadow mb-4">
+<div class="card-header shadow mb-4 mt-2">
     <h1 class="h4 text-white fs-4">Buat Aduan Baru</h1>
     <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
 </div>

@@ -1,10 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Aduan')
-
 @section('content')
 <div class="card-header shadow mb-4">
-    <h1 class="h4 text-white fs-4">Daftar Aduan</h1>
+    <h1 class="h4 text-white fs-4 mt-2">Daftar Aduan</h1>
     <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
 </div>
 
@@ -207,8 +205,6 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
 </div>
 
 @section('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function() {
         $('.transfer-form').each(function() {

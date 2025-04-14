@@ -1,6 +1,6 @@
     <!DOCTYPE html>
     <html lang="en"
-        <head>
+    <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Helpdesk Pemerintah Kota Blitar - @yield('title')</title>
@@ -9,7 +9,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
         <script src="{{ asset('js/chart.min.js') }}"></script>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
         <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
 
     </head>
@@ -25,9 +25,8 @@
             html,
             body {
                 font-family: 'Poppins', sans-serif;
-                margin-top: 30px;
                 margin-left: 130px;
-                padding: 20px;
+                padding: 10px;
             }
 
             h1,
@@ -226,5 +225,6 @@
             });
         </script>
     </body>
+
 
     </html>

@@ -1,25 +1,5 @@
 <x-layouts.master title="Helpdesk Pemerintah Kota Blitar">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        html,
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        p,
-        a,
-        button,
-        input,
-        textarea {
-            font-family: 'Poppins', sans-serif;
-        }
-    </style>
 
     <div class="d-flex flex-column flex-root app-root bgi-size-cover bgi-position-center" id="kt_app_root" style="background-image: url({{ image('img/bg-auth-1.png') }})">
         <div class="d-flex flex-column flex-lg-row flex-column-fluid">
@@ -40,4 +20,30 @@
             </div>
         </div>
     </div>
+    <style>
+        html,
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        a,
+        button,
+        input,
+        textarea {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        @media (max-width : 780px) {
+            img {
+                transform: scale(0.5);
+            }
+        }
+    </style>
 </x-layouts.master>

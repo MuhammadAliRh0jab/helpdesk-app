@@ -5,7 +5,7 @@
 @section('content')
 <div>
     <div class="card-header shadow">
-        <h1 class="h4 text-white fs-4">Dashboard</h1>
+        <h1 class="h4 text-white fs-4 mt-2">Dashboard</h1>
         <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
     </div>
     <div class="card shadow mb-4 mt-3" style="background: linear-gradient(180deg,rgba(21, 113, 232, 0.4) 0%, rgb(255, 255, 255) 100%);">
