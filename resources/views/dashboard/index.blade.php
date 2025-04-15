@@ -1,4 +1,6 @@
 @extends('layouts.app')
+<link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
+
 
 @section('title', 'Dashboard Laporan Perangkat Kerja')
 

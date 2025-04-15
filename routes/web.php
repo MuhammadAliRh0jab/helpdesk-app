@@ -33,7 +33,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin')->middleware('role:1');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/assigned', [TicketController::class, 'assigned'])->name('tickets.assigned');
-    Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create'); // Hapus middleware role:4
+    Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
     Route::post('/tickets/{ticket}/assign', [TicketController::class, 'assign'])->middleware('role:2')->name('tickets.assign');
     Route::post('/tickets/{ticket}/transfer', [TicketController::class, 'transfer'])->middleware('role:2')->name('tickets.transfer');
@@ -41,7 +41,19 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tickets/{ticket}/remove-pic', [TicketController::class, 'removePic'])->middleware('role:2')->name('tickets.removePic');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->middleware('role:3')->name('tickets.update');
     Route::post('/tickets/reply/{response}', [TicketController::class, 'reply'])->middleware('role:4')->name('tickets.reply');
-    Route::resource('users', UserController::class)->middleware('role:1');
+    
+    // Rute untuk manajemen pengguna (Super_admin)
+    Route::prefix('users')->middleware('role:1')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::get('/{user}', [UserController::class, 'show'])->name('users.show');
+        Route::post('/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
+
+    // Rute untuk manajemen profil pengguna
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::post('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+
     Route::resource('units', UnitController::class)->middleware('role:1');
     Route::resource('services', ServiceController::class)->middleware('role:1');
     Route::get('/get-services/{unitId}', [TicketController::class, 'getServices'])->name('get.services');

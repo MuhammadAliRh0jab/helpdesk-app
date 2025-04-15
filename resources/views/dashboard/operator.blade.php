@@ -3,76 +3,93 @@
 @section('title', 'Dashboard Operator')
 
 @section('content')
-    <div>
-        <h1 class="h4 mb-4 text-dark fs-2">Selamat Datang, {{ Auth::user()->name }}</h1>
+<div>
+    <div class="card-header shadow">
+        <h1 class="h4 text-white fs-4">Dashboard Operator</h1>
+        <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
+    </div>
+    
+    <div class="card shadow mb-4 mt-3" style="background: linear-gradient(180deg,rgba(21, 113, 232, 0.4) 0%, rgb(255, 255, 255) 100%);">
+        <div class="card-body">
+            <h5 class="card-title- mb-2">Selamat Datang, <strong>{{ Auth::user()->name }}</strong> 👋😊 !</h5>
+            <hr>
+            <p>Selamat datang di Helpdesk Pemerintah Kota Blitar! Sebagai operator, Anda dapat mengelola tiket, melacak status aduan, dan memberikan solusi terbaik untuk warga. Gunakan dashboard ini untuk memantau distribusi tiket unit Anda.</p>
+        </div>
+    </div>
 
-        <div class="row mb-4 text-center">
-            <div class="col-md-3">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Tiket (Unit)</h5>
-                        <p class="fs-2" style="color: #003092;">{{ $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'] }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h5 class="card-title">Tiket Selesai (Unit)</h5>
-                        <p class="fs-2" style="color: #A1E3F9;">{{ $ticketStats['completed'] }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h5 class="card-title">Tiket Pending (Unit)</h5>
-                        <p class="fs-2" style="color: #3674B5;">{{ $ticketStats['pending'] }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h5 class="card-title">Tiket Ditugaskan (Unit)</h5>
-                        <p class="fs-2" style="color: #578FCA;">{{ $ticketStats['assigned'] }}</p>
+    <h5 class="text-primary">Informasi Tiket Unit Anda</h5>
+    <hr class="mb-4 mt-2">
+
+    <div class="row row-cols-1 row-cols-md-4 g-4 mb-4 text-center">
+        <div class="col">
+            <div class="card h-100 shadow">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <i class="fa-solid fa-ticket" style="color:rgb(96, 98, 103);"></i>
+                    <div class="d-flex flex-column text-end">
+                        <h5 class="card-title">Total Tiket</h5>
+                        <p class="fs-2">{{ $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'] }}</p>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h5 class="card-title">Distribusi Tiket Unit Anda</h5>
-                        <div class="w-100" style="height: 200px;">
-                            <canvas id="ticketChart"></canvas>
-                        </div>
+        <div class="col">
+            <div class="card h-100 shadow">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <i class="fa-solid fa-briefcase" style="color: #3674B5;"></i>
+                    <div class="d-flex flex-column text-end">
+                        <h5 class="card-title">Tiket Ditugaskan</h5>
+                        <p class="fs-2">{{ $ticketStats['assigned'] }}</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h5 class="card-title">Tiket yang Anda Buat</h5>
-                        <div class="w-100" style="height: 200px;">
-                            <canvas id="personalChart"></canvas>
-                        </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 shadow">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <i class="fa-solid fa-hourglass-half" style="color: #578FCA;"></i>
+                    <div class="d-flex flex-column text-end">
+                        <h5 class="card-title">Tiket Pending</h5>
+                        <p class="fs-2">{{ $ticketStats['pending'] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 shadow">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <i class="fa-solid fa-circle-check" style="color: #A1E3F9;"></i>
+                    <div class="d-flex flex-column text-end">
+                        <h5 class="card-title">Tiket Selesai</h5>
+                        <p class="fs-2">{{ $ticketStats['completed'] }}</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title- mb-2">Distribusi Tiket Unit Anda</h5>
+                    <hr>
+                    <div class="w-100 mx-auto" style="height: 200px;">
+                        <canvas id="ticketChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script>
         const ticketStats = {
-            completed: {{ $ticketStats['completed'] ?? 0 }},
+            assigned: {{ $ticketStats['assigned'] ?? 0 }},
             pending: {{ $ticketStats['pending'] ?? 0 }},
-            assigned: {{ $ticketStats['assigned'] ?? 0 }}
+            completed: {{ $ticketStats['completed'] ?? 0 }}
         };
         const personalStats = {
             created: {{ $personalStats['created'] ?? 0 }}
@@ -86,7 +103,18 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: { beginAtZero: true, grid: { display: false } },
+                    x: { 
+                        beginAtZero: true,
+                        grid: { display: false },
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                if (Number.isInteger(value)) {
+                                    return value;
+                                }
+                            }
+                        }
+                    },
                     y: { grid: { display: false } }
                 }
             }
@@ -98,11 +126,11 @@
                 new Chart(ticketChartCtx, {
                     ...chartOptions,
                     data: {
-                        labels: ['Selesai', 'Pending', 'Ditugaskan'],
+                        labels: ['Ditugaskan', 'Pending', 'Selesai'],
                         datasets: [{
                             label: 'Jumlah Tiket',
-                            data: [ticketStats.completed, ticketStats.pending, ticketStats.assigned],
-                            backgroundColor: ['#A1E3F9', '#3674B5', '#578FCA'],
+                            data: [ticketStats.assigned, ticketStats.pending, ticketStats.completed],
+                            backgroundColor: ['#A1E3F9', '#578FCA', '#3674B5'],
                             borderWidth: 1
                         }]
                     }

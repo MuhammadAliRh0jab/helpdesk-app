@@ -16,8 +16,6 @@
     <link rel="canonical" href="{{ url()->current() }}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    {!! includeFavicon() !!}
-
     <!--begin::Fonts-->
     {!! includeFonts() !!}
     <!--end::Fonts-->

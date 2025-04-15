@@ -1,31 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Pengguna</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4/dist/tailwind.min.css" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 p-6">
-    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Detail Pengguna: {{ $user->name }}</h1>
+@extends('layouts.app')
 
-    <div class="bg-white dark:bg-gray-800 p-4 border rounded shadow dark:shadow-gray-700 dark:border-gray-700">
-        <p><strong>Nama:</strong> {{ $user->name }}</p>
-        <p><strong>Username:</strong> {{ $user->username }}</p>
-        <p><strong>Email:</strong> {{ $user->email ?? 'Tidak ada' }}</p>
-        <p><strong>Telepon:</strong> {{ $user->phone ?? 'Tidak ada' }}</p>
-        <p><strong>Unit Kerja:</strong> {{ $user->unit ? $user->unit->unit_name : 'Tidak ada' }}</p>
-        <p><strong>Role:</strong> {{ $user->role ? $user->role->role_name : 'Tidak ada' }}</p>
-        <p><strong>Fungsi:</strong> {{ $user->getUserFunction() }}</p>
-    </div>
+@section('title', 'Detail Pengguna')
 
-    <div class="mt-4">
-        <a href="{{ route('users.index') }}" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">Kembali ke Daftar Pengguna</a>
-        <a href="{{ route('tickets.index') }}" class="ml-4 inline-block bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700">Kembali ke Aduan</a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-            @csrf
-        </form>
+@section('content')
+    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Detail Pengguna</h1>
+
+    <div class="bg-white dark:bg-gray-800 p-6 rounded shadow dark:shadow-gray-700">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">ID</h3>
+                <p class="text-gray-600 dark:text-gray-400">{{ $user->id }}</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Username</h3>
+                <p class="text-gray-600 dark:text-gray-400">{{ $user->username }}</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Nama</h3>
+                <p class="text-gray-600 dark:text-gray-400">{{ $user->name }}</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Role</h3>
+                <p class="text-gray-600 dark:text-gray-400">{{ $user->role ? $user->role->name : 'Tidak ada role' }}</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Unit</h3>
+                <p class="text-gray-600 dark:text-gray-400">{{ $user->unit ? $user->unit->name : 'Tidak ada unit' }}</p>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="{{ route('users.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 transition duration-200">
+                Kembali
+            </a>
+        </div>
     </div>
-</body>
-</html>
+@endsection
