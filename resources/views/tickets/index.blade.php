@@ -223,7 +223,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                                         @endforelse
                                         <p class="mb-0">{{ $response->message }}</p>
                                         <small class="text-muted d-block mb-1 text-end">
-                                            {{ $response->created_at->format(' d M, H:i') }}
+                                            {{ $response->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
                                         </small>
                                     </div>
                                 </div>
