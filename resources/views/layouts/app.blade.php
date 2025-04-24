@@ -1,16 +1,16 @@
     <!DOCTYPE html>
     <html lang="en"
         <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Helpdesk Pemerintah Kota Blitar - @yield('title')</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-        <script src="{{ asset('js/chart.min.js') }}"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
-        <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Pemerintah Kota Blitar - @yield('title')</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="{{ asset('js/chart.min.js') }}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
 
     </head>
 
@@ -25,9 +25,13 @@
             html,
             body {
                 font-family: 'Poppins', sans-serif;
-                margin-top: 30px;
+                font-size: 15px;
+                margin-top: 10px;
                 margin-left: 130px;
-                padding: 20px;
+                margin-top: 35px;
+                margin-bottom: 50px;
+                padding: 10px;
+                background-color: rgb(245, 245, 245);
             }
 
             h1,
@@ -58,12 +62,46 @@
             .card-header p {
                 margin-top: -10px;
             }
+
+            .card-body p {
+                color: #276783;
+                font-size: 11px;
+            }
+
+            .card-body h6 {
+                font-size: 20px;
+            }
+
+            .dropdown-wrapper {
+                position: relative !important;
+                z-index: 9999 !important;
+            }
+
+            .dropdown-menu {
+                position: absolute !important;
+                z-index: 9999 !important;
+            }
         </style>
         <style>
             #header {
                 transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
                 background: linear-gradient(90deg, #1572e8 0%, rgb(21, 68, 144) 100%);
                 border-bottom: 3px solid rgba(9, 9, 9, 0.17);
+            }
+
+            .sidebar {
+                font-size: 14px;
+                background-color: rgb(250, 250, 250) !important;
+                /* background-color: transparent !important; */
+                width: 16rem !important;
+            }
+
+            .sidebar a {
+                color: rgb(115, 115, 115) !important;
+            }
+
+            #side-logo {
+                transform: scale(0.5);
             }
 
             .navbar-toggler {
@@ -76,6 +114,7 @@
             .navbar-toggler:focus {
                 outline: none;
             }
+
 
             @media (min-width: 990px) {
                 .sidebar {
@@ -106,10 +145,11 @@
                     transform: translateX(-100%);
                     transition: all 0.3s ease;
                     display: block;
+                    font-size: 12px;
                 }
 
                 .sidebar.active {
-                    width: 52%;
+                    width: 60%;
                     transform: translateX(0);
                 }
 
@@ -119,6 +159,14 @@
 
                 .sidebar-content {
                     width: 100%;
+                }
+
+                #side-logo {
+                    transform: scale(0.6);
+                }
+
+                hr {
+                    display: none;
                 }
             }
 
@@ -135,7 +183,7 @@
             }
 
             .sidebar-content {
-                padding: 20px;
+                padding: 5px;
                 display: flex;
                 flex-direction: column;
                 height: 100%;
@@ -157,8 +205,8 @@
             }
 
             .nav-link:hover {
-                background-color: rgba(0, 0, 0, 0.08);
-                color: #1572e8 !important;
+                background-color: #1572e8;
+                color: rgb(255, 255, 255) !important;
                 border-radius: 5px;
             }
 
@@ -166,19 +214,10 @@
                 padding-top: 20px;
             }
 
-            .btn-danger {
-                transition: all 0.3s ease;
-                width: 80%;
-            }
-
-            .btn-danger:hover {
-                background-color: rgb(255, 255, 255);
-                color: red !important;
-            }
-
             .nav-item i {
                 font-size: 16px;
-                color: #1572e8;
+                padding: 0 10px;
+                /* color: #1572e8; */
             }
 
             #main-content {
@@ -188,8 +227,7 @@
             }
 
             .card-title {
-                color: rgba(180, 180, 180, 0.8);
-                font-size: 16px;
+                font-size: 14px !important;
             }
 
             .card {
@@ -197,13 +235,13 @@
             }
 
             .card-body i {
-                border-right: 1px solid #1572e8;
+                /* border-right: 1px solid #1572e8; */
                 padding-right: 15px;
                 align-content: center;
             }
 
             .fa-solid {
-                font-size: 60px;
+                font-size: 40px;
             }
         </style>
         <script>

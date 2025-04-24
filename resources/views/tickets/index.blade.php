@@ -3,10 +3,6 @@
 @section('title', 'Daftar Aduan')
 
 @section('content')
-<div class="card-header shadow mb-4">
-    <h1 class="h4 text-white fs-4">Daftar Aduan</h1>
-    <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
-</div>
 
 @if (auth()->user()->role_id == 3)
 @php
@@ -20,40 +16,53 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
 </div>
 @endif
 @endif
+<br>
+<div class="card">
+    <div class="card-body">
+        <h6><strong>Detail Aduan </strong></h6>
+        <p>Aduan yang telah dikirimkan</p>
+        <hr>
+    </div>
+</div>
 
-<div class="table-responsive">
-    <table class="table table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th class="p-2 text-dark">Kode Tiket</th>
-                <th class="p-2 text-dark">Judul</th>
-                <th class="p-2 text-dark">Layanan</th>
-                <th class="p-2 text-dark">Unit Asal</th>
-                <th class="p-2 text-dark">Unit Saat Ini</th>
-                <th class="p-2 text-dark">Status</th>
-                <th class="p-2 text-dark">Tanggal Dibuat</th>
+
+<div class="table-responsive mt-4">
+    <table class="table">
+        <thead class="table table-light">
+            <tr class="text-center">
+                <th class="p-2">#</th>
+                <th class="p-2">Tanggal Dibuat</th>
+                <th class="p-2">Kode Tiket</th>
+                <th class="p-2">Judul</th>
+                <th class="p-2">Layanan</th>
+                <!-- <th class="p-2">Deskripsi</th>
+                    <th class="p-2">Unit Asal</th>
+                    <th class="p-2">Unit Saat Ini</th>
+                    <th class="p-2">Status</th> -->
                 @if (auth()->user()->role_id == 2)
-                <th class="p-2 text-dark">Tugaskan PIC</th>
-                <th class="p-2 text-dark">Alihkan Unit</th>
+                <th class="p-2">Tugaskan PIC</th>
+                <th class="p-2">Alihkan Unit</th>
                 @endif
-                <th class="p-2 text-dark">Aksi</th>
+                <th class="p-2">Aksi</th>
             </tr>
         </thead>
         <tbody>
             @forelse($tickets as $ticket)
-            <tr>
+            <tr class="text-center">
+                <td class="p-2 text-dark">{{ $loop -> iteration }}</td>
+                <td class="p-2 text-dark">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
                 <td class="p-2 text-dark">{{ $ticket->ticket_code }}</td>
                 <td class="p-2 text-dark">{{ $ticket->title }}</td>
                 <td class="p-2 text-dark">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
-                <td class="p-2 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
-                <td class="p-2 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
-                <td class="p-2 text-dark">
-                    @if($ticket->status == 0) Pending
-                    @elseif($ticket->status == 1) Ditugaskan
-                    @else Resolved
-                    @endif
-                </td>
-                <td class="p-2 text-dark">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
+                <!-- <td class="p-2 text-dark">{{ $ticket->description }}</td>
+                    <td class="p-2 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
+                    <td class="p-2 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
+                    <td class="p-2 text-dark">
+                        @if($ticket->status == 0) Pending
+                        @elseif($ticket->status == 1) Ditugaskan
+                        @else Resolved
+                        @endif
+                    </td> -->
                 @if (auth()->user()->role_id == 2)
                 <td class="p-2">
                     @if ($ticket->status != 2)
@@ -122,42 +131,84 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                     @endif
                 </td>
                 @endif
-                <td class="p-2">
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#chatModal-{{ $ticket->id }}">
-                        Detail
-                    </button>
+                <td class="action-button p-2 text-center">
+                    <div class="mb-2">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-{{ $ticket->id }}">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>
+                    </div>
+
+                    <div>
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#chatModal-{{ $ticket->id }}">
+                            <i class="fas fa-comments"></i> Pesan
+                        </button>
+                    </div>
                 </td>
+
             </tr>
 
-            <!-- Modal untuk Percakapan -->
-            <div class="modal fade" id="chatModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="chatModalLabel-{{ $ticket->id }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+            <!-- Modal Detail -->
+            <div class="modal fade" id="detailModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="detailModal-{{ $ticket->id }}" aria-hidden="true" style="font-size: 12px;">
+                <div class=" modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="chatModalLabel-{{ $ticket->id }}">Percakapan untuk {{ $ticket->ticket_code }}</h5>
+                            <h5 class="modal-title" id="userDetailModalLabel">Detail Aduan</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Tanggal Dibuat:</strong> {{ $ticket->created_at }}</p>
+                            <p><strong>Kode Tiket:</strong> {{ $ticket->ticket_code }}</p>
+                            <p><strong>Judul:</strong> {{ $ticket->title }}</p>
+                            <p><strong>Layanan:</strong> {{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</p>
+                            <p><strong>Deskripsi:</strong> {{ $ticket->description }}</p>
+                            <p><strong>Unit Asal:</strong> {{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</p>
+                            <p><strong>Unit Saat Ini:</strong> {{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</p>
+                            <p><strong>Status:</strong>
+                                @if($ticket->status == 0) Pending
+                                @elseif($ticket->status == 1) Ditugaskan
+                                @else Resolved
+                                @endif
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal untuk Percakapan -->
+            <div class="modal fade" id="chatModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="chatModalLabel-{{ $ticket->id }}" aria-hidden="true" style="font-size: 12px;">
+                <div class=" modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="chatModalLabel-{{ $ticket->id }}">Kode Tiket: {{ $ticket->ticket_code }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="chat-container" style="max-height: 400px; overflow-y: auto; padding: 10px;">
                                 @forelse($ticket->responses as $response)
-                                <div class="message-wrapper mb-3" style="display: flex; flex-direction: column; align-items: {{ $response->user->role_id == 4 ? 'flex-start' : 'flex-end' }};">
-                                    <div class="message-box p-3 rounded shadow-sm"
-                                        style="max-width: 70%; background-color: {{ $response->user->role_id == 4 ? '#e9ecef' : ($response->user->role_id == 2 ? '#fff3cd' : '#d1e7dd') }}; border: 1px solid {{ $response->user->role_id == 4 ? '#ced4da' : ($response->user->role_id == 2 ? '#ffc107' : '#28a745') }};">
-                                        <p class="text-dark mb-1">
-                                            <strong>
-                                                @if ($response->user->role_id == 2)
-                                                Sistem (Operator)
-                                                @else
-                                                {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
-                                                @endif
-                                            </strong> - {{ $response->created_at->format('d-m-Y H:i') }}
-                                        </p>
-                                        @if ($response->ticket_id_quote)
-                                        <span class="fst-italic text-muted small d-block mb-1">
-                                            (Membalas: "{{ $response->quotedResponse->message }}")
-                                        </span>
-                                        @endif
-                                        <p class="mb-0">{{ $response->message }}</p>
+                                @php
+                                $isSender = $response->user_id == auth()->user()->id;
+                                $bgColor = $isSender ? 'rgb(165, 195, 244)' : 'rgb(236, 236, 236)';
+                                @endphp
+                                <div class="message-wrapper mb-3" style="display: flex; flex-direction: column; align-items: {{ $isSender ? 'flex-end' : 'flex-start' }};">
+                                    <p class="text-dark mb-1">
+                                        <strong>
+                                            @if ($response->user->role_id == 2)
+                                            Sistem (Operator)
+                                            @else
+                                            {{ $response->user->username }}
+                                            @endif
+                                        </strong>
+                                    </p>
+                                    @if ($response->ticket_id_quote)
+                                    <span class="fst-italic text-muted small d-block mb-1">
+                                        (Membalas: "{{ $response->quotedResponse->message }}")
+                                    </span>
+                                    @endif
+                                    <div class="message-box p-1 rounded shadow-sm"
+                                        style="max-width: 50%; background-color: {{ $bgColor }}">
                                         @forelse($response->uploads as $upload)
                                         <div class="mt-2">
                                             <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
@@ -166,11 +217,14 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                                                     class="img-thumbnail"
                                                     style="width: 128px; height: 128px; object-fit: cover;">
                                             </a>
-                                            <p class="small text-muted mt-1">{{ $upload->filename_ori }}</p>
                                         </div>
                                         @empty
-                                        <p class="small text-muted mt-1">Tidak ada lampiran gambar.</p>
+                                        <!-- <p class="small text-muted mt-1">Tidak ada lampiran gambar.</p> -->
                                         @endforelse
+                                        <p class="mb-0">{{ $response->message }}</p>
+                                        <small class="text-muted d-block mb-1 text-end">
+                                            {{ $response->created_at->format(' d M, H:i') }}
+                                        </small>
                                     </div>
                                 </div>
                                 @empty
@@ -190,7 +244,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Tutup</button>
                         </div>
                     </div>
                 </div>
@@ -205,6 +259,30 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
         </tbody>
     </table>
 </div>
+<style>
+    .card-body p {
+        color: #276783;
+        font-size: 11px;
+    }
+
+    .card-body h6 {
+        font-size: 20px;
+    }
+
+    th {
+        color: rgb(131, 131, 131) !important;
+    }
+
+    .table-responsive {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table td,
+    .table th {
+        padding: 20px !important;
+    }
+</style>
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

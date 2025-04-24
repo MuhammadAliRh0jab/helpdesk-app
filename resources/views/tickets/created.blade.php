@@ -3,9 +3,13 @@
 @section('title', 'Riwayat Aduan Saya')
 
 @section('content')
-<div class="card-header shadow">
-    <h1 class="h4 text-white fs-4">Riwayat Aduan</h1>
-    <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
+
+<div class="card  mt-4">
+    <div class="card-body">
+        <h6><strong>Riwayat Aduan</strong></h6>
+        <p>Daftar semua aduan yang telah dikirimkan</p>
+        <hr>
+    </div>
 </div>
 @if (session('success'))
 <div class="alert alert-success p-4 mb-4 rounded">
@@ -19,34 +23,34 @@
 </div>
 @endif
 
-<div class="table-responsive mb-4 mt-3">
-    <table class="table table-bordered">
+<div class="table-responsive mb-4 mt-3 text-center">
+    <table class="table rounded">
         <thead class="table-light">
             <tr>
-                <th class="p-2 text-dark">Kode Tiket</th>
-                <th class="p-2 text-dark">Judul</th>
-                <th class="p-2 text-dark">Layanan</th>
-                <th class="p-2 text-dark">Unit Asal</th>
-                <th class="p-2 text-dark">Unit Saat Ini</th>
-                <th class="p-2 text-dark">Status</th>
-                <th class="p-2 text-dark">Tanggal Dibuat</th>
+                <th class="p-3 text-secondary">Kode Tiket</th>
+                <th class="p-3 text-secondary">Judul</th>
+                <th class="p-3 text-secondary">Layanan</th>
+                <th class="p-3 text-secondary">Unit Asal</th>
+                <th class="p-3 text-secondary">Unit Saat Ini</th>
+                <th class="p-3 text-secondary">Status</th>
+                <th class="p-3 text-secondary">Tanggal Dibuat</th>
             </tr>
         </thead>
         <tbody>
             @forelse($tickets as $ticket)
             <tr>
-                <td class="p-2 text-dark">{{ $ticket->ticket_code }}</td>
-                <td class="p-2 text-dark">{{ $ticket->title }}</td>
-                <td class="p-2 text-dark">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
-                <td class="p-2 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
-                <td class="p-2 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
-                <td class="p-2 text-dark">
+                <td class="p-3 text-dark">{{ $ticket->ticket_code }}</td>
+                <td class="p-3 text-dark">{{ $ticket->title }}</td>
+                <td class="p-3 text-dark">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                <td class="p-3 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
+                <td class="p-3 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
+                <td class="p-3 text-dark">
                     @if($ticket->status == 0) Pending
                     @elseif($ticket->status == 1) Ditugaskan
                     @else Resolved
                     @endif
                 </td>
-                <td class="p-2 text-dark">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
+                <td class="p-3 text-dark">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
             </tr>
             <!-- Bagian untuk menampilkan riwayat percakapan -->
             <tr>
@@ -99,4 +103,5 @@
         </tbody>
     </table>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

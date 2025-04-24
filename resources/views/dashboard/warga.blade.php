@@ -3,131 +3,195 @@
 @section('title', 'Dashboard Warga')
 
 @section('content')
-<div>
-    <div class="card-header shadow">
-        <h1 class="h4 text-white fs-4">Dashboard</h1>
-        <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
+<div class="card mt-4">
+    <div class="card-body">
+        <h6><strong>Dashboard</strong></h6> <hr><br>
+        <h6 class="card-title- mb-2 fs-5">Selamat Datang, <strong>{{ Auth::user()->name }}</strong> &#128075;&#128522; !</h6>
+        <p>Kami siap membantu Anda melaporkan aduan, mengelola tiket, dan mendapatkan solusi cepat untuk berbagai permasalahan.</p>
+        <!-- <hr> -->
+      </div>
     </div>
-    <div class="card shadow mb-4 mt-3" style="background: linear-gradient(180deg,rgba(21, 113, 232, 0.4) 0%, rgb(255, 255, 255) 100%);">
-        <div class="card-body">
-            <h5 class="card-title- mb-2">Selamat Datang, <strong>{{ Auth::user()->name }}</strong> &#128075;&#128522; !</h5>
-            <hr>
-            <p>Selamat datang di Helpdesk Pemerintah Kota Blitar! Kami siap membantu Anda melaporkan aduan, mengelola tiket, dan mendapatkan solusi cepat untuk berbagai permasalahan. Gunakan dashboard ini untuk melihat status tiket Anda, membuat aduan baru, atau melacak progres penyelesaian. </p>
-        </div>
+    <div>
+      <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+      </div>
     </div>
-    <h5 class="text-primary"> Informasi Tiket Anda</h5>
-    <hr class="mb-4 mt-2">
+    <hr>
 
-    <div class="row row-cols-1 row-cols-md-4 g-4 mb-4 text-center">
-        <div class="col">
-            <div class="card h-100 shadow">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <i class="fa-solid fa-ticket" style="color:rgb(96, 98, 103);"></i>
-                    <div class="d-flex flex-column text-end">
-                        <h5 class="card-title">Total Tiket</h5>
-                        <p class="fs-2">{{ $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'] }}</p>
-                    </div>
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="flex-column align-items-center justify-content-center" style="margin-top: -20px;">
+          <canvas id="ticketChart"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card-custom card-blue">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <i class="fa-solid fa-ticket"></i>
+                <div class="d-flex flex-column text-end">
+                  <h6 class="card-title">Total Tiket</h6>
+                  <p class="fs-2 text-white">{{ $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'] }}</p>
                 </div>
+              </div>
             </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 shadow">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <i class="fa-solid fa-briefcase" style="color: #3674B5;"></i>
-                    <div class="d-flex flex-column text-end">
-                        <h5 class="card-title">Tiket Ditugaskan</h5>
-                        <p class="fs-2">{{ $ticketStats['assigned'] }}</p>
-                    </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card-custom card-darkblue">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <i class="fa-solid fa-briefcase"></i>
+                <div class="d-flex flex-column text-end">
+                  <h6 class="card-title">Tiket Ditugaskan</h6>
+                  <p class="fs-2 text-white">{{ $ticketStats['assigned'] }}</p>
                 </div>
+              </div>
             </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 shadow">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <i class="fa-solid fa-hourglass-half" style="color: #578FCA ;"></i>
-                    <div class="d-flex flex-column text-end">
-                        <h5 class="card-title">Tiket Pending</h5>
-                        <p class="fs-2">{{ $ticketStats['pending'] }}</p>
-                    </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card-custom card-purple">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <div class="d-flex flex-column text-end">
+                  <h6 class="card-title">Tiket Pending</h6>
+                  <p class="fs-2 text-white">{{ $ticketStats['pending'] }}</p>
                 </div>
+              </div>
             </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 shadow">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <i class="fa-solid fa-circle-check" style="color: #A1E3F9;"></i>
-                    <div class="d-flex flex-column text-end">
-                        <h5 class="card-title">Tiket Selesai</h5>
-                        <p class="fs-2">{{ $ticketStats['completed'] }}</p>
-                    </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card-custom card-darkpurple">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <i class="fa-solid fa-circle-check"></i>
+                <div class="d-flex flex-column text-end">
+                  <h6 class="card-title">Tiket Selesai</h6>
+                  <p class="fs-2 text-white">{{ $ticketStats['completed'] }}</p>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
-    <div class="card shadow">
-        <div class="card-body">
-            <h5 class="card-title- mb-2">Distribusi Tiket Anda</h5>
-            <hr>
-            <div class="w-100 mx-auto">
-                <canvas id="ticketChart"></canvas>
+      </div>
+      <hr>
+      <div class="container mt-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title mb-0">Daftar Aduan Anda</h5>
             </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Judul</th>
+                    <th>Layanan</th>
+                    <th>Deskripsi</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-    </div>
-    @endsection
-        
-    @section('scripts')
-    <script>
-    const ticketStats = {
+        @endsection
+
+
+        @section('scripts')
+        <script>
+
+        const ticketStats = {
         assigned: {{ $ticketStats['assigned'] ?? 0 }},
         pending: {{ $ticketStats['pending'] ?? 0 }},
         completed: {{ $ticketStats['completed'] ?? 0 }}
-    };
+        };
 
-    const chartOptions = {
-        type: 'bar',
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { 
-                legend: { display: false } 
-            },
-            scales: {
-                x: { 
-                    beginAtZero: true,
-                    grid: { display: false },
-                    ticks: {
-                        stepSize: 1,
-                        callback: function(value) {
-                            if (Number.isInteger(value)) {
-                                return value;
-                            }
-                        }
-                    }
-                },
-                y: { 
-                    grid: { display: false } 
+          const chartOptions = {
+            type: 'doughnut',
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '60%',
+              plugins: {
+                legend: {
+                  position: 'left',
+                  labels: {
+                    color: '#11111',
+                    boxWidth: 15,
+                    padding: 40
+                  }
                 }
+              }
             }
-        }
-    };
+          };
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const ticketChartCtx = document.getElementById('ticketChart');
-        if (ticketChartCtx) {
-            new Chart(ticketChartCtx, {
+          document.addEventListener('DOMContentLoaded', function() {
+            const ticketChartCtx = document.getElementById('ticketChart');
+            if (ticketChartCtx) {
+              new Chart(ticketChartCtx, {
                 ...chartOptions,
                 data: {
-                    labels: [  'Ditugaskan','Pending','Selesai'],
-                    datasets: [{
-                        label: 'Jumlah Tiket',
-                        data: [ticketStats.assigned, ticketStats.pending, ticketStats.completed],
-                        backgroundColor: [ '#3674B5','#578FCA', '#A1E3F9'],
-                        borderWidth: 1
-                    }]
+                  labels: ['Ditugaskan', 'Pending', 'Selesai'],
+                  datasets: [{
+                    label: 'Jumlah Tiket',
+                    data: [ticketStats.assigned, ticketStats.pending, ticketStats.completed],
+                    backgroundColor: ['#20358A', '#6D5DBA', '#3429D5'],
+                    borderWidth: 1,
+                    radius: '80%'
+                  }]
                 }
-            });
-        }
-    });
-</script>
-@endsection
+              });
+            }
+          });
+        </script>
+
+        <style>
+          body {
+            background-color: #f5f7ff;
+            font-family: 'Segoe UI', sans-serif;
+          }
+
+          .sidebar {
+            height: 100vh;
+            background-color: #fff;
+            border-right: 1px solid #ddd;
+          }
+
+          .sidebar .nav-link.active {
+            background-color: #6c63ff;
+            color: white !important;
+            border-radius: 8px;
+          }
+
+          .card-custom {
+            border-radius: 20px;
+            color: white;
+            padding: 20px;
+          }
+
+          .card-blue {
+            background-color: #3E64A9;
+          }
+
+          .card-purple {
+            background-color: #6D5DBA;
+          }
+
+          .card-darkblue {
+            background-color: #20358A;
+          }
+
+          .card-darkpurple {
+            background-color: rgb(19, 9, 160);
+          }
+          .table th{
+            color:rgb(124, 124, 124);
+          }
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        @endsection

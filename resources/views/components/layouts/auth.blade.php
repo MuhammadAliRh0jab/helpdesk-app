@@ -19,6 +19,27 @@
         textarea {
             font-family: 'Poppins', sans-serif;
         }
+
+        .header-logo {
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        @media (max-width: 1500px) {
+            .header-logo {
+                max-width: 90%;
+                max-height: 90%;
+                margin-top: 40px;
+            }
+        }
+        @media (max-width: 991px) {
+            .header-logo {
+                max-width: 80%;
+                max-height: 80%;
+                margin-top: 40px;
+                margin-left: 30px;
+            }
+        }
     </style>
 
     <div class="d-flex flex-column flex-root app-root bgi-size-cover bgi-position-center" id="kt_app_root" style="background-image: url({{ image('img/bg-auth-1.png') }})">
@@ -34,7 +55,7 @@
             <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center order-1 order-lg-2" style="background-image: url({{ image('img/bg-auth.png') }})">
                 <div class="d-flex flex-column flex-center py-7 py-lg-15 px-5 px-md-15 w-100">
                     <a href="{{ route('landing') }}" class="mb-12">
-                        <img alt="Logo" src="{{ image('img/logo-helpdesk-black.png') }}" class="h-200px" />
+                        <img class="header-logo" alt="Logo" src="{{ image('img/logo-helpdesk-black.png') }}" />
                     </a>
                 </div>
             </div>
