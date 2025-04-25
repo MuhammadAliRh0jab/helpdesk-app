@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
 </head>
 
@@ -33,6 +34,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-black" href="#mengapa">Mengapa Helpdesk</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-black" href="#cara-melapor">Cara Melapor</a>
                     </li>
                 </ul>
                 <button class="btn btn-primary text-white fw-bold rounded-pill ms-3 mt-3 mt-lg-0 px-4 py-2 shadow" onclick="window.location.href='{{ route('login') }}'">
@@ -71,7 +75,7 @@
     <section class="bg-white border-bottom py-5" id="tentang">
         <div class="container px-4" style="margin-top: 70px;">
             <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="1000">Tentang Helpdesk</h2>
-            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div>
+            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div><br><br><br>
             <div class="row align-items-center justify-content-between g-4">
                 <div class="col-12 col-md-6 p-4" data-aos="fade-right" data-aos-duration="1000">
                     <h3 class="h3 fw-bold text-dark mb-3">Helpdesk Pemerintah Kota Blitar</h3>
@@ -129,6 +133,58 @@
             </div>
         </div>
     </section>
+    <section class="py-5 text-center" id="cara-melapor">
+        <div class="container py-4"><br><br>
+            <h2 class="display-4 fw-bold" data-aos="fade-down" data-aos-duration="1000">Cara Melapor</h2>
+            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div><br><br>
+            <div class="row justify-content-center mt-5">
+                <div class="col-12 col-md-4 mb-4">
+                    <div data-aos="fade-up" data-aos-duration="1000">
+                        <h1 class="fw-bold" style="font-size: 64px;">01</h1>
+                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
+                            <div class="bg-white p-3 rounded me-3">
+                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
+                            </div>
+                            <div class="text-start">
+                                <p class="mb-0 fw-bold">Login / Register Akun Anda</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-white-50">Sebelum melaporkan pengaduan Anda, terlebih dahulu lakukan login/register</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-4">
+                    <div data-aos="fade-up" data-aos-duration="1500">
+                        <h1 class="fw-bold" style="font-size: 64px;">02</h1>
+                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
+                            <div class="bg-white p-3 rounded me-3">
+                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
+                            </div>
+                            <div class="text-start">
+                                <p class="mb-0 fw-bold">Isi Form dan Ceritakan Kasusnya</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-white-50">Klik Menu "Buat Aduan" dan lanjutkan mengisi formulir pengaduan yang telah disediakan</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-4">
+                    <div data-aos="fade-up" data-aos-duration="2000">
+                        <h1 class="fw-bold" style="font-size: 64px;">03</h1>
+                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
+                            <div class="bg-white p-3 rounded me-3">
+                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
+                            </div>
+                            <div class="text-start">
+                                <p class="mb-0 fw-bold">Kirimkan Form Yang sudah terisi</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-white-50">Klik tombol "Kirim" untuk mengirim pengaduan Anda, Anda dapat memantau pengaduan yang dikirim di halaman "Dashboard"</p>
+                    </div>
+                    <br><br>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="bg-white py-5">
         <div class="card-account text-center py-5 mb-5 text-dark">
             <h2 class="display-4 fw-bold my-3" data-aos="fade-down" data-aos-duration="3000">Buat Akun Sekarang</h2>
@@ -281,28 +337,32 @@
             p {
                 font-size: 11px !important;
             }
-            .card-account button{
+
+            .card-account button {
                 max-width: 50%;
                 max-height: 20% !important;
                 font-size: 12px !important;
             }
-            footer{
+
+            footer {
                 font-size: 12px;
             }
-            footer img{
+
+            footer img {
                 max-height: 50%;
                 max-width: 40% !important;
             }
         }
 
         @media (max-width: 1200px) {
-            .card-footer img{
+            .card-footer img {
                 max-width: 80%;
                 max-height: 80%;
             }
         }
+
         @media (max-width: 764px) {
-            #tentang{
+            #tentang {
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
@@ -343,7 +403,6 @@
                 }
             });
         });
-
     </script>
 </body>
 
