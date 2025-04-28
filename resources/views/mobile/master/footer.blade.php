@@ -14,18 +14,12 @@
                         <span>Tiket</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#">
+                <li @if(request()->routeIs('profile')) class="active" @endif>
+                    <a href="{{ route('profile') }}">
                         <i class="bi bi-person"></i>
                         <span>Akun</span>
                     </a>
                 </li>
-                {{-- <li @if(request()->routeIs('mobile.account')) class="active" @endif>
-                    <a href="{{ route('mobile.account') }}">
-                        <i class="bi bi-person"></i>
-                        <span>Akun</span>
-                    </a>
-                </li> --}}
             </ul>
         </div>
     </div>

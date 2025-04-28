@@ -163,7 +163,7 @@
             </div>
             <div class="modal-body" id="modal-responses-body" style="max-height: 400px; overflow-y: auto; position: relative;">
                 <!-- Daftar respon akan ditampilkan di sini -->
-                <img class="m-1" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 150px; position: absolute; bottom: 10px; left: 10px; z-index: 10; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                <img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 60%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
             </div>
             <div class="modal-footer" id="modal-responses-footer">
                 <!-- Form balasan akan ditampilkan di sini jika memenuhi syarat -->
@@ -184,6 +184,9 @@
 <script src="{{ asset('mobile/js/android-bridge.js') }}"></script>
 <script>
     $(document).ready(function() {
+        // Simpan Base64 sementara jika modal belum terbuka
+        let pendingImageBase64 = null;
+
         // Fungsi untuk mengontrol scroll body
         function toggleBodyScroll(enableScroll) {
             if (enableScroll) {
@@ -269,45 +272,72 @@
                         const footerContainer = $('#modal-responses-footer');
                         footerContainer.empty();
                         footerContainer.append(`
-                            <form action="{{ route('tickets.reply', '') }}/${response.id}" method="POST" enctype="multipart/form-data" class="w-100 p-2" id="replyForm">
+                            <form action="" method="POST" enctype="multipart/form-data" style="width: 100%;" id="replyForm">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <textarea name="message" class="form-control form-control-clicked mb-2" placeholder="Masukkan balasan Anda..." style="height: 50px;" required></textarea>
+                                <textarea name="message" class="form-control mb-2" placeholder="Masukkan balasan Anda..." style="height: 50px;" required></textarea>
                                 <div class="form-group mb-2">
                                     <input type="hidden" name="images[]" id="imageBase64Input">
                                     <div class="d-flex align-items-center justify-content-center">
                                         <button type="button" id="openCameraBtn" class="btn btn-sm btn-outline-primary me-2">Buka Kamera</button>
                                         <button type="button" id="openGalleryBtn" class="btn btn-sm btn-outline-primary me-2">Pilih dari Galeri</button>
                                         <button type="submit" class="btn btn-sm btn-primary">Kirim Balasan</button>
+                                        <input type="file" id="fileFallback" accept="image/*" hidden>
                                     </div>
                                     <p id="errorMessage" class="text-danger text-sm mt-1"></p>
                                 </div>
                             </form>
                         `);
 
+                        // Tetapkan action form secara dinamis
+                        const replyUrl = "{{ route('tickets.reply', ':response_id') }}".replace(':response_id', response.id);
+                        $('#replyForm').attr('action', replyUrl);
+                        console.log('Form action set to:', replyUrl);
+
+                        // Pastikan #imagePreview ada
+                        if ($('#imagePreview').length === 0) {
+                            console.log('Creating #imagePreview element');
+                            $('#modal-responses-body').append(
+                                `<img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 60%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">`
+                            );
+                        }
+
                         // Event handler untuk tombol kamera dan galeri
                         $('#openCameraBtn').off('click').on('click', function() {
                             console.log('Opening camera');
-                            // Pastikan modal terbuka sebelum memanggil AndroidBridge
-                            if ($('#ticketResponsesModal').is(':visible')) {
+                            if (typeof AndroidBridge !== 'undefined') {
                                 AndroidBridge.openCamera('showImagePreview');
                             } else {
-                                $('#ticketResponsesModal').one('shown.bs.modal', function() {
-                                    AndroidBridge.openCamera('showImagePreview');
-                                });
+                                $('#fileFallback').click(); // Fallback untuk desktop
                             }
                         });
 
                         $('#openGalleryBtn').off('click').on('click', function() {
                             console.log('Opening photo picker');
-                            // Pastikan modal terbuka sebelum memanggil AndroidBridge
-                            if ($('#ticketResponsesModal').is(':visible')) {
+                            if (typeof AndroidBridge !== 'undefined') {
                                 AndroidBridge.openPhotoPicker();
                             } else {
-                                $('#ticketResponsesModal').one('shown.bs.modal', function() {
-                                    AndroidBridge.openPhotoPicker();
-                                });
+                                $('#fileFallback').click(); // Fallback untuk desktop
                             }
                         });
+
+                        // Fallback untuk desktop
+                        $('#fileFallback').on('change', function() {
+                            const file = this.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    window.showImagePreview(e.target.result);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        });
+
+                        // Terapkan Base64 yang tertunda jika ada
+                        if (pendingImageBase64) {
+                            console.log('Applying pending image base64');
+                            window.showImagePreview(pendingImageBase64);
+                            pendingImageBase64 = null;
+                        }
                     } else {
                         const footerContainer = $('#modal-responses-footer');
                         footerContainer.empty();
@@ -324,6 +354,7 @@
             }
 
             toggleBodyScroll(false);
+            console.log('Modal show triggered, checking #imagePreview:', $('#imagePreview').length);
             $('#ticketResponsesModal').modal('show');
         });
 
@@ -331,6 +362,7 @@
         $('#ticketDetailModal, #ticketResponsesModal').on('hidden.bs.modal', function () {
             toggleBodyScroll(true);
             $('#imagePreview').css('display', 'none'); // Sembunyikan pratinjau saat modal ditutup
+            pendingImageBase64 = null; // Reset Base64 tertunda
             const $trigger = $('.show-ticket-detail:focus, .show-ticket-responses:focus');
             if ($trigger.length) {
                 $trigger.focus();
@@ -342,6 +374,13 @@
         // Kelola fokus saat modal dibuka
         $('#ticketDetailModal, #ticketResponsesModal').on('shown.bs.modal', function () {
             $(this).find('.btn-close').focus();
+            console.log('Modal shown, #imagePreview exists:', $('#imagePreview').length);
+            // Terapkan Base64 yang tertunda jika ada
+            if (pendingImageBase64) {
+                console.log('Modal shown, applying pending image base64');
+                window.showImagePreview(pendingImageBase64);
+                pendingImageBase64 = null;
+            }
         });
 
         // Handle submit form balasan via AJAX
@@ -371,7 +410,7 @@
             }
 
             $.ajax({
-                url: form.action,
+                url: form.attr('action'), // Gunakan action dari form
                 method: 'POST',
                 data: formData,
                 processData: false,
@@ -395,27 +434,40 @@
 
         // Fungsi untuk menampilkan pratinjau gambar dari AndroidBridge
         window.showImagePreview = function(base64Image) {
-            console.log('Showing image preview with base64:', base64Image.substring(0, 50) + '...');
-            const $preview = $('#imagePreview');
+            console.log('Showing image preview with base64 length:', base64Image.length);
+            let $preview = $('#imagePreview');
             const $modal = $('#ticketResponsesModal');
-            if ($preview.length && $modal.is(':visible')) {
+            const $input = $('#imageBase64Input');
+
+            // Jika #imagePreview tidak ada, buat elemen baru
+            if ($preview.length === 0) {
+                console.warn('#imagePreview not found, creating new one');
+                $('#modal-responses-body').append(
+                    `<img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 60%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">`
+                );
+                $preview = $('#imagePreview');
+            }
+
+            if ($preview.length && $modal.is(':visible') && $input.length) {
+                console.log('Modal is visible, updating preview');
                 $preview.attr('src', base64Image);
                 $preview.css('display', 'block');
-                $('#imageBase64Input').val(base64Image);
+                $input.val(base64Image);
             } else {
-                console.error('Element #imagePreview not found or modal not visible');
-                console.log('Preview exists:', $preview.length, 'Modal visible:', $modal.is(':visible'));
-                // Tunggu modal terbuka jika belum
-                $modal.one('shown.bs.modal', function() {
-                    const $newPreview = $('#imagePreview');
-                    if ($newPreview.length) {
-                        $newPreview.attr('src', base64Image);
-                        $newPreview.css('display', 'block');
-                        $('#imageBase64Input').val(base64Image);
-                    } else {
-                        console.error('Still no #imagePreview after modal shown');
+                console.warn('Modal not visible or elements not found, storing base64 for later');
+                console.log('Preview exists:', $preview.length, 'Modal visible:', $modal.is(':visible'), 'Input exists:', $input.length);
+                pendingImageBase64 = base64Image;
+                // Coba ulang setelah delay kecil
+                setTimeout(() => {
+                    console.log('Retrying showImagePreview after delay');
+                    $preview = $('#imagePreview');
+                    if ($preview.length && $modal.is(':visible') && $input.length) {
+                        $preview.attr('src', base64Image);
+                        $preview.css('display', 'block');
+                        $input.val(base64Image);
+                        pendingImageBase64 = null;
                     }
-                });
+                }, 500);
             }
         };
     });

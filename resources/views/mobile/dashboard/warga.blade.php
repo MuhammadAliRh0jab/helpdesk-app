@@ -18,7 +18,7 @@
             <div class="card-body p-4">
                 <h2 class="text-white">Dashboard</h2>
                 <h5 class="my-2 text-white">Selamat Datang, {{ Auth::user()->name }}!</h5>
-                <small class="text-white">Helpdesk DISKOMINFOTIK Kota Blitar | Sistem Pengaduan Dinas Komunikasi, Informatika, dan Statistik Kota Blitar</small>
+                <small class="text-white">Helpdesk Kota Blitar | Sistem Pengaduan Kota Blitar</small>
             </div>
         </div>
     </div>

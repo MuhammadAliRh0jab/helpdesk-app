@@ -39,12 +39,9 @@
                   </li>
                 {{-- <li @if(request()->routeIs('mobile.account')) class="active" @endif> --}}
                 <li>
-                    <a href="#">
+                    <a href="{{ route('profile') }}">
                         <i class="bi bi-person"></i> Akun
                     </a>
-                    {{-- <a href="{{ route('mobile.account') }}">
-                        <i class="bi bi-person"></i> Akun
-                    </a> --}}
                 </li>
                 <li>
                     <div class="night-mode-nav">

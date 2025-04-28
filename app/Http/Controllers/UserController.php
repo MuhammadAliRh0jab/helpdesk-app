@@ -58,7 +58,8 @@ class UserController extends Controller
     public function profile()
     {
         $user = auth()->user();
-        return view('users.profile', compact('user'));
+
+        return view('theme::users.profile', compact('user'));
     }
 
     // Method untuk memperbarui informasi akun
