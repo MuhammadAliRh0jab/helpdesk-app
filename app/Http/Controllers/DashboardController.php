@@ -27,9 +27,11 @@ class DashboardController extends Controller
             ->with(['service', 'unit'])
             ->orderBy('created_at', 'desc')
             ->first();
-        $tickets = Ticket::where('user_id', $user->id)->get();
-
-        return view('theme::dashboard.warga', compact('user', 'ticketStats', 'latestTicket'));
+        $tickets = Ticket::where('user_id', $user->id)
+            ->with(['service', 'unit'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
+        return view('theme::dashboard.warga', compact('user', 'ticketStats', 'latestTicket', 'tickets'));
     }
 
     public function pegawai()

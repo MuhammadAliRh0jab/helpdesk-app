@@ -22,6 +22,26 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
         <h6><strong>Detail Aduan </strong></h6>
         <p>Aduan yang telah dikirimkan</p>
         <hr>
+        
+        <!-- Search and Filter Section -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <form action="{{ url()->current() }}" method="GET" class="d-flex">
+                    <input type="text" name="search" class="form-control me-2" placeholder="Cari berdasarkan kode tiket atau judul..." value="{{ request('search') }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Cari
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-4 text-end">
+                <select name="status_filter" id="statusFilter" class="form-select" onchange="this.form.submit()">
+                    <option value="">Semua Status</option>
+                    <option value="0" {{ request('status_filter') == '0' ? 'selected' : '' }}>Pending</option>
+                    <option value="1" {{ request('status_filter') == '1' ? 'selected' : '' }}>Ditugaskan</option>
+                    <option value="2" {{ request('status_filter') == '2' ? 'selected' : '' }}>Resolved</option>
+                </select>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -49,7 +69,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
         <tbody>
             @forelse($tickets as $ticket)
             <tr class="text-center">
-                <td class="p-2 text-dark">{{ $loop -> iteration }}</td>
+                <td class="p-2 text-dark">{{ ($tickets->currentPage() - 1) * $tickets->perPage() + $loop->iteration }}</td>
                 <td class="p-2 text-dark">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
                 <td class="p-2 text-dark">{{ $ticket->ticket_code }}</td>
                 <td class="p-2 text-dark">{{ $ticket->title }}</td>
@@ -252,13 +272,48 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
             @empty
             <tr>
                 <td colspan="{{ auth()->user()->role_id == 2 ? 10 : 8 }}" class="p-2 text-dark text-center">
-                    Tidak ada aduan.
+                    Tidak ada aduan yang ditemukan.
                 </td>
             </tr>
             @endforelse
         </tbody>
     </table>
 </div>
+
+<!-- Pagination -->
+<div class="d-flex justify-content-center mt-4">
+    {{ $tickets->appends(request()->query())->links() }}
+</div>
+
+<style>
+    .pagination .page-item .page-link {
+        border-radius: 5px;
+        margin: 0 3px;
+        padding: 8px 14px;
+        font-size: 14px;
+        color: #333;
+        border: 1px solid #ddd;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    .pagination .page-item .page-link:hover {
+        background-color: #f1f1f1;
+        border-color: #ccc;
+        color: #007bff;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        color: #aaa;
+        cursor: not-allowed;
+    }
+</style>
+
 <style>
     .card-body p {
         color: #276783;
@@ -282,6 +337,24 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
     .table th {
         padding: 20px !important;
     }
+    
+    /* Pagination styling */
+    .pagination {
+        margin-bottom: 0;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: #276783;
+        border-color: #276783;
+    }
+    
+    .pagination .page-link {
+        color: #276783;
+    }
+    
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+    }
 </style>
 
 @section('scripts')
@@ -289,6 +362,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Transfer form handling
         $('.transfer-form').each(function() {
             var ticketId = $(this).attr('id').split('-')[1];
             $('#unit_id-' + ticketId).on('change', function() {
@@ -313,6 +387,11 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                     $('#service_id-' + ticketId).empty().append('<option value="">Pilih Layanan</option>');
                 }
             });
+        });
+        
+        // Status filter auto-submit
+        $('#statusFilter').on('change', function() {
+            window.location.href = '{{ url()->current() }}?status_filter=' + $(this).val() + '&search={{ request('search') }}';
         });
     });
 </script>
