@@ -16,12 +16,44 @@
     <link rel="stylesheet" id="css-main" href="{{asset('assets2/css/oneui.min.css')}}">
     <link rel="stylesheet" id="css-theme" href="{{asset('assets2/css/themes/amethyst.min.css')}}">
     <script src="{{asset('assets2/js/setTheme.js/')}}"></script>
+    <style>
+        .nav-main-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: #4B5563;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+    
+        .nav-main-link:hover {
+            background-color: #487FFF;
+            color: white !important;
+        }
+    
+        .nav-main-link:hover .nav-main-link-icon,
+        .nav-main-link:hover .nav-main-link-name {
+            color: white !important;
+        }
+    
+        .nav-main-link.active {
+            background-color: #487FFF;
+            color: white !important;
+            font-weight: 600;
+        }
+    
+        .nav-main-link.active .nav-main-link-icon,
+        .nav-main-link.active .nav-main-link-name {
+            color: white !important;
+        }
+    </style>
 </head>
 
 <body>
     <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
-        <nav id="sidebar" aria-label="Main Navigation" style="background-color:rgb(11, 48, 98)">
-            <div class="content-header" style="background-color:rgb(213, 219, 229)">
+        <nav id="sidebar" aria-label="Main Navigation" style="background-color:rgb(255, 255, 255)">
+            <div class="content-header" style="background-color:rgb(255, 255, 255)">
                 <a class="fw-semibold text-dual" href="">
                     <span class="smini-visible">
                         <i class="fa fa-circle-notch text-primary"></i>
@@ -169,23 +201,28 @@
                         </li>
                         @else {{-- Warga --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('dashboard.warga') }}">
-                                <i class="nav-main-link-icon si si-speedometer"></i>
+                            <a href="{{ route('dashboard.warga') }}" 
+                               class="nav-main-link {{ Request::is('dashboard') ? 'active bg-primary text-white' : '' }}">
+                                <i class="nav-main-link-icon fas fa-home"></i>
                                 <span class="nav-main-link-name">Dashboard</span>
                             </a>
                         </li>
+                        
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.index') }}">
+                            <a href="{{ route('tickets.index') }}" 
+                               class="nav-main-link {{ Request::is('tickets') || Request::is('tickets/*') ? 'active bg-primary text-white' : '' }}">
                                 <i class="nav-main-link-icon si si-layers"></i>
                                 <span class="nav-main-link-name">Detail Aduan</span>
                             </a>
                         </li>
+                        
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.create') }}">
+                            <a href="{{ route('tickets.create') }}" 
+                               class="nav-main-link {{ Request::is('tickets/create') ? 'active bg-primary text-white' : '' }}">
                                 <i class="nav-main-link-icon si si-pencil"></i>
                                 <span class="nav-main-link-name">Buat Aduan Baru</span>
                             </a>
-                        </li>
+                        </li>                        
                         @endif
                     </ul>
 
@@ -194,7 +231,7 @@
         </nav>
 
         <!-- Header -->
-        <header id="page-header" style="background-color:rgb(213, 219, 229); position: fixed; top: 0;">
+        <header id="page-header" style="background-color:rgb(255, 255, 255); position: fixed; top: 0;">
             <div class="content-header">
                 <div class="d-flex align-items-center">
                     <!-- Toggle Sidebar -->

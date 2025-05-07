@@ -14,6 +14,9 @@ Route::get('/', function () {
     return view('theme::auth.landing');
 })->name('landing');
 
+Route::get('/', [TicketController::class, 'createGuest'])->name('welcome');
+Route::post('/tickets/guest', [TicketController::class, 'storeGuest'])->name('tickets.store.guest');
+
 // Routes untuk guest (belum login)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -58,7 +61,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('services', ServiceController::class)->middleware('role:1');
     Route::get('/get-services/{unitId}', [TicketController::class, 'getServices'])->name('get.services');
     Route::get('/services', [ServiceManagementController::class, 'index'])->middleware('role:2')->name('services.index');
+    Route::get('/services/create', [ServiceManagementController::class, 'create'])->middleware('role:2')->name('services.create');
+    Route::post('/services', [ServiceManagementController::class, 'store'])->middleware('role:2')->name('services.store');
     Route::patch('/services/{service}/status', [ServiceManagementController::class, 'updateStatus'])->middleware('role:2')->name('services.updateStatus');
+    Route::patch('/services/{service}/allow-guest', [ServiceManagementController::class, 'updateAllowGuest'])->middleware('role:2')->name('services.updateAllowGuest');
+    Route::patch('/services/{service}/category', [ServiceManagementController::class, 'updateCategory'])->middleware('role:2')->name('services.updateCategory');
     Route::get('/tickets/created', [TicketController::class, 'created'])->middleware('role:2')->name('tickets.created');
     // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });

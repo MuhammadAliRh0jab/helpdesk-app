@@ -18,6 +18,8 @@ class Ticket extends Model
         'title',
         'description',
         'status',
+        'guest_name',
+        'guest_email'
     ];
 
     protected $dates = ['deleted_at'];

@@ -11,7 +11,6 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
 </head>
 
 <body class="text-white gradient">
@@ -37,6 +36,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-black" href="#cara-melapor">Cara Melapor</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-black" href="#lapor-tanpa-login">Lapor Tanpa Login</a>
                     </li>
                 </ul>
                 <button class="btn btn-primary text-white fw-bold rounded-pill ms-3 mt-3 mt-lg-0 px-4 py-2 shadow" onclick="window.location.href='{{ route('login') }}'">
@@ -133,6 +135,7 @@
             </div>
         </div>
     </section>
+
     <section class="py-5 text-center" id="cara-melapor">
         <div class="container py-4"><br><br>
             <h2 class="display-4 fw-bold" data-aos="fade-down" data-aos-duration="1000">Cara Melapor</h2>
@@ -185,6 +188,125 @@
         </div>
     </section>
 
+    <section class="bg-white py-5" id="lapor-tanpa-login">
+        <div class="container py-4">
+            <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="1000">Lapor Tanpa Login</h2>
+            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8;"></div><br><br>
+            <p class="text-center text-muted mb-5">Laporkan masalah Anda tanpa perlu login untuk layanan publik tertentu.</p>
+    
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                            <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+    
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                            <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+    
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+    
+                    <div class="card shadow border-0 rounded-lg">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Form Pengaduan</h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <form action="{{ route('tickets.store.guest') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="guest_name" name="guest_name" placeholder="Nama Lengkap" required>
+                                            <label for="guest_name"><i class="fas fa-user me-2"></i>Nama Lengkap</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="email" class="form-control" id="guest_email" name="guest_email" placeholder="Email" required>
+                                            <label for="guest_email"><i class="fas fa-envelope me-2"></i>Email</label>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <select class="form-select" id="unit_id" name="unit_id" required>
+                                                <option value="" selected disabled>Pilih Unit</option>
+                                                @foreach($units as $unit)
+                                                    <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <label for="unit_id"><i class="fas fa-building me-2"></i>Unit Kerja</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <select class="form-select" id="service_id" name="service_id" required>
+                                                <option value="" selected disabled>Pilih Layanan</option>
+                                                @foreach($services as $service)
+                                                    <option value="{{ $service->id }}" data-unit="{{ $service->unit_id }}">
+                                                        {{ $service->svc_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <label for="service_id"><i class="fas fa-cogs me-2"></i>Layanan</label>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="title" name="title" placeholder="Judul Aduan" required>
+                                    <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
+                                </div>
+    
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="description" name="description" placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px" required></textarea>
+                                    <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi Masalah</label>
+                                </div>
+    
+                                <div class="mb-4">
+                                    <label for="images" class="form-label"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
+                                    <input class="form-control" type="file" id="images" name="images[]" accept="image/*" multiple>
+                                    <div class="form-text text-muted">
+                                        Format yang didukung: JPG, PNG, GIF. Ukuran maksimal: 2MB per file.
+                                    </div>
+                                </div>
+    
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer bg-light text-center py-3">
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Laporan Anda akan diverifikasi oleh tim kami sebelum diproses lebih lanjut
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="bg-white py-5">
         <div class="card-account text-center py-5 mb-5 text-dark">
             <h2 class="display-4 fw-bold my-3" data-aos="fade-down" data-aos-duration="3000">Buat Akun Sekarang</h2>
@@ -219,12 +341,10 @@
                     <img src="{{ asset('assets/media/img/logo-helpdesk-1.png') }}" alt="Logo Helpdesk" class="img-fluid mb-3" style="width: 300px; height: auto;">
                     <p>Sistem Layanan Bantuan dan Dukungan Pemerintah Kota Blitar</p>
                 </div>
-
                 <div class="col-md-4 mb-4">
                     <h5 class="fw-semibold mb-3">Link Terkait</h5>
                     <a href="https://blitarkota.go.id/" class="text-white text-decoration-none">Pemerintah Kota Blitar</a> <br><br>
                     <a href="https://diskominfotik.blitarkota.go.id/" class="text-white text-decoration-none">DISKOMINFOTIK Kota Blitar</a>
-
                 </div>
                 <div class="col-md-4 mb-4">
                     <h5 class="fw-semibold mb-3">Kontak</h5>
@@ -237,6 +357,7 @@
             </div>
         </div>
     </footer>
+
     <style>
         .gradient {
             background: linear-gradient(90deg, #1572e8 0%, rgb(21, 68, 144) 100%);
@@ -314,40 +435,18 @@
         }
 
         @media (max-width: 990px) {
-            h1 {
-                font-size: 20px !important;
-            }
-
-            h2 {
-                font-size: 18px !important;
-            }
-
-            h3 {
-                font-size: 15px !important;
-            }
-
-            h4 {
-                font-size: 14px !important;
-            }
-
-            h5 {
-                font-size: 12px !important;
-            }
-
-            p {
-                font-size: 11px !important;
-            }
-
+            h1 { font-size: 20px !important; }
+            h2 { font-size: 18px !important; }
+            h3 { font-size: 15px !important; }
+            h4 { font-size: 14px !important; }
+            h5 { font-size: 12px !important; }
+            p { font-size: 11px !important; }
             .card-account button {
                 max-width: 50%;
                 max-height: 20% !important;
                 font-size: 12px !important;
             }
-
-            footer {
-                font-size: 12px;
-            }
-
+            footer { font-size: 12px; }
             footer img {
                 max-height: 50%;
                 max-width: 40% !important;
@@ -369,26 +468,13 @@
             }
         }
     </style>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
     <script>
         AOS.init();
     </script>
-
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var navbar = document.getElementById("header");
-
-            window.addEventListener("scroll", function() {
-                if (window.scrollY > 50) {
-                    navbar.classList.add("scrolled");
-                } else {
-                    navbar.classList.remove("scrolled");
-                }
-            });
-        });
-
         document.addEventListener("DOMContentLoaded", function() {
             var navbar = document.getElementById("header");
             var logo = document.getElementById("nav-logo");
@@ -401,6 +487,27 @@
                     navbar.classList.remove("scrolled");
                     logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
                 }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const unitSelect = document.getElementById('unit_id');
+            const serviceSelect = document.getElementById('service_id');
+
+            unitSelect.addEventListener('change', function() {
+                const selectedUnitId = this.value;
+                const serviceOptions = serviceSelect.querySelectorAll('option');
+
+                serviceOptions.forEach(option => {
+                    if (option.value === '') {
+                        return;
+                    }
+                    const unitId = option.getAttribute('data-unit');
+                    option.style.display = unitId === selectedUnitId ? 'block' : 'none';
+                });
+
+                serviceSelect.value = '';
             });
         });
     </script>
