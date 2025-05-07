@@ -14,7 +14,7 @@ Route::get('/', function () {
     return view('theme::auth.landing');
 })->name('landing');
 
-Route::get('/', [TicketController::class, 'createGuest'])->name('welcome');
+Route::get('/', [TicketController::class, 'createGuest'])->name('landing');
 Route::post('/tickets/guest', [TicketController::class, 'storeGuest'])->name('tickets.store.guest');
 
 // Routes untuk guest (belum login)

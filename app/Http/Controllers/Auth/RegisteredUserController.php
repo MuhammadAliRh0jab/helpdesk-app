@@ -4,36 +4,83 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\View\View;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
-    public function create()
+    /**
+     * Tampilkan halaman registrasi.
+     */
+    public function create(): View
     {
-        return view('theme::auth.register');
+        return view('auth.register');
     }
 
-    public function store(Request $request)
+    /**
+     * Proses penyimpanan registrasi user baru.
+     */
+    public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'nullable|email|max:255|unique:users',
-            'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id', // Validasi role_id
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'username' => 'required|string|max:255|unique:' . User::class,
+                'email' => 'nullable|email|max:255|unique:' . User::class,
+                'phone' => 'nullable|string|max:255',
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'role_id' => 'required|in:4',
+            ]);            
 
-        $user = User::create([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'role_id' => $request->role_id, // Simpan role_id
-        ]);
+            $user = User::create([
+                'name' => $request->name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
+                'role_id' => 4,       // Ditetapkan sebagai 4
+                'unit_id' => null,    // Tidak memiliki unit
+            ]);
 
-        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
+            event(new Registered($user));
+            Auth::login($user);
+
+            session()->flash('success', 'Registrasi berhasil! Anda akan diarahkan ke halaman login.');
+            return redirect()->route('register');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            session()->flash('error', 'Registrasi gagal. Silakan periksa kembali data Anda.');
+            return redirect()->route('register')->withErrors($e)->withInput();
+
+        } catch (QueryException $e) {
+            Log::error('SQL Error during registration', [
+                'message' => $e->getMessage(),
+                'sql' => $e->getSql(),
+                'bindings' => $e->getBindings(),
+                'exception' => $e,
+                'request_data' => $request->except(['password', 'password_confirmation']),
+            ]);
+
+            session()->flash('error', 'Registrasi gagal karena kesalahan database.');
+            return redirect()->route('register')->withInput();
+
+        } catch (\Exception $e) {
+            Log::error('Unexpected error during registration', [
+                'message' => $e->getMessage(),
+                'exception' => $e,
+                'request_data' => $request->except(['password', 'password_confirmation']),
+            ]);
+
+            session()->flash('error', 'Terjadi kesalahan. Silakan coba lagi nanti.');
+            return redirect()->route('register')->withInput();
+        }
     }
 }
