@@ -23,62 +23,58 @@ class TicketController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
-
-        // Inisialisasi query untuk tickets
+        $search = $request->input('search');
+        $statusFilter = $request->input('status_filter');
+        
+        // Base query for tickets with necessary relationships
+        $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
+        
+        // Apply search if provided
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('ticket_code', 'like', '%' . $search . '%')
+                  ->orWhere('title', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Apply status filter if provided
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $query->where('status', $statusFilter);
+        }
+        
+        // Filter based on user role
         if ($user->role_id == 4) { // Warga Kota (role_id = 4)
-            $tickets = Ticket::where('user_id', $user->id)
-                ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
-                ->orderBy('created_at', 'desc')
-                ->get();
-        } elseif ($user->role_id == 2) { // Operator (role_id = 2)
-            $tickets = Ticket::where('unit_id', $user->unit_id)
-                ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
-                ->orderBy('created_at', 'desc')
-                ->get();
-        } elseif ($user->role_id == 3) { // Pegawai (PIC) (role_id = 3)
+            $query->where('user_id', $user->id);
+        } elseif ($user->role_id == 3) { // PIC (role_id = 3)
             $isPicActive = $user->isAssignedAsPic();
-
+    
             Log::info('User ID: ' . $user->id . ', Is PIC Active in index(): ' . ($isPicActive ? 'Yes' : 'No'));
-
-            // Jika PIC aktif, ambil tiket yang ditugaskan; jika tidak, ambil tiket yang dibuat
+    
+            // If PIC is active, show assigned tickets; otherwise, show user's own tickets
             if ($isPicActive) {
-                $tickets = Ticket::whereHas('pics', function ($query) use ($user) {
+                $query->whereHas('pics', function ($query) use ($user) {
                     $query->where('user_id', $user->id)
-                        ->where('ticket_pic.pic_stats', 'active');
+                          ->where('ticket_pic.pic_stats', 'active');
                 })
-                    ->orWhere('user_id', $user->id)
-                    ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+                ->orWhere('user_id', $user->id);
             } else {
-                $tickets = Ticket::where('user_id', $user->id)
-                    ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+                $query->where('user_id', $user->id);
             }
+        } elseif ($user->role_id == 2) { // Operator (role_id = 2)
+            $query->where('unit_id', $user->unit_id);
         } else { // Super_admin (role_id = 1)
-            $tickets = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
-                ->orderBy('created_at', 'desc')
-                ->get();
+            // No additional filtering required for super_admin
         }
-
-        // Filter layanan berdasarkan peran dan status aktif
-        $servicesQuery = Service::where('status', 'active');
-        if ($user->role_id == 4) { // Warga hanya melihat layanan publik
-            $servicesQuery->where('category_id', 2); // Publik
-        }
-        $services = $servicesQuery->with('unit')->get();
-
-        // Tentukan apakah pengguna dapat membuat aduan
-        $canCreateTicket = in_array($user->role_id, [3, 4]);
-        Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ', Can Create Ticket: ' . ($canCreateTicket ? 'Yes' : 'No'));
-
-        // Ambil daftar PIC untuk operator
+    
+        // Order by created_at, descending
+        $tickets = $query->orderBy('created_at', 'desc')->paginate(5);
+    
+        // Get available PICs for assignment (if applicable)
         $pics = collect();
-        if ($user->role_id == 2 && $user->unit_id) {
+        if ($user->role_id == 2 && $user->unit_id) { // Only for operators
             $pics = User::where('role_id', 3)
                 ->where('unit_id', $user->unit_id)
                 ->with(['pics' => function ($query) {
@@ -93,16 +89,28 @@ class TicketController extends Controller
                         'is_active' => $user->pics->first() ? true : false,
                     ];
                 });
-
+    
             Log::info('Operator unit_id: ' . $user->unit_id);
             Log::info('PICs found: ' . $pics->pluck('username')->implode(', ') . ' (Count: ' . $pics->count() . ')');
             if ($pics->isEmpty()) {
                 Log::info('No PICs found for unit_id: ' . $user->unit_id);
             }
         }
-
+    
+        // Filter services based on user role and active status
+        $servicesQuery = Service::where('status', 'active');
+        if ($user->role_id == 4) { // Warga only sees public services
+            $servicesQuery->where('category_id', 2); // Public category
+        }
+        $services = $servicesQuery->with('unit')->get();
+    
+        // Determine if the user can create a ticket
+        $canCreateTicket = in_array($user->role_id, [3, 4]);
+        Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ', Can Create Ticket: ' . ($canCreateTicket ? 'Yes' : 'No'));
+    
         return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
     }
+    
     // Tambahkan method isAssignedAsPic ke model User jika belum ada
     public function isAssignedAsPic()
     {

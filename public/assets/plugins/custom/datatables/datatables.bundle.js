@@ -10744,7 +10744,7 @@
 			 * parameter - if it is not given, the value of `zeroRecords` will be used
 			 * instead (either the default or given value).
 			 */
-			"sEmptyTable": "No data available in table",
+			"sEmptyTable": "Belum ada data",
 	
 	
 			/**
@@ -10768,7 +10768,7 @@
 			 * Display information string for when the table is empty. Typically the
 			 * format of this string should match `info`.
 			 */
-			"sInfoEmpty": "Showing 0 to 0 of 0 _ENTRIES-TOTAL_",
+			"sInfoEmpty": "Showing of 0 to 0 _ENTRIES-TOTAL_",
 	
 	
 			/**

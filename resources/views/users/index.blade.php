@@ -4,32 +4,35 @@
 
 @section('content')
 <div>
-    <div class="card-header shadow">
-        <h1 class="h4 text-white fs-4">Daftar Pengguna</h1>
-        <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
+    <div class="card  mt-4">
+        <div class="card-body">
+            <h6><strong>Daftar Pengguna</strong></h6>
+            <p>Akun aktif yang telah mendaftar pada laman Helpdesk</p>
+            <hr>
+        </div>
     </div>
 
     @if (session('success'))
-        <div class="alert alert-success p-4 mb-4 rounded">
-            {{ session('success') }}
-        </div>
+    <div class="alert alert-success p-4 mb-4 rounded">
+        {{ session('success') }}
+    </div>
     @endif
 
     @if (session('error'))
-        <div class="alert alert-danger p-4 mb-4 rounded">
-            {{ session('error') }}
-        </div>
+    <div class="alert alert-danger p-4 mb-4 rounded">
+        {{ session('error') }}
+    </div>
     @endif
 
     <div class="table-responsive mb-4 mt-4">
-        <table class="table table-bordered">
+        <table class="table text-center rounded">
             <thead class="table-light">
                 <tr>
-                    <th class="p-2 text-dark">Nama</th>
-                    <th class="p-2 text-dark">Username</th>
-                    <th class="p-2 text-dark">Email</th>
-                    <th class="p-2 text-dark">Fungsi</th>
-                    <th class="p-2 text-dark">Aksi</th>
+                    <th class="p-2 text-secondary">Nama</th>
+                    <th class="p-2 text-secondary">Username</th>
+                    <th class="p-2 text-secondary">Email</th>
+                    <th class="p-2 text-secondary">Fungsi</th>
+                    <th class="p-2 text-secondary">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -39,10 +42,11 @@
                     <td class="p-2 text-dark">{{ $user->username }}</td>
                     <td class="p-2 text-dark">{{ $user->email ?? 'Tidak ada' }}</td>
                     <td class="p-2 text-dark">{{ $user->getUserFunction() }}</td>
-                    <td class="p-2">
-                        <!-- Tombol Detail -->
-                        <button type="button" class="btn btn-primary btn-sm detail-btn" 
-                                data-bs-toggle="modal" 
+                    <td class="p-2 text-center">
+                        <div class="mb-2">
+                            <!-- Tombol Detail -->
+                            <button type="button" class="btn btn-primary btn-sm detail-btn"
+                                data-bs-toggle="modal"
                                 data-bs-target="#userDetailModal"
                                 data-id="{{ $user->id }}"
                                 data-name="{{ $user->name }}"
@@ -52,26 +56,31 @@
                                 data-unit="{{ $user->unit ? $user->unit->unit_name : 'Tidak ada' }}"
                                 data-role="{{ $user->role ? $user->role->role_name : 'Tidak ada' }}"
                                 data-function="{{ $user->getUserFunction() }}">
-                            Detail
-                        </button>
-
-                        <!-- Tombol Reset Password -->
-                        <form action="{{ route('users.resetPassword', $user->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-warning btn-sm ml-2" onclick="return confirm('Apakah Anda yakin ingin mereset password pengguna ini? Password akan disetel menjadi username mereka.')">
-                                Reset Password
+                                <i class="fas fa-info-circle me-1"></i> Detail
                             </button>
-                        </form>
+                        </div>
 
-                        <!-- Tombol Hapus (tidak ditampilkan untuk Super_admin) -->
+                        <div class="mb-2">
+                            <!-- Tombol Reset Password -->
+                            <form action="{{ route('users.resetPassword', $user->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Apakah Anda yakin ingin mereset password pengguna ini? Password akan disetel menjadi username mereka.')">
+                                    <i class="fas fa-key me-1"></i> Reset Password
+                                </button>
+                            </form>
+                        </div>
+
                         @if ($user->role_id != 1)
+                        <div>
+                            <!-- Tombol Hapus -->
                             <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm ml-2" onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
-                                    Hapus
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
+                                    <i class="fas fa-trash-alt me-1"></i> Hapus
                                 </button>
                             </form>
+                        </div>
                         @endif
                     </td>
                 </tr>
@@ -105,14 +114,29 @@
     </div>
 </div>
 @endsection
+<style>
+    .table-responsive {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+
+    .table th,
+    .table td,
+    .table tr {
+        font-size: 14px !important;
+        padding: 20px !important;
+    }
+</style>
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const detailButtons = document.querySelectorAll('.detail-btn');
 
         detailButtons.forEach(button => {
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function() {
                 // Ambil data dari atribut data-*
                 const id = this.getAttribute('data-id');
                 const name = this.getAttribute('data-name');

@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
 </head>
 
@@ -34,6 +35,9 @@
                     <li class="nav-item">
                         <a class="nav-link text-black" href="#mengapa">Mengapa Helpdesk</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-black" href="#cara-melapor">Cara Melapor</a>
+                    </li>
                 </ul>
                 <button class="btn btn-primary text-white fw-bold rounded-pill ms-3 mt-3 mt-lg-0 px-4 py-2 shadow" onclick="window.location.href='{{ route('login') }}'">
                     Login
@@ -43,13 +47,12 @@
     </nav>
 
     <section id="beranda" class="pt-5">
-        <div id="particles-js"></div>
         <div class="container px-3 py-5" style="margin-top: 90px;">
             <div class="row align-items-center">
                 <div class="col-12 text-center py-10">
-                    <p class="text-uppercase tracking-widest" data-aos="fade-down" data-aos-duration="3000">Selamat Datang di Website Layanan Aduan & Informasi</p>
-                    <h1 class="display-4 fw-bold my-4" data-aos="zoom-in" data-aos-duration="3000">HELPDESK PEMERINTAH KOTA BLITAR</h1>
-                    <p class="fs-3 mb-5" data-aos="fade-up" data-aos-duration="3000">Laporkan masalah Anda dengan cepat, dapatkan solusi tepat, dan akses layanan publik dengan mudah.</p>
+                    <p class="text-uppercase tracking-widest" data-aos="fade-down" data-aos-duration="3000">Selamat Datang di Website Layanan Aduan & Informasi</p><br>
+                    <h1 class="display-4 fw-bold my-4" data-aos="zoom-in" data-aos-duration="3000">HELPDESK PEMERINTAH KOTA BLITAR</h1><br>
+                    <p data-aos="fade-up" data-aos-duration="3000">Laporkan masalah Anda dengan cepat, dapatkan solusi tepat, dan akses layanan publik dengan mudah.</p><br>
                 </div>
             </div>
         </div>
@@ -72,7 +75,7 @@
     <section class="bg-white border-bottom py-5" id="tentang">
         <div class="container px-4" style="margin-top: 70px;">
             <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="1000">Tentang Helpdesk</h2>
-            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div>
+            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div><br><br><br>
             <div class="row align-items-center justify-content-between g-4">
                 <div class="col-12 col-md-6 p-4" data-aos="fade-right" data-aos-duration="1000">
                     <h3 class="h3 fw-bold text-dark mb-3">Helpdesk Pemerintah Kota Blitar</h3>
@@ -83,7 +86,7 @@
                     </p>
                 </div>
                 <div class="col-12 col-md-6 p-4 text-center text-md-end">
-                    <img src="{{ asset('assets/media/img/bg-auth.png') }}" alt="Gambar Helpdesk" class="img-fluid mx-auto d-block" style="max-width: 70%;" data-aos="fade-left" data-aos-duration="1000">
+                    <img src="{{ asset('assets/media/img/bg-auth.png') }}" alt="Gambar Helpdesk" class="img-fluid mx-auto d-block" style="max-width: 58%;" data-aos="fade-left" data-aos-duration="1000">
                 </div>
             </div>
         </div>
@@ -95,7 +98,7 @@
             <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div><br><br>
             <div class="row g-4">
                 <div class="col-12 col-md-4">
-                    <div class="card h-100 shadow" data-aos="fade-right" data-aos-duration="2000">
+                    <div class="card h-100 shadow" data-aos="fade-down" data-aos-duration="2000">
                         <div class="card-body">
                             <h5 class="card-title fw-bold text-dark">Dukungan di Mana Saja</h5>
                             <p class="card-text text-muted">Sampaikan aduan Anda kapan saja, di mana saja, dengan cara yang paling nyaman bagi Anda.</p>
@@ -117,7 +120,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-4">
-                    <div class="card h-100 shadow" data-aos="fade-left" data-aos-duration="2000">
+                    <div class="card h-100 shadow" data-aos="fade-down" data-aos-duration="2000">
                         <div class="card-body">
                             <h5 class="card-title fw-bold text-dark">Didukung Tim Profesional</h5>
                             <p class="card-text text-muted">Terdiri dari operator dan petugas teknis berpengalaman yang siap menangani aduan.</p>
@@ -130,6 +133,58 @@
             </div>
         </div>
     </section>
+    <section class="py-5 text-center" id="cara-melapor">
+        <div class="container py-4"><br><br>
+            <h2 class="display-4 fw-bold" data-aos="fade-down" data-aos-duration="1000">Cara Melapor</h2>
+            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div><br><br>
+            <div class="row justify-content-center mt-5">
+                <div class="col-12 col-md-4 mb-4">
+                    <div data-aos="fade-up" data-aos-duration="1000">
+                        <h1 class="fw-bold" style="font-size: 64px;">01</h1>
+                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
+                            <div class="bg-white p-3 rounded me-3">
+                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
+                            </div>
+                            <div class="text-start">
+                                <p class="mb-0 fw-bold">Login / Register Akun Anda</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-white-50">Sebelum melaporkan pengaduan Anda, terlebih dahulu lakukan login/register</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-4">
+                    <div data-aos="fade-up" data-aos-duration="1500">
+                        <h1 class="fw-bold" style="font-size: 64px;">02</h1>
+                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
+                            <div class="bg-white p-3 rounded me-3">
+                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
+                            </div>
+                            <div class="text-start">
+                                <p class="mb-0 fw-bold">Isi Form dan Ceritakan Kasusnya</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-white-50">Klik Menu "Buat Aduan" dan lanjutkan mengisi formulir pengaduan yang telah disediakan</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-4">
+                    <div data-aos="fade-up" data-aos-duration="2000">
+                        <h1 class="fw-bold" style="font-size: 64px;">03</h1>
+                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
+                            <div class="bg-white p-3 rounded me-3">
+                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
+                            </div>
+                            <div class="text-start">
+                                <p class="mb-0 fw-bold">Kirimkan Form Yang sudah terisi</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-white-50">Klik tombol "Kirim" untuk mengirim pengaduan Anda, Anda dapat memantau pengaduan yang dikirim di halaman "Dashboard"</p>
+                    </div>
+                    <br><br>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="bg-white py-5">
         <div class="card-account text-center py-5 mb-5 text-dark">
             <h2 class="display-4 fw-bold my-3" data-aos="fade-down" data-aos-duration="3000">Buat Akun Sekarang</h2>
@@ -163,13 +218,6 @@
                 <div class="col-md-4 mb-4">
                     <img src="{{ asset('assets/media/img/logo-helpdesk-1.png') }}" alt="Logo Helpdesk" class="img-fluid mb-3" style="width: 300px; height: auto;">
                     <p>Sistem Layanan Bantuan dan Dukungan Pemerintah Kota Blitar</p>
-                    <!-- <div class="d-flex gap-3">
-                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-youtube"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-tiktok"></i></a>
-                    </div> -->
                 </div>
 
                 <div class="col-md-4 mb-4">
@@ -264,10 +312,65 @@
             top: 60%;
             left: 0;
         }
+
+        @media (max-width: 990px) {
+            h1 {
+                font-size: 20px !important;
+            }
+
+            h2 {
+                font-size: 18px !important;
+            }
+
+            h3 {
+                font-size: 15px !important;
+            }
+
+            h4 {
+                font-size: 14px !important;
+            }
+
+            h5 {
+                font-size: 12px !important;
+            }
+
+            p {
+                font-size: 11px !important;
+            }
+
+            .card-account button {
+                max-width: 50%;
+                max-height: 20% !important;
+                font-size: 12px !important;
+            }
+
+            footer {
+                font-size: 12px;
+            }
+
+            footer img {
+                max-height: 50%;
+                max-width: 40% !important;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .card-footer img {
+                max-width: 80%;
+                max-height: 80%;
+            }
+        }
+
+        @media (max-width: 764px) {
+            #tentang {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
     <script>
         AOS.init();
@@ -299,38 +402,6 @@
                     logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
                 }
             });
-        });
-
-        particlesJS("particles-js", {
-            particles: {
-                number: {
-                    value: 400,
-                    density: {
-                        enable: true,
-                        value_area: 800
-                    }
-                },
-                color: {
-                    value: "#ffffff"
-                },
-                shape: {
-                    type: "circle"
-                },
-                opacity: {
-                    value: 0.5,
-                    random: false
-                },
-                size: {
-                    value: 1,
-                    random: true
-                },
-                move: {
-                    enable: true,
-                    speed: 0.8,
-                    direction: "none",
-                    out_mode: "out"
-                }
-            },
         });
     </script>
 </body>

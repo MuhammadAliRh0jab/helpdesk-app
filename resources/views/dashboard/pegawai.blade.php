@@ -3,117 +3,118 @@
 @section('title', 'Dashboard Pegawai')
 
 @section('content')
-<div>
-    <div class="card-header shadow">
-        <h1 class="h4 text-white fs-4">Dashboard Pegawai</h1>
-        <p class="text-white fs-6">Helpdesk Pemerintah Kota Blitar</p>
+<div class="card mt-4">
+    <div class="card-body">
+        <h6><strong>Dashboard</strong></h6> <hr><br>
+        <h6 class="card-title- mb-2 fs-5">Selamat Datang, <strong>{{ Auth::user()->name }}</strong> &#128075;&#128522; !</h6>
+            <p>Sebagai Pegawai, Anda dapat melihat tiket yang Anda ajukan dan tiket yang telah Anda selesaikan. Gunakan dashboard ini untuk memantau kontribusi Anda dalam penyelesaian aduan.</p>
+      </div>
     </div>
-    
-    <div class="card shadow mb-4 mt-3" style="background: linear-gradient(180deg,rgba(21, 113, 232, 0.4) 0%, rgb(255, 255, 255) 100%);">
-        <div class="card-body">
-            <h5 class="card-title- mb-2">Selamat Datang, <strong>{{ Auth::user()->name }}</strong> 👋😊 !</h5>
-            <hr>
-            <p>Selamat datang di Helpdesk Pemerintah Kota Blitar! Sebagai pegawai, Anda dapat melihat tiket yang Anda ajukan dan tiket yang telah Anda selesaikan. Gunakan dashboard ini untuk memantau kontribusi Anda dalam penyelesaian aduan.</p>
+    <div class="row mt-5">
+      <div class="col-md-6">
+        <div class="flex-column align-items-center justify-content-center" style="margin-top: -20px;">
+          <canvas id="ticketChart"></canvas>
         </div>
-    </div>
-
-    <h5 class="text-primary">Informasi Tiket Anda</h5>
-    <hr class="mb-4 mt-2">
-
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5 class="card-title- mb-2">Tiket yang Anda Selesaikan</h5>
-                    <hr>
-                    <div class="w-100 mx-auto" style="height: 200px;">
-                        <canvas id="personalChart"></canvas>
-                    </div>
+      </div>
+      <div class="col-md-6">
+        <div class="row g-3">
+          <div class="col-md-12">
+            <div class="card-custom card-blue">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <i class="fa-solid fa-ticket"></i>
+                <div class="d-flex flex-column text-end">
+                  <h6 class="card-title">Tiket Yang Diajukan</h6>
+                  <p class="fs-2 text-white">{{ $ticketStats['created'] }}</p>
                 </div>
+              </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5 class="card-title- mb-2">Tiket yang Anda Ajukan</h5>
-                    <hr>
-                    <div class="w-100 mx-auto" style="height: 200px;">
-                        <canvas id="createdChart"></canvas>
-                    </div>
+          </div>
+          <div class="col-md-12">
+            <div class="card-custom card-darkblue">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <i class="fa-solid fa-briefcase"></i>
+                <div class="d-flex flex-column text-end">
+                  <h6 class="card-title">Tiket Yang Diselesaikan</h6>
+                  <p class="fs-2 text-white">{{ $ticketStats['resolved'] }}</p>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
     </div>
+    <hr>
 </div>
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <script>
-        const personalStats = {
-            resolved: {{ $personalStats['resolved'] ?? 0 }}
-        };
-        const createdStats = {
-            created: {{ $createdStats['created'] ?? 0 }}
-        };
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const ticketStats = {
+        created: {{ $ticketStats['created'] ?? 0 }},
+        resolved: {{ $ticketStats['resolved'] ?? 0 }}
+    };
 
-        const chartOptions = {
-            type: 'bar',
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { 
-                        beginAtZero: true,
-                        grid: { display: false },
-                        ticks: {
-                            stepSize: 1,
-                            callback: function(value) {
-                                if (Number.isInteger(value)) {
-                                    return value;
-                                }
-                            }
-                        }
-                    },
-                    y: { grid: { display: false } }
+    const chartOptions = {
+        type: 'doughnut',
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'left',
+                    labels: {
+                        color: '#111',
+                        boxWidth: 15,
+                        padding: 40
+                    }
                 }
             }
-        };
+        }
+    };
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const personalChartCtx = document.getElementById('personalChart');
-            if (personalChartCtx) {
-                new Chart(personalChartCtx, {
-                    ...chartOptions,
-                    data: {
-                        labels: ['Tiket Diselesaikan'],
-                        datasets: [{
-                            label: 'Jumlah Tiket',
-                            data: [personalStats.resolved],
-                            backgroundColor: ['#A1E3F9'],
-                            borderWidth: 1
-                        }]
-                    }
-                });
-            }
+    document.addEventListener('DOMContentLoaded', function () {
+        const ticketChartCtx = document.getElementById('ticketChart');
+        if (ticketChartCtx) {
+            new Chart(ticketChartCtx, {
+                ...chartOptions,
+                data: {
+                    labels: ['Diajukan', 'Diselesaikan'],
+                    datasets: [{
+                        label: 'Jumlah Tiket',
+                        data: [ticketStats.created, ticketStats.resolved],
+                        backgroundColor: ['#3E64A9', '#20358A'],
+                        borderWidth: 1,
+                        radius: '80%'
+                    }]
+                }
+            });
+        }
+    });
+</script>
 
-            const createdChartCtx = document.getElementById('createdChart');
-            if (createdChartCtx) {
-                new Chart(createdChartCtx, {
-                    ...chartOptions,
-                    data: {
-                        labels: ['Tiket Dibuat'],
-                        datasets: [{
-                            label: 'Jumlah Tiket',
-                            data: [createdStats.created],
-                            backgroundColor: ['#3674B5'],
-                            borderWidth: 1
-                        }]
-                    }
-                });
-            }
-        });
-    </script>
+<style>
+  .card-custom {
+    border-radius: 20px;
+    color: white;
+    padding: 20px;
+  }
+
+  .card-blue {
+    background-color: #3E64A9;
+  }
+
+  .card-purple {
+    background-color: #6D5DBA;
+  }
+
+  .card-darkblue {
+    background-color: #20358A;
+  }
+
+  .card-darkpurple {
+    background-color: rgb(19, 9, 160);
+  }
+</style>
 @endsection

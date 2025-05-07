@@ -27,9 +27,11 @@ class DashboardController extends Controller
             ->with(['service', 'unit'])
             ->orderBy('created_at', 'desc')
             ->first();
-        $tickets = Ticket::where('user_id', $user->id)->get();
-
-        return view('theme::dashboard.warga', compact('user', 'ticketStats', 'latestTicket'));
+        $tickets = Ticket::where('user_id', $user->id)
+            ->with(['service', 'unit'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
+        return view('theme::dashboard.warga', compact('user', 'ticketStats', 'latestTicket', 'tickets'));
     }
 
     public function pegawai()
@@ -39,11 +41,18 @@ class DashboardController extends Controller
 
         Log::info('Loading dashboard for user: ' . $userId . ', Role: ' . $user->role_id);
 
-        $personalStats = $this->getPersonalStatsForPegawai($userId);
-        $createdStats = $this->getCreatedStatsForPegawai($userId);
+        $personalStats = $this->getPersonalStatsForPegawai($userId); // ex: ['resolved' => 5]
+        $createdStats = $this->getCreatedStatsForPegawai($userId);   // ex: ['created' => 7]
 
-        return view('dashboard.pegawai', compact('personalStats', 'createdStats'));
+        // Tambahkan ini agar tidak error di blade:
+        $ticketStats = [
+            'created' => $createdStats['created'] ?? 0,
+            'resolved' => $personalStats['resolved'] ?? 0,
+        ];
+
+        return view('dashboard.pegawai', compact('personalStats', 'createdStats', 'ticketStats'));
     }
+
 
     private function getPersonalStatsForPegawai($userId)
     {
