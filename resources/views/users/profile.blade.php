@@ -21,104 +21,121 @@
 </div>
 @endif
 
-<div class="card mt-4">
-    <div class="card-body">
-        <h6><strong>Informasi Akun</strong></h6>
-        <p>Anda dapat mengubah email, telepon dan kata sandi jika diperlukan</p>
-        <hr>
-    </div>
-</div>
-
-<div class="container mt-3">
-    <div class="row profile-card bg-white">
-        <div class="col-md-4 profile-left d-flex flex-column align-items-center text-center">
-            <div class="profile-initial rounded-circle text-white d-flex align-items-center justify-content-center mt-4">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+<div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
+    <main id="main-container">
+        <div class="content">
+            <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center py-2 text-center text-md-start">
+                <div class="flex-grow-1 mb-1 mb-md-0">
+                    <h1 class="h3 fw-bold mb-2">
+                        Informasi Akun
+                    </h1>
+                    <h2 class="h6 fw-medium fw-medium text-muted mb-0">
+                        Anda dapat mengubah email, telepon dan kata sandi jika diperlukan </h2>
+                </div>
             </div>
-            <div class="ms-3 mt-3">
-                <span class="text-white">{{ auth()->user()->name }}</span>
-                <p class="text-primary small mb-0">Pengguna</p>
-            </div>
-        </div>
-        <div class="col-md-8 profile-right">
-            <div class="row" id="view-mode">
-                <div class="col-12 mb-3">
-                    <div class="row">
-                        <div class="col-sm-6 info-item">
-                            <strong>Nama</strong><br>
-                            <span class="text-muted">{{ $user->name }}</span>
+            <div class="container mt-3">
+                <div class="row profile-card border">
+                    <div class="col-md-4 profile-left d-flex flex-column align-items-center text-center">
+                        <img class="rounded-circle mt-5" src="{{ asset('assets2/media/avatars/avatar10.jpg') }}"
+                            alt="Header Avatar" style="width:80px;">
+                        <span class="d-none d-sm-inline-block ms-2"></span>
+                        <div class="ms-3 mt-3">
+                            <span class="text-white">{{ auth()->user()->name }}</span>
+                            <p class="text-dark small mb-0">Pengguna</p>
                         </div>
-                        <div class="col-sm-6 info-item">
-                            <strong>Username</strong><br>
-                            <span class="text-muted">{{ $user->username }}</span>
-                        </div>
-                        <div class="col-sm-6 info-item">
-                            <strong>Email</strong><br>
-                            <span class="text-muted">{{ $user->email ?? 'Tidak ada' }}</span>
-                        </div>
-                        <div class="col-sm-6 info-item">
-                            <strong>Telepon</strong><br>
-                            <span class="text-muted">{{ $user->phone ?? 'Tidak ada' }}</span>
-                        </div>
-                        <div class="mt-6">
-                            <button type="button" id="edit-btn" class="btn btn-primary"><i class="fas fa-pen-to-square"></i> Ubah</button>
+                    </div>
+                    <div class="col-md-8 profile-right">
+                        <div class="row" id="view-mode">
+                            <div class="col-12 mb-3">
+                                <div class="row">
+                                    <div class="col-sm-6 info-item">
+                                        <strong>Nama</strong><br>
+                                        <span class="text-muted">{{ $user->name }}</span>
+                                    </div>
+                                    <div class="col-sm-6 info-item">
+                                        <strong>Username</strong><br>
+                                        <span class="text-muted">{{ $user->username }}</span>
+                                    </div>
+                                    <div class="col-sm-6 info-item">
+                                        <strong>Email</strong><br>
+                                        <span class="text-muted">{{ $user->email ?? 'Tidak ada' }}</span>
+                                    </div>
+                                    <div class="col-sm-6 info-item">
+                                        <strong>Telepon</strong><br>
+                                        <span class="text-muted">{{ $user->phone ?? 'Tidak ada' }}</span>
+                                    </div>
+                                    <div class="mt-6">
+                                        <button type="button" id="edit-btn" class="btn btn-primary"><i class="fas fa-pen-to-square"></i> Ubah</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+            <div id="edit-mode" class="block block-rounded col-lg-12 mx-auto mt-5 mb-5 hidden">
+                <div class="block-header block-header-default">
+                    <h3 class="block-title">Edit Profil</h3>
+                </div>
+                <div class="block-content block-content-full">
+                    <form action="{{ route('profile.update') }}" method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-floating mb-4">
+                                    <input type="text" name="name" id="name" value="{{ $user->name }}" class="form-control" placeholder="Nama" disabled>
+                                    <label for="name">Nama</label>
+                                </div>
 
-<div id="edit-mode" class="hidden mt-5">
-    <form action="{{ route('profile.update') }}" method="POST">
-        @csrf
+                                <div class="form-floating mb-4">
+                                    <input type="text" name="username" id="username" value="{{ $user->username }}" class="form-control" placeholder="Username" disabled>
+                                    <label for="username">Username</label>
+                                </div>
 
-        <div class="mb-4">
-            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama</label>
-            <input type="text" name="name" id="name" value="{{ $user->name }}" class="form-control mt-1 p-2 border rounded w-full" disabled>
-        </div>
+                                <div class="form-floating mb-4">
+                                    <input type="email" name="email" id="email" value="{{ $user->email }}" class="form-control" placeholder="Email">
+                                    <label for="email">Email</label>
+                                    @error('email')
+                                    <p class="text-danger small mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
 
-        <div class="mb-4">
-            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
-            <input type="text" name="username" id="username" value="{{ $user->username }}" class="form-control mt-1 p-2 border rounded w-full" disabled>
-        </div>
+                                <div class="form-floating mb-4">
+                                    <input type="text" name="phone" id="phone" value="{{ $user->phone }}" class="form-control" placeholder="Nomor Telepon">
+                                    <label for="phone">Nomor Telepon</label>
+                                    @error('phone')
+                                    <p class="text-danger small mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
 
-        <div class="mb-4">
-            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-            <input type="email" name="email" id="email" value="{{ $user->email }}" class="form-control mt-1 p-2 border rounded w-full">
-            @error('email')
-            <span class="text-red-500 text-sm">{{ $message }}</span>
-            @enderror
-        </div>
+                                <div class="form-floating mb-4">
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="Password Baru">
+                                    <label for="password">Password Baru (kosongkan jika tidak ingin mengubah)</label>
+                                    @error('password')
+                                    <p class="text-danger small mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
 
-        <div class="mb-4">
-            <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor Telepon</label>
-            <input type="text" name="phone" id="phone" value="{{ $user->phone }}" class="form-control mt-1 p-2 border rounded w-full">
-            @error('phone')
-            <span class="text-red-500 text-sm">{{ $message }}</span>
-            @enderror
-        </div>
+                                <div class="form-floating mb-4">
+                                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Konfirmasi Password">
+                                    <label for="password_confirmation">Konfirmasi Password Baru</label>
+                                </div>
 
-        <div class="mb-4">
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password Baru (kosongkan jika tidak ingin mengubah)</label>
-            <input type="password" name="password" id="password" class="form-control mt-1 p-2 border rounded w-full">
-            @error('password')
-            <span class="text-red-500 text-sm">{{ $message }}</span>
-            @enderror
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="submit" class="btn btn-primary px-4 py-2">
+                                        <i class="fas fa-save me-2"></i>Simpan
+                                    </button>
+                                    <button type="button" id="cancel-btn" class="btn btn-dark px-4 py-2">
+                                        <i class="fas fa-times me-2"></i>Batal
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="mb-4">
-            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Konfirmasi Password Baru</label>
-            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control mt-1 p-2 border rounded w-full">
-        </div>
-
-        <div class="mt-6">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan Perubahan</button>
-            <button type="button" id="cancel-btn" class="btn btn-dark ml-2"> <i class="fas fa-times me-2"></i>Batal</button>
-        </div>
-    </form>
-</div>
+    </main>
 </div>
 </div>
 
@@ -192,7 +209,6 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     console.log('Script loaded'); // Debugging: Pastikan script dimuat
 
