@@ -33,7 +33,7 @@
                 <h3 class="block-title">Form Aduan</h3>
             </div>
             <div class="block-content block-content-full">
-                <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+                <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-lg-12">
@@ -89,11 +89,11 @@
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">
-                                <button type="submit" class="btn btn-primary px-4 py-2">
-                                    <i class="fas fa-paper-plane me-2"></i>Kirim
+                                <button type="submit" class="btn btn-primary px-4 py-2" title="Kirim">
+                                    <i class="fas fa-paper-plane me-2"></i>
                                 </button>
-                                <button type="reset" class="btn btn-dark px-4 py-2">
-                                    <i class="fas fa-times me-2"></i>Reset
+                                <button type="reset" class="btn btn-dark px-4 py-2" title="Batal">
+                                    <i class="fas fa-times me-2"></i>
                                 </button>
                             </div>
                         </div>

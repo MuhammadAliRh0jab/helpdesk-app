@@ -41,7 +41,7 @@
                         <span class="d-none d-sm-inline-block ms-2"></span>
                         <div class="ms-3 mt-3">
                             <span class="text-white">{{ auth()->user()->name }}</span>
-                            <p class="text-dark small mb-0">Pengguna</p>
+                            <p class="text-primary small mb-0">Pengguna</p>
                         </div>
                     </div>
                     <div class="col-md-8 profile-right">

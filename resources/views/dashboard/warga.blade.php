@@ -277,7 +277,7 @@
                 datasets: [{
                     label: 'Persentase Aduan',
                     data: [percentageCompleted, 100 - percentageCompleted],
-                    backgroundColor: ['#9e9e9e', '#2d4f7a'],
+                    backgroundColor: ['#1d4ed8', '#487fff'],
                     borderWidth: 1
                 }]
             },
