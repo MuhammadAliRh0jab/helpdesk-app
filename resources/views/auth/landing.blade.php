@@ -11,9 +11,169 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        .gradient {
+            background: linear-gradient(90deg, #1572e8 0%, rgb(21, 68, 144) 100%);
+        }
+
+        html,
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        a,
+        button,
+        input,
+        textarea {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #header {
+            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            background-color: transparent !important;
+            border-bottom: 3px solid #1572e8;
+        }
+
+        #header .nav-link {
+            color: white !important;
+            transition: color 0.3s ease-in-out;
+        }
+
+        #header.scrolled .nav-link {
+            color: black !important;
+        }
+
+        #header .nav-link:hover,
+        #header.scrolled .nav-link:hover {
+            color: #1572e8 !important;
+        }
+
+        #header.scrolled {
+            background-color: white !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-link:hover {
+            color: #1572e8 !important;
+        }
+
+        .btn-primary:hover {
+            color: #1572e8 !important;
+            background-color: #f8f9fa;
+        }
+
+        .card:hover {
+            transform: scale(1.05) !important;
+            border-color: #1572e8;
+            z-index: 10;
+        }
+
+        .row {
+            overflow: visible;
+        }
+
+        .hover-shadow {
+            transition: all 0.3s ease;
+        }
+
+        .hover-shadow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .transition-300 {
+            transition: all 0.3s ease;
+        }
+
+        .dropzone-container {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dropzone-container:hover {
+            background-color: #f8f9fa;
+            border-color: var(--bs-primary) !important;
+        }
+
+        .service-item .card {
+            transition: all 0.2s ease;
+        }
+
+        .service-item .card:hover {
+            border-color: var(--bs-primary);
+        }
+
+        .unit-section {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fff;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+        }
+
+        .unit-header {
+            position: sticky;
+            top: -1px;
+            background-color: #fff;
+            z-index: 10;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .unit-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .unit-pills {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .scrolling-units {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .scrolling-units::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrolling-units::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .scrolling-units::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .scrolling-units::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
 </head>
 
 <body class="text-white gradient">
+    <!-- Navbar tetap sama -->
     <nav id="header" class="navbar navbar-expand-lg navbar-light fixed-top bg-white text-white">
         <div class="container">
             <div class="navbar-brand">
@@ -48,6 +208,7 @@
         </div>
     </nav>
 
+    <!-- Section lainnya tetap sama -->
     <section id="beranda" class="pt-5">
         <div class="container px-3 py-5" style="margin-top: 90px;">
             <div class="row align-items-center">
@@ -74,6 +235,7 @@
         </div>
     </section>
 
+    <!-- Section lainnya tetap sama -->
     <section class="bg-white border-bottom py-5" id="tentang">
         <div class="container px-4" style="margin-top: 70px;">
             <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="1000">Tentang Helpdesk</h2>
@@ -188,28 +350,29 @@
         </div>
     </section>
 
+    <!-- Section Lapor Tanpa Login yang disesuaikan -->
     <section class="bg-white py-5" id="lapor-tanpa-login">
         <div class="container py-4">
             <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="1000">Lapor Tanpa Login</h2>
             <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8;"></div><br><br>
             <p class="text-center text-muted mb-5">Laporkan masalah Anda tanpa perlu login untuk layanan publik tertentu.</p>
-    
+
             <div class="row justify-content-center">
-                <div class="col-lg-8">
+                <div class="col-lg-10">
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
                             <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
-    
+
                     @if (session('error'))
                         <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
                             <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
-    
+
                     @if ($errors->any())
                         <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
                             <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
@@ -221,80 +384,228 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
-    
+
                     <div class="card shadow border-0 rounded-lg">
                         <div class="card-header bg-primary text-white py-3">
                             <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Form Pengaduan</h4>
                         </div>
                         <div class="card-body p-4">
-                            <form action="{{ route('tickets.store.guest') }}" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="guest_name" name="guest_name" placeholder="Nama Lengkap" required>
-                                            <label for="guest_name"><i class="fas fa-user me-2"></i>Nama Lengkap</label>
+                            <div x-data="{
+                                showServices: true,
+                                selectedService: null,
+                                selectedUnit: null,
+                                search: '',
+                                fileNames: 'Tidak ada file dipilih',
+                                scrollToUnit(unitId) {
+                                    const unitElement = document.getElementById('unit-' + unitId);
+                                    if (unitElement) {
+                                        unitElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }
+                                },
+                                updateFileNames(event) {
+                                    const files = event.target.files;
+                                    this.fileNames = files.length > 0
+                                        ? files.length > 1
+                                            ? `${files.length} file dipilih`
+                                            : files[0].name
+                                        : 'Tidak ada file dipilih';
+                                }
+                            }">
+                                <!-- Daftar Tombol Layanan -->
+                                <div x-show="showServices" x-transition>
+                                    <div class="mb-4">
+                                        <div class="input-group input-group-lg shadow-sm">
+                                            <span class="input-group-text bg-white border-end-0">
+                                                <i class="fas fa-search text-primary"></i>
+                                            </span>
+                                            <input x-model="search" type="text" class="form-control border-start-0" placeholder="Cari layanan..." aria-label="Cari layanan">
+                                        </div>
+                                        <div class="form-text" x-show="search !== ''">
+                                            <i class="fas fa-info-circle me-1"></i> Pencarian akan menampilkan hasil dari semua unit
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating mb-3">
-                                            <input type="email" class="form-control" id="guest_email" name="guest_email" placeholder="Email" required>
-                                            <label for="guest_email"><i class="fas fa-envelope me-2"></i>Email</label>
-                                        </div>
-                                    </div>
-                                </div>
-    
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="form-floating mb-3">
-                                            <select class="form-select" id="unit_id" name="unit_id" required>
-                                                <option value="" selected disabled>Pilih Unit</option>
-                                                @foreach($units as $unit)
-                                                    <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
+
+                                    <!-- Quick Jump Menu -->
+                                    <div class="mb-4" x-show="search === ''">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="text-muted me-2"><i class="fas fa-filter me-1"></i> Pilih Unit:</span>
+                                            <div class="unit-pills">
+                                                @php
+                                                    $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
+                                                @endphp
+                                                @foreach($units as $unitName => $unitId)
+                                                    <button @click="scrollToUnit({{ $unitId }})" 
+                                                            class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
+                                                            aria-label="Pilih unit {{ $unitName }}">
+                                                        {{ $unitName }}
+                                                    </button>
                                                 @endforeach
-                                            </select>
-                                            <label for="unit_id"><i class="fas fa-building me-2"></i>Unit Kerja</label>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating mb-3">
-                                            <select class="form-select" id="service_id" name="service_id" required>
-                                                <option value="" selected disabled>Pilih Layanan</option>
-                                                @foreach($services as $service)
-                                                    <option value="{{ $service->id }}" data-unit="{{ $service->unit_id }}">
-                                                        {{ $service->svc_name }}
-                                                    </option>
+
+                                    <!-- Daftar Unit dengan Layanan -->
+                                    <div class="scrolling-units">
+                                        <!-- Jika ada pencarian, tampilkan semua layanan yang cocok -->
+                                        <div x-show="search !== ''" class="mb-4">
+                                            <div class="alert alert-info d-flex align-items-center">
+                                                <i class="fas fa-search me-2"></i>
+                                                <div>Menampilkan hasil pencarian untuk: <strong x-text="search"></strong></div>
+                                            </div>
+                                            <div class="row row-cols-1 row-cols-md-3 g-3">
+                                                @foreach ($services as $service)
+                                                    <div class="col service-item" 
+                                                         x-show="'{{ $service->svc_name }}'.toLowerCase().includes(search.toLowerCase())">
+                                                        <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
+                                                            <div class="card-body p-4">
+                                                                <div class="unit-badge mb-2">{{ $service->unit->unit_name }}</div>
+                                                                <button
+                                                                    @click="showServices = false; selectedService = {{ $service->id }}; selectedUnit = {{ $service->unit_id }}"
+                                                                    class="btn btn-link text-decoration-none p-0 w-100 text-start"
+                                                                    aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="flex-shrink-0 me-3">
+                                                                            <div class="bg-light text-primary rounded-circle p-3">
+                                                                                <i class="fas fa-concierge-bell fa-fw"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="flex-grow-1">
+                                                                            <h5 class="mb-1">{{ $service->svc_name }}</h5>
+                                                                        </div>
+                                                                        <div class="flex-shrink-0 ms-2">
+                                                                            <i class="fas fa-chevron-right text-muted"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 @endforeach
-                                            </select>
-                                            <label for="service_id"><i class="fas fa-cogs me-2"></i>Layanan</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tampilkan layanan dikelompokkan per unit saat tidak ada pencarian -->
+                                        <div x-show="search === ''">
+                                            @foreach($units as $unitName => $unitId)
+                                                <div id="unit-{{ $unitId }}" class="unit-section mb-4">
+                                                    <div class="unit-header">
+                                                        <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
+                                                            <i class="fas fa-building me-2 text-primary"></i>
+                                                            <span>{{ $unitName }}</span>
+                                                            <div class="ms-auto">
+                                                                <span class="badge bg-primary rounded-pill">
+                                                                    {{ $services->where('unit_id', $unitId)->count() }} Layanan
+                                                                </span>
+                                                            </div>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="row row-cols-1 row-cols-md-3 g-3">
+                                                        @foreach ($services->where('unit_id', $unitId) as $service)
+                                                            <div class="col service-item">
+                                                                <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
+                                                                    <div class="card-body p-4">
+                                                                        <button
+                                                                            @click="showServices = false; selectedService = {{ $service->id }}; selectedUnit = {{ $service->unit_id }}"
+                                                                            class="btn btn-link text-decoration-none p-0 w-100 text-start"
+                                                                            aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <div class="flex-shrink-0 me-3">
+                                                                                    <div class="bg-light text-primary rounded-circle p-3">
+                                                                                        <i class="fas fa-concierge-bell fa-fw"></i>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="flex-grow-1">
+                                                                                    <h5 class="mb-1">{{ $service->svc_name }}</h5>
+                                                                                    <div class="text-muted small">{{ $service->unit->unit_name }}</div>
+                                                                                </div>
+                                                                                <div class="flex-shrink-0 ms-2">
+                                                                                    <i class="fas fa-chevron-right text-muted"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endforeach
                                         </div>
                                     </div>
                                 </div>
-    
-                                <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="title" name="title" placeholder="Judul Aduan" required>
-                                    <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
+
+                                <!-- Form Detail Aduan -->
+                                <div x-show="!showServices" x-transition class="animate__animated animate__fadeIn">
+                                    <form action="{{ route('tickets.store.guest') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="hidden" name="unit_id" x-bind:value="selectedUnit">
+                                        <input type="hidden" name="service_id" x-bind:value="selectedService">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="guest_name" name="guest_name" placeholder="Nama Lengkap" value="{{ old('guest_name') }}" required>
+                                                    <label for="guest_name"><i class="fas fa-user me-2"></i>Nama Lengkap</label>
+                                                    @error('guest_name')
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="email" class="form-control" id="guest_email" name="guest_email" placeholder="Email" value="{{ old('guest_email') }}" required>
+                                                    <label for="guest_email"><i class="fas fa-envelope me-2"></i>Email</label>
+                                                    @error('guest_email')
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="title" name="title" placeholder="Judul Aduan" value="{{ old('title') }}" required>
+                                            <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
+                                            @error('title')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <textarea class="form-control" id="description" name="description" placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px" required>{{ old('description') }}</textarea>
+                                            <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi Masalah</label>
+                                            @error('description')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="images" class="form-label fw-bold"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
+                                            <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light" @click="$refs.fileInput.click()">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <i class="fas fa-cloud-upload-alt text-primary fa-3x mb-3"></i>
+                                                    <p class="mb-2">Klik atau seret file ke sini</p>
+                                                    <p class="text-muted small mb-0" x-text="fileNames">Tidak ada file dipilih</p>
+                                                </div>
+                                                <input type="file" name="images[]" id="images" multiple class="d-none" x-ref="fileInput" @change="updateFileNames" accept="image/*">
+                                            </div>
+                                            @error('images')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                            <div class="form-text">
+                                                <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF (maks 2MB per file)
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between gap-3">
+                                            <button type="button" @click="showServices = true; selectedService = null; selectedUnit = null" class="btn btn-outline-secondary btn-lg px-4" aria-label="Kembali ke daftar layanan">
+                                                <i class="fas fa-arrow-left me-2"></i>Kembali
+                                            </button>
+                                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                                <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
-    
-                                <div class="form-floating mb-3">
-                                    <textarea class="form-control" id="description" name="description" placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px" required></textarea>
-                                    <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi Masalah</label>
-                                </div>
-    
-                                <div class="mb-4">
-                                    <label for="images" class="form-label"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
-                                    <input class="form-control" type="file" id="images" name="images[]" accept="image/*" multiple>
-                                    <div class="form-text text-muted">
-                                        Format yang didukung: JPG, PNG, GIF. Ukuran maksimal: 2MB per file.
-                                    </div>
-                                </div>
-    
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
-                                    </button>
-                                </div>
-                            </form>
+                            </div>
                         </div>
                         <div class="card-footer bg-light text-center py-3">
                             <p class="text-muted mb-0">
@@ -358,119 +669,9 @@
         </div>
     </footer>
 
-    <style>
-        .gradient {
-            background: linear-gradient(90deg, #1572e8 0%, rgb(21, 68, 144) 100%);
-        }
-
-        html,
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        p,
-        a,
-        button,
-        input,
-        textarea {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        #header {
-            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-            background-color: transparent !important;
-            border-bottom: 3px solid #1572e8;
-        }
-
-        #header .nav-link {
-            color: white !important;
-            transition: color 0.3s ease-in-out;
-        }
-
-        #header.scrolled .nav-link {
-            color: black !important;
-        }
-
-        #header .nav-link:hover,
-        #header.scrolled .nav-link:hover {
-            color: #1572e8 !important;
-        }
-
-        #header.scrolled {
-            background-color: white !important;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-link:hover {
-            color: #1572e8 !important;
-        }
-
-        .btn-primary:hover {
-            color: #1572e8 !important;
-            background-color: #f8f9fa;
-        }
-
-        .card:hover {
-            transform: scale(1.05) !important;
-            border-color: #1572e8;
-            z-index: 10;
-        }
-
-        .row {
-            overflow: visible;
-        }
-
-        #particles-js {
-            position: absolute;
-            width: 100%;
-            height: 30%;
-            top: 60%;
-            left: 0;
-        }
-
-        @media (max-width: 990px) {
-            h1 { font-size: 20px !important; }
-            h2 { font-size: 18px !important; }
-            h3 { font-size: 15px !important; }
-            h4 { font-size: 14px !important; }
-            h5 { font-size: 12px !important; }
-            p { font-size: 11px !important; }
-            .card-account button {
-                max-width: 50%;
-                max-height: 20% !important;
-                font-size: 12px !important;
-            }
-            footer { font-size: 12px; }
-            footer img {
-                max-height: 50%;
-                max-width: 40% !important;
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .card-footer img {
-                max-width: 80%;
-                max-height: 80%;
-            }
-        }
-
-        @media (max-width: 764px) {
-            #tentang {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-            }
-        }
-    </style>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
     <script>
         AOS.init();
     </script>
@@ -487,27 +688,6 @@
                     navbar.classList.remove("scrolled");
                     logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
                 }
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const unitSelect = document.getElementById('unit_id');
-            const serviceSelect = document.getElementById('service_id');
-
-            unitSelect.addEventListener('change', function() {
-                const selectedUnitId = this.value;
-                const serviceOptions = serviceSelect.querySelectorAll('option');
-
-                serviceOptions.forEach(option => {
-                    if (option.value === '') {
-                        return;
-                    }
-                    const unitId = option.getAttribute('data-unit');
-                    option.style.display = unitId === selectedUnitId ? 'block' : 'none';
-                });
-
-                serviceSelect.value = '';
             });
         });
     </script>
