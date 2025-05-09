@@ -259,13 +259,13 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const total = {{ 
-            ($ticketStats['assigned'] ?? 0) + 
-            ($ticketStats['pending'] ?? 0) + 
-            ($ticketStats['completed'] ?? 0) 
+        const total = {{
+            ($ticketStats['assigned'] ?? 0) +
+            ($ticketStats['pending'] ?? 0) +
+            ($ticketStats['completed'] ?? 0)
         }};
-        const completed = {{ 
-            $ticketStats['completed'] ?? 0 
+        const completed = {{
+            $ticketStats['completed'] ?? 0
         }};
         const percentageCompleted = total > 0 ? ((completed / total) * 100).toFixed(1) : 0;
 
