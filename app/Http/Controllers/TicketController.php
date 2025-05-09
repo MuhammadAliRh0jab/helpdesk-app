@@ -20,7 +20,7 @@ class TicketController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['createGuest', 'storeGuest']);
     }
 
     public function index(Request $request)
@@ -29,10 +29,8 @@ class TicketController extends Controller
         $search = $request->input('search');
         $statusFilter = $request->input('status_filter');
         
-        // Base query for tickets with necessary relationships
         $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
         
-        // Apply search if provided
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('ticket_code', 'like', '%' . $search . '%')
@@ -40,20 +38,15 @@ class TicketController extends Controller
             });
         }
         
-        // Apply status filter if provided
         if ($statusFilter !== null && $statusFilter !== '') {
             $query->where('status', $statusFilter);
         }
         
-        // Filter based on user role
-        if ($user->role_id == 4) { // Warga Kota (role_id = 4)
+        if ($user->role_id == 4) {
             $query->where('user_id', $user->id);
-        } elseif ($user->role_id == 3) { // PIC (role_id = 3)
+        } elseif ($user->role_id == 3) {
             $isPicActive = $user->isAssignedAsPic();
-    
             Log::info('User ID: ' . $user->id . ', Is PIC Active in index(): ' . ($isPicActive ? 'Yes' : 'No'));
-    
-            // If PIC is active, show assigned tickets; otherwise, show user's own tickets
             if ($isPicActive) {
                 $query->whereHas('pics', function ($query) use ($user) {
                     $query->where('user_id', $user->id)
@@ -63,18 +56,14 @@ class TicketController extends Controller
             } else {
                 $query->where('user_id', $user->id);
             }
-        } elseif ($user->role_id == 2) { // Operator (role_id = 2)
+        } elseif ($user->role_id == 2) {
             $query->where('unit_id', $user->unit_id);
-        } else { // Super_admin (role_id = 1)
-            // No additional filtering required for super_admin
         }
     
-        // Order by created_at, descending
         $tickets = $query->orderBy('created_at', 'desc')->paginate(5);
     
-        // Get available PICs for assignment (if applicable)
         $pics = collect();
-        if ($user->role_id == 2 && $user->unit_id) { // Only for operators
+        if ($user->role_id == 2 && $user->unit_id) {
             $pics = User::where('role_id', 3)
                 ->where('unit_id', $user->unit_id)
                 ->with(['pics' => function ($query) {
@@ -92,78 +81,89 @@ class TicketController extends Controller
     
             Log::info('Operator unit_id: ' . $user->unit_id);
             Log::info('PICs found: ' . $pics->pluck('username')->implode(', ') . ' (Count: ' . $pics->count() . ')');
-            if ($pics->isEmpty()) {
-                Log::info('No PICs found for unit_id: ' . $user->unit_id);
-            }
         }
     
-        // Filter services based on user role and active status
         $servicesQuery = Service::where('status', 'active');
-        if ($user->role_id == 4) { // Warga only sees public services
-            $servicesQuery->where('category_id', 2); // Public category
+        if ($user->role_id == 4) {
+            $servicesQuery->where('category_id', 2);
         }
         $services = $servicesQuery->with('unit')->get();
     
-        // Determine if the user can create a ticket
         $canCreateTicket = in_array($user->role_id, [3, 4]);
         Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ', Can Create Ticket: ' . ($canCreateTicket ? 'Yes' : 'No'));
     
         return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
     }
-    
-    // Tambahkan method isAssignedAsPic ke model User jika belum ada
-    public function isAssignedAsPic()
+
+    public function createGuest()
     {
-        return Pic::where('user_id', $this->id)
-            ->where('pic_stats', 'active')
-            ->exists();
-    }
-
-    public function assigned()
-    {
-        $user = auth()->user();
-
-        if ($user->role_id != 3) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $isPicActive = $user->isAssignedAsPic();
-        \Log::info('User ID: ' . $user->id . ', Is PIC Active in assigned(): ' . ($isPicActive ? 'Yes' : 'No'));
-
-        if (!$isPicActive) {
-            return redirect()->route('tickets.index')->with('error', 'Anda belum ditugaskan sebagai PIC.');
-        }
-
-        $tickets = Ticket::whereHas('pics', function ($query) use ($user) {
-            $query->where('user_id', $user->id)
-                ->where('ticket_pic.pic_stats', 'active');
-        })
-            ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
-            ->whereNull('deleted_at')
-            ->orderBy('created_at', 'desc')
+        $units = Unit::all();
+        $services = Service::where('status', 'active')
+            ->where('category_id', 2)
+            ->where('allow_guest', 1)
+            ->with('unit')
             ->get();
 
-        \Log::info('Tickets assigned to user: ' . $tickets->pluck('ticket_code')->implode(', '));
+        return view('theme::auth.landing', compact('units', 'services'));
+    }
 
-        return view('tickets.assigned', compact('tickets'));
+    public function storeGuest(Request $request)
+    {
+        $request->validate([
+            'unit_id' => 'required|exists:units,id',
+            'service_id' => 'required|exists:services,id',
+            'title' => 'required',
+            'description' => 'required',
+            'images.*' => 'nullable|image|max:2048',
+            'guest_name' => 'required|string|max:255',
+            'guest_email' => 'required|email|max:255',
+        ]);
+
+        $service = Service::findOrFail($request->service_id);
+        if ($service->category_id != 2 || $service->allow_guest != 1) {
+            return redirect()->back()->with('error', 'Layanan ini tidak mengizinkan tamu untuk membuat laporan.');
+        }
+
+        $ticket = Ticket::create([
+            'user_id' => null,
+            'unit_id' => $request->unit_id,
+            'service_id' => $request->service_id,
+            'ticket_code' => 'TCK' . now()->format('Ymd') . rand(1000, 9999),
+            'title' => $request->title,
+            'description' => $request->description,
+            'status' => 0,
+            'guest_name' => $request->guest_name,
+            'guest_email' => $request->guest_email,
+        ]);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $uuid = Str::uuid();
+                $path = $image->storeAs('uploads/' . now()->format('Ymd'), $uuid . '.' . $image->extension(), 'public');
+                TicketUpload::create([
+                    'ticket_id' => $ticket->id,
+                    'uuid' => $uuid,
+                    'filename_ori' => $image->getClientOriginalName(),
+                    'filename_path' => $path,
+                ]);
+            }
+        }
+
+        return redirect()->route('welcome')->with('success', 'Laporan berhasil dibuat. Anda akan menerima konfirmasi melalui email.');
     }
 
     public function create()
     {
-        // Pastikan hanya warga (role_id = 4) atau pegawai (role_id = 3) yang dapat membuat aduan
         $user = auth()->user();
         if (!in_array($user->role_id, [2, 3, 4])) {
             \Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ' attempted to access create ticket page but was denied.');
             abort(403, 'Anda tidak diizinkan membuat aduan.');
         }
 
-        // Ambil unit untuk dropdown
         $units = Unit::all();
-
-        // Ambil layanan yang aktif, filter berdasarkan peran
         $servicesQuery = Service::where('status', 'active');
-        if ($user->role_id == 4) { // Warga hanya melihat layanan publik
-            $servicesQuery->where('category_id', 2); // Publik
+        if ($user->role_id == 4) {
+            $servicesQuery->where('category_id', 2);
         }
         $services = $servicesQuery->with('unit')->get();
 
@@ -182,7 +182,7 @@ class TicketController extends Controller
             'service_id' => 'required|exists:services,id',
             'title' => 'required',
             'description' => 'required',
-            'images.*' => 'image|max:2048',
+            'images.*' => 'nullable|image|max:2048',
         ]);
 
         \Log::info('Creating ticket with unit_id: ' . $request->unit_id . ', service_id: ' . $request->service_id);
@@ -194,7 +194,7 @@ class TicketController extends Controller
             'ticket_code' => 'TCK' . now()->format('Ymd') . rand(1000, 9999),
             'title' => $request->title,
             'description' => $request->description,
-            'status' => 0, // Pending
+            'status' => 0,
         ]);
 
         if ($request->hasFile('images')) {
@@ -219,13 +219,14 @@ class TicketController extends Controller
         $servicesQuery = Service::where('unit_id', $unitId)
             ->where('status', 'active');
 
-        if ($user->role_id == 4) { // Warga hanya melihat layanan publik
+        if ($user && $user->role_id == 4) {
             $servicesQuery->where('category_id', 2);
         }
 
         $services = $servicesQuery->get(['id', 'svc_name']);
         return response()->json($services);
     }
+
     public function assign(Request $request, Ticket $ticket)
     {
         $user = auth()->user();

@@ -16,6 +16,38 @@
     <link rel="stylesheet" id="css-main" href="{{asset('assets2/css/oneui.min.css')}}">
     <link rel="stylesheet" id="css-theme" href="{{asset('assets2/css/themes/amethyst.min.css')}}">
     <script src="{{asset('assets2/js/setTheme.js/')}}"></script>
+    <style>
+        .nav-main-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: #4B5563;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+    
+        .nav-main-link:hover {
+            background-color: #487FFF;
+            color: white !important;
+        }
+    
+        .nav-main-link:hover .nav-main-link-icon,
+        .nav-main-link:hover .nav-main-link-name {
+            color: white !important;
+        }
+    
+        .nav-main-link.active {
+            background-color: #487FFF;
+            color: white !important;
+            font-weight: 600;
+        }
+    
+        .nav-main-link.active .nav-main-link-icon,
+        .nav-main-link.active .nav-main-link-name {
+            color: white !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -173,18 +205,20 @@
                                 Dashboard
                             </a>
                         </li>
+                        
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
                                 <i class="nav-main-link-icon si si-layers me-2"></i>
                                 Detail Aduan
                             </a>
                         </li>
+                        
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
                                 <i class="nav-main-link-icon si si-pencil me-2"></i>
                                 Buat Aduan Baru
                             </a>
-                        </li>
+                        </li>                        
                         @endif
                     </ul>
 
