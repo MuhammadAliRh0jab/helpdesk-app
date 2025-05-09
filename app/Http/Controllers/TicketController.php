@@ -94,7 +94,34 @@ class TicketController extends Controller
     
         return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
     }
+    public function assigned()
+    {
+        $user = auth()->user();
 
+        if ($user->role_id != 3) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $isPicActive = $user->isAssignedAsPic();
+        \Log::info('User ID: ' . $user->id . ', Is PIC Active in assigned(): ' . ($isPicActive ? 'Yes' : 'No'));
+
+        if (!$isPicActive) {
+            return redirect()->route('tickets.index')->with('error', 'Anda belum ditugaskan sebagai PIC.');
+        }
+
+        $tickets = Ticket::whereHas('pics', function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                ->where('ticket_pic.pic_stats', 'active');
+        })
+            ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        \Log::info('Tickets assigned to user: ' . $tickets->pluck('ticket_code')->implode(', '));
+
+        return view('tickets.assigned', compact('tickets'));
+    }
     public function createGuest()
     {
         $units = Unit::all();
