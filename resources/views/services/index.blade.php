@@ -66,10 +66,11 @@
                                             @csrf
                                             @method('PATCH')
                                             <select name="category_id" class="form-select form-select-sm">
+                                                <option disabled selected>Kategori</option>
                                                 <option value="1" {{ $service->category_id == 1 ? 'selected' : '' }}>Pemerintah</option>
                                                 <option value="2" {{ $service->category_id == 2 ? 'selected' : '' }}>Publik</option>
                                             </select>
-                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan">
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan Kategori">
                                                 <i class="fas fa-save"></i>
                                             </button>
                                         </form>
@@ -78,10 +79,11 @@
                                             @csrf
                                             @method('PATCH')
                                             <select name="status" class="form-select form-select-sm">
-                                                <option value="active" {{ $service->status == 'active' ? 'selected' : '' }}>Active</option>
-                                                <option value="inactive" {{ $service->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                                <option disabled selected>Status</option>
+                                                <option value="active" {{ $service->status == 'active' ? 'selected' : '' }}>Aktif</option>
+                                                <option value="inactive" {{ $service->status == 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
                                             </select>
-                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan">
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan Status">
                                                 <i class="fas fa-save"></i>
                                             </button>
                                         </form>
@@ -90,10 +92,11 @@
                                             @csrf
                                             @method('PATCH')
                                             <select name="allow_guest" class="form-select form-select-sm" {{ $service->category_id != 2 ? 'disabled' : '' }}>
+                                                <option disabled selected>Akses Tamu</option>
                                                 <option value="1" {{ $service->allow_guest == 1 ? 'selected' : '' }}>Ya</option>
                                                 <option value="0" {{ $service->allow_guest == 0 ? 'selected' : '' }}>Tidak</option>
                                             </select>
-                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan" {{ $service->category_id != 2 ? 'disabled' : '' }}>
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan Akses Tamu" {{ $service->category_id != 2 ? 'disabled' : '' }}>
                                                 <i class="fas fa-save"></i>
                                             </button>
                                         </form>
