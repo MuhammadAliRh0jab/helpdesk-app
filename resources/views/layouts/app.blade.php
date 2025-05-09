@@ -33,7 +33,7 @@
             body {
                 font-family: "Poppins", sans-serif;
                 margin-bottom: 5rem;
-                background-color: #eaedf1;
+                background-color: #ebeef2;
             }
         </style>
 

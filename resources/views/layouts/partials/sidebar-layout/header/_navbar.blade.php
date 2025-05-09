@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="remember-theme">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
@@ -26,23 +26,23 @@
             text-decoration: none;
             transition: background-color 0.3s, color 0.3s;
         }
-    
+
         .nav-main-link:hover {
             background-color: #487FFF;
             color: white !important;
         }
-    
+
         .nav-main-link:hover .nav-main-link-icon,
         .nav-main-link:hover .nav-main-link-name {
             color: white !important;
         }
-    
+
         .nav-main-link.active {
             background-color: #487FFF;
             color: white !important;
             font-weight: 600;
         }
-    
+
         .nav-main-link.active .nav-main-link-icon,
         .nav-main-link.active .nav-main-link-name {
             color: white !important;
@@ -52,65 +52,17 @@
 
 <body>
     <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
-        <nav id="sidebar" aria-label="Main Navigation" style="background-color:rgb(255, 255, 255)">
-            <div class="content-header" style="background-color:rgb(255, 255, 255)">
-                <a class="fw-semibold text-dual" href="">
+        <nav id="sidebar" aria-label="Main Navigation" style="background-color: #ebeef2">
+            <div class="content-header d-flex justify-content-center align-items-center" style="background-color: #ebeef2">
+                <a class="fw-semibold text-dual text-center">
                     <span class="smini-visible">
                         <i class="fa fa-circle-notch text-primary"></i>
                     </span>
                     <span class="smini-hide">
-                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="45">
+                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="55">
                     </span>
                 </a>
                 <div class="d-flex align-items-center gap-1">
-                    <!-- Dark Mode -->
-                    <!-- <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-alt-light" id="sidebar-dark-mode-dropdown"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="far fa-fw fa-moon" data-dark-mode-icon></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end smini-hide border-0"
-                            aria-labelledby="sidebar-dark-mode-dropdown">
-                            <button type="button" class="dropdown-item d-flex align-items-center gap-2"
-                                data-toggle="layout" data-action="dark_mode_off" data-dark-mode="off">
-                                <i class="far fa-sun fa-fw opacity-50"></i>
-                                <span class="fs-sm fw-medium">Terang</span>
-                            </button>
-                            <button type="button" class="dropdown-item d-flex align-items-center gap-2"
-                                data-toggle="layout" data-action="dark_mode_on" data-dark-mode="on">
-                                <i class="far fa-moon fa-fw opacity-50"></i>
-                                <span class="fs-sm fw-medium">Gelap</span>
-                            </button>
-                        </div>
-                    </div> -->
-
-                    <!-- Options -->
-                    <!-- <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-alt-light" id="sidebar-themes-dropdown"
-                            data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
-                            <i class="fa fa-fw fa-brush"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end fs-sm smini-hide border-0"
-                            aria-labelledby="sidebar-themes-dropdown">
-                            <button class="dropdown-item d-flex align-items-center justify-content-between fw-medium"
-                                data-toggle="theme" data-theme="default">
-                                <span>Default</span>
-                                <i class="fa fa-circle text-default"></i>
-                            </button>
-                            <button class="dropdown-item d-flex align-items-center justify-content-between fw-medium"
-                                data-toggle="theme" data-theme="{{asset('assets2/css/themes/amethyst.min.css')}}">
-                                <span>Amethyst</span>
-                                <i class="fa fa-circle text-amethyst"></i>
-                            </button>
-                            <button class="dropdown-item d-flex align-items-center justify-content-between fw-medium"
-                                data-toggle="theme" data-theme="{{asset('assets2/css/themes/modern.min.css')}}">
-                                <span>Modern</span>
-                                <i class="fa fa-circle text-modern"></i>
-                            </button>
-                        </div>
-                    </div> -->
-
                     <!-- Close Sidebar, Visible only on mobile screens -->
                     <a class="d-lg-none btn btn-sm btn-alt-secondary ms-1" data-toggle="layout"
                         data-action="sidebar_close" href="javascript:void(0)">
@@ -121,8 +73,8 @@
 
             <!-- Sidebar Scrolling -->
             <div class="js-sidebar-scroll">
-                <div class="content-side">
-                    <ul class="nav-main mt-3">
+                <div class="content-side" style="margin-left: 10px;">
+                    <ul class="nav-main">
                         @if (auth()->user()->role_id == 2) {{-- Operator --}}
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.operator') }}">
@@ -205,29 +157,28 @@
                                 Dashboard
                             </a>
                         </li>
-                        
+
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
                                 <i class="nav-main-link-icon si si-layers me-2"></i>
                                 Detail Aduan
                             </a>
                         </li>
-                        
+
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
                                 <i class="nav-main-link-icon si si-pencil me-2"></i>
                                 Buat Aduan Baru
                             </a>
-                        </li>                        
+                        </li>
                         @endif
                     </ul>
-
                 </div>
             </div>
         </nav>
 
         <!-- Header -->
-        <header id="page-header" style="background-color:rgb(255, 255, 255); position: fixed; top: 0;">
+        <header id="page-header" style="background-color: #ebeef2; position: fixed; top: 0;">
             <div class="content-header">
                 <div class="d-flex align-items-center">
                     <!-- Toggle Sidebar -->
@@ -306,9 +257,6 @@
             </div>
         </header>
     </div>
-    <script src="{{asset('assets2/js/oneui.app.min.js')}}"></script>
-    <script src="{{asset('assets2/js/plugins/chart.js/chart.umd.js')}}"></script>
-    <script src="{{asset('assets2/js/pages/be_pages_dashboard.min.js')}}"></script>
     <style>
         #page-container {
             min-height: 1rem;
@@ -331,7 +279,47 @@
         .dropdown-item.text-danger:hover {
             background-color: #dc3545 !important;
         }
+
+        .nav-main-link.active,
+        .nav-main-link:hover {
+            background-color: #0287ff !important;
+            color: #ffffff !important;
+            border-radius: 5px;
+            position: relative;
+        }
     </style>
+    <script src="{{asset('assets2/js/oneui.app.min.js')}}"></script>
+    <script src="{{asset('assets2/js/plugins/chart.js/chart.umd.js')}}"></script>
+    <script src="{{asset('assets2/js/pages/be_pages_dashboard.min.js')}}"></script>
+    <script>
+        // Saat dokumen sudah siap
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-main-link');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Hapus class 'active' dari semua link
+                    navLinks.forEach(nav => nav.classList.remove('active'));
+
+                    // Tambahkan class 'active' ke link yang diklik
+                    this.classList.add('active');
+
+                    // Simpan di localStorage agar tetap aktif saat reload
+                    localStorage.setItem('activeLink', this.href);
+                });
+            });
+
+            // Ambil dari localStorage dan tetapkan 'active' saat reload
+            const activeHref = localStorage.getItem('activeLink');
+            if (activeHref) {
+                navLinks.forEach(link => {
+                    if (link.href === activeHref) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    </script>
 
 </body>
 
