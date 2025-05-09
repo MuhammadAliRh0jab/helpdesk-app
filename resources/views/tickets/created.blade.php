@@ -4,104 +4,128 @@
 
 @section('content')
 
-<div class="card  mt-4">
-    <div class="card-body">
-        <h6><strong>Riwayat Aduan</strong></h6>
-        <p>Daftar semua aduan yang telah dikirimkan</p>
-        <hr>
-    </div>
-</div>
-@if (session('success'))
-<div class="alert alert-success p-4 mb-4 rounded">
-    {{ session('success') }}
-</div>
-@endif
+<div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
+    <main id="main-container">
+        <div class="content">
+            <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center py-2 text-center text-md-start">
+                <div class="flex-grow-1 mb-1 mb-md-0">
+                    <h1 class="h3 fw-bold mb-2">
+                        Riwayat Aduan
+                    </h1>
+                    <h2 class="h6 fw-medium fw-medium text-muted mb-0">
+                    </h2>
+                </div>
+            </div>
+        </div>
 
-@if (session('error'))
-<div class="alert alert-danger p-4 mb-4 rounded">
-    {{ session('error') }}
-</div>
-@endif
 
-<div class="table-responsive mb-4 mt-3 text-center">
-    <table class="table rounded">
-        <thead class="table-light">
-            <tr>
-                <th class="p-3 text-secondary">Kode Tiket</th>
-                <th class="p-3 text-secondary">Judul</th>
-                <th class="p-3 text-secondary">Layanan</th>
-                <th class="p-3 text-secondary">Unit Asal</th>
-                <th class="p-3 text-secondary">Unit Saat Ini</th>
-                <th class="p-3 text-secondary">Status</th>
-                <th class="p-3 text-secondary">Tanggal Dibuat</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($tickets as $ticket)
-            <tr>
-                <td class="p-3 text-dark">{{ $ticket->ticket_code }}</td>
-                <td class="p-3 text-dark">{{ $ticket->title }}</td>
-                <td class="p-3 text-dark">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
-                <td class="p-3 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
-                <td class="p-3 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
-                <td class="p-3 text-dark">
-                    @if($ticket->status == 0) Pending
-                    @elseif($ticket->status == 1) Ditugaskan
-                    @else Resolved
-                    @endif
-                </td>
-                <td class="p-3 text-dark">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
-            </tr>
-            <!-- Bagian untuk menampilkan riwayat percakapan -->
-            <tr>
-                <td colspan="7" class="p-2">
-                    <div class="ms-4">
-                        <h3 class="h5 fw-semibold text-dark">Percakapan untuk {{ $ticket->ticket_code }}</h3>
-                        @forelse($ticket->responses as $response)
-                        <div class="border-start border-4 ps-4 mt-2 {{ $response->user->role_id == 4 ? 'border-success' : ($response->user->role_id == 2 ? 'border-warning' : 'border-primary') }}">
-                            <p class="text-dark">
-                                <strong>
-                                    @if ($response->user->role_id == 2)
-                                    Sistem (Operator)
-                                    @else
-                                    {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
-                                    @endif
-                                    - {{ $response->created_at->format('d-m-Y H:i') }}:
-                                </strong>
-                                @if ($response->ticket_id_quote)
-                                <span class="fst-italic text-muted">
-                                    (Membalas: "{{ $response->quotedResponse->message }}")
-                                </span>
-                                @endif
-                                <br>
-                                {{ $response->message }}
-                            </p>
-                            @forelse($response->uploads as $upload)
-                            <div class="mt-2">
-                                <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
-                                    <img src="{{ asset('storage/' . $upload->filename_path) }}" alt="{{ $upload->filename_ori }}" class="img-fluid rounded" style="width: 128px; height: 128px; object-fit: cover;">
-                                </a>
-                                <p class="text-muted small">{{ $upload->filename_ori }}</p>
-                            </div>
-                            @empty
-                            <p class="text-muted small">Tidak ada lampiran gambar.</p>
-                            @endforelse
+        @if (session('success'))
+        <div class="alert alert-success p-4 mb-4 rounded">
+            {{ session('success') }}
+        </div>
+        @endif
+
+        @if (session('error'))
+        <div class="alert alert-danger p-4 mb-4 rounded">
+            {{ session('error') }}
+        </div>
+        @endif
+
+        <div class="content">
+            <div class="row">
+                <div class="col-xl-12">
+                    <!-- Default Table -->
+                    <div class="block block-rounded">
+                        <div class="block-header block-header-default">
+                            <!-- <h3 class="block-title">Riwayat Aduan</h3> -->
                         </div>
-                        @empty
-                        <p class="text-muted">Belum ada percakapan untuk tiket ini.</p>
-                        @endforelse
+                        <div class="block-content">
+                            <table class="table table-vcenter">
+                                <thead>
+                                    <tr>
+                                        <th>Kode Tiket</th>
+                                        <th>Judul</th>
+                                        <th>Layanan</th>
+                                        <th>Unit Asal</th>
+                                        <th>Unit Saat Ini</th>
+                                        <th>Status</th>
+                                        <th>Tanggal Dibuat</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($tickets as $ticket)
+                                    <tr>
+                                        <td class="p-3 text-dark">{{ $ticket->ticket_code }}</td>
+                                        <td class="p-3 text-dark">{{ $ticket->title }}</td>
+                                        <td class="p-3 text-dark">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                                        <td class="p-3 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
+                                        <td class="p-3 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
+                                        <td class="p-3 text-dark">
+                                            @if($ticket->status == 0)
+                                            <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>
+                                            @elseif($ticket->status == 1)
+                                            <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info">Ditugaskan</span>
+                                            @else
+                                            <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Selesai</span>
+                                            @endif
+                                        </td>
+                                        <td class="p-3 text-dark">{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
+                                    </tr>
+                                    <!-- Bagian untuk menampilkan riwayat percakapan -->
+                                    <tr>
+                                        <td colspan="7" class="p-2">
+                                            <div class="ms-4">
+                                                <h3 class="h5 fw-semibold text-dark">Percakapan untuk {{ $ticket->ticket_code }}</h3>
+                                                @forelse($ticket->responses as $response)
+                                                <div class="border-start border-4 ps-4 mt-2 {{ $response->user->role_id == 4 ? 'border-success' : ($response->user->role_id == 2 ? 'border-warning' : 'border-primary') }}">
+                                                    <p class="text-dark">
+                                                        <strong>
+                                                            @if ($response->user->role_id == 2)
+                                                            Sistem (Operator)
+                                                            @else
+                                                            {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
+                                                            @endif
+                                                            - {{ $response->created_at->format('d-m-Y H:i') }}:
+                                                        </strong>
+                                                        @if ($response->ticket_id_quote)
+                                                        <span class="fst-italic text-muted">
+                                                            (Membalas: "{{ $response->quotedResponse->message }}")
+                                                        </span>
+                                                        @endif
+                                                        <br>
+                                                        {{ $response->message }}
+                                                    </p>
+                                                    @forelse($response->uploads as $upload)
+                                                    <div class="mt-2">
+                                                        <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
+                                                            <img src="{{ asset('storage/' . $upload->filename_path) }}" alt="{{ $upload->filename_ori }}" class="img-fluid rounded" style="width: 128px; height: 128px; object-fit: cover;">
+                                                        </a>
+                                                        <p class="text-muted small">{{ $upload->filename_ori }}</p>
+                                                    </div>
+                                                    @empty
+                                                    <p class="text-muted small">Tidak ada lampiran gambar.</p>
+                                                    @endforelse
+                                                </div>
+                                                @empty
+                                                <p class="text-muted">Belum ada percakapan untuk tiket ini.</p>
+                                                @endforelse
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="7" class="p-2 text-dark text-center">
+                                            Anda belum membuat aduan.
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="7" class="p-2 text-dark text-center">
-                    Anda belum membuat aduan.
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

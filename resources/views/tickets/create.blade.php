@@ -123,7 +123,6 @@
                                     @endforeach
                                 </div>
                             </div>
-                            
                             <!-- Tampilkan layanan dikelompokkan per unit saat tidak ada pencarian -->
                             <div x-show="search === ''">
                                 @php

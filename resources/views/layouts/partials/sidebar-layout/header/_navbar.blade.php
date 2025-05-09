@@ -59,12 +59,12 @@
                         <i class="fa fa-circle-notch text-primary"></i>
                     </span>
                     <span class="smini-hide">
-                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="40">
+                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="45">
                     </span>
                 </a>
                 <div class="d-flex align-items-center gap-1">
                     <!-- Dark Mode -->
-                    <div class="dropdown">
+                    <!-- <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-alt-light" id="sidebar-dark-mode-dropdown"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="far fa-fw fa-moon" data-dark-mode-icon></i>
@@ -82,10 +82,10 @@
                                 <span class="fs-sm fw-medium">Gelap</span>
                             </button>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Options -->
-                    <div class="dropdown">
+                    <!-- <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-alt-light" id="sidebar-themes-dropdown"
                             data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false">
@@ -93,7 +93,6 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-end fs-sm smini-hide border-0"
                             aria-labelledby="sidebar-themes-dropdown">
-                            <!-- Color Themes -->
                             <button class="dropdown-item d-flex align-items-center justify-content-between fw-medium"
                                 data-toggle="theme" data-theme="default">
                                 <span>Default</span>
@@ -110,7 +109,7 @@
                                 <i class="fa fa-circle text-modern"></i>
                             </button>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Close Sidebar, Visible only on mobile screens -->
                     <a class="d-lg-none btn btn-sm btn-alt-secondary ms-1" data-toggle="layout"
@@ -126,101 +125,98 @@
                     <ul class="nav-main mt-3">
                         @if (auth()->user()->role_id == 2) {{-- Operator --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('dashboard.operator') }}">
-                                <i class="nav-main-link-icon si si-speedometer"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.operator') }}">
+                                <i class="nav-main-link-icon si si-speedometer me-2"></i>
+                                Dashboard
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.index') }}">
-                                <i class="nav-main-link-icon si si-layers"></i>
-                                <span class="nav-main-link-name">Detail Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
+                                <i class="nav-main-link-icon si si-layers me-2"></i>
+                                Detail Aduan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('services.index') }}">
-                                <i class="nav-main-link-icon si si-wrench"></i>
-                                <span class="nav-main-link-name">Kelola Layanan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('services.index') }}">
+                                <i class="nav-main-link-icon si si-wrench me-2"></i>
+                                Kelola Layanan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.created') }}">
-                                <i class="nav-main-link-icon si si-clock"></i>
-                                <span class="nav-main-link-name">Riwayat Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.created') }}">
+                                <i class="nav-main-link-icon si si-clock me-2"></i>
+                                Riwayat Aduan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.create') }}">
-                                <i class="nav-main-link-icon si si-pencil"></i>
-                                <span class="nav-main-link-name">Buat Aduan Baru</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
+                                <i class="nav-main-link-icon si si-pencil me-2"></i>
+                                Buat Aduan Baru
                             </a>
                         </li>
                         @elseif (auth()->user()->role_id == 3) {{-- Pegawai --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('dashboard.pegawai') }}">
-                                <i class="nav-main-link-icon si si-speedometer"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.pegawai') }}">
+                                <i class="nav-main-link-icon si si-speedometer me-2"></i>
+                                Dashboard
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.index') }}">
-                                <i class="nav-main-link-icon si si-layers"></i>
-                                <span class="nav-main-link-name">Detail Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
+                                <i class="nav-main-link-icon si si-layers me-2"></i>
+                                Detail Aduan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.assigned') }}">
-                                <i class="nav-main-link-icon si si-briefcase"></i>
-                                <span class="nav-main-link-name">Aduan Ditugaskan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.assigned') }}">
+                                <i class="nav-main-link-icon si si-briefcase me-2"></i>
+                                Aduan Ditugaskan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.create') }}">
-                                <i class="nav-main-link-icon si si-pencil"></i>
-                                <span class="nav-main-link-name">Buat Aduan Baru</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
+                                <i class="nav-main-link-icon si si-pencil me-2"></i>
+                                Buat Aduan Baru
                             </a>
                         </li>
                         @elseif (auth()->user()->role_id == 1) {{-- Admin --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('dashboard.admin') }}">
-                                <i class="nav-main-link-icon si si-speedometer"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.admin') }}">
+                                <i class="nav-main-link-icon si si-speedometer me-2"></i>
+                                Dashboard
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.index') }}">
-                                <i class="nav-main-link-icon si si-layers"></i>
-                                <span class="nav-main-link-name">Detail Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
+                                <i class="nav-main-link-icon si si-layers me-2"></i>
+                                Detail Aduan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('users.index') }}">
-                                <i class="nav-main-link-icon si si-users"></i>
-                                <span class="nav-main-link-name">Kelola Pengguna</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('users.index') }}">
+                                <i class="nav-main-link-icon si si-users me-2"></i>
+                                Kelola Pengguna
                             </a>
                         </li>
                         @else {{-- Warga --}}
                         <li class="nav-main-item mb-2">
-                            <a href="{{ route('dashboard.warga') }}" 
-                               class="nav-main-link {{ Request::is('dashboard') ? 'active bg-primary text-white' : '' }}">
-                                <i class="nav-main-link-icon fas fa-home"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.warga') }}">
+                                <i class="nav-main-link-icon si si-speedometer me-2"></i>
+                                Dashboard
                             </a>
                         </li>
                         
                         <li class="nav-main-item mb-2">
-                            <a href="{{ route('tickets.index') }}" 
-                               class="nav-main-link {{ Request::is('tickets') || Request::is('tickets/*') ? 'active bg-primary text-white' : '' }}">
-                                <i class="nav-main-link-icon si si-layers"></i>
-                                <span class="nav-main-link-name">Detail Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
+                                <i class="nav-main-link-icon si si-layers me-2"></i>
+                                Detail Aduan
                             </a>
                         </li>
                         
                         <li class="nav-main-item mb-2">
-                            <a href="{{ route('tickets.create') }}" 
-                               class="nav-main-link {{ Request::is('tickets/create') ? 'active bg-primary text-white' : '' }}">
-                                <i class="nav-main-link-icon si si-pencil"></i>
-                                <span class="nav-main-link-name">Buat Aduan Baru</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
+                                <i class="nav-main-link-icon si si-pencil me-2"></i>
+                                Buat Aduan Baru
                             </a>
                         </li>                        
                         @endif
@@ -316,6 +312,24 @@
     <style>
         #page-container {
             min-height: 1rem;
+        }
+
+        .nav-main-link:hover {
+            background-color: #0287ff !important;
+            color: rgb(255, 255, 255) !important;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .dropdown-item:hover {
+            background-color: #0287ff !important;
+            color: rgb(255, 255, 255) !important;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #dc3545 !important;
         }
     </style>
 
