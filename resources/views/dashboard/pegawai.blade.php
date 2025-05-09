@@ -96,7 +96,7 @@
                 <div class="col-sm-6">
                   <dl class="mb-0">
                     <dt class="fs-3 fw-bold d-inline-flex align-items-center space-x-2">
-                      {{ $percentage/$resolved }}%
+                      {{ $resolved == 0 ? 0 : $percentage / $resolved }}%
                     </dt>
                     <dd class="fs-sm fw-medium text-muted mb-0">Aduan Diselesaikan</dd>
                   </dl>
