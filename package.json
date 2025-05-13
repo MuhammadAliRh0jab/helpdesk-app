@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "aos": "^2.3.4",
-        "chart.js": "^4.4.8"
+        "chart.js": "^4.4.8",
+        "jquery": "^3.7.1"
     }
 }

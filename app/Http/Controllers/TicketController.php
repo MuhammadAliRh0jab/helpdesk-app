@@ -94,6 +94,7 @@ class TicketController extends Controller
     
         return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
     }
+
     public function assigned()
     {
         $user = auth()->user();
@@ -120,8 +121,9 @@ class TicketController extends Controller
 
         \Log::info('Tickets assigned to user: ' . $tickets->pluck('ticket_code')->implode(', '));
 
-        return view('tickets.assigned', compact('tickets'));
+        return view('theme::tickets.assigned', compact('tickets'));
     }
+
     public function createGuest()
     {
         $units = Unit::all();
@@ -339,6 +341,7 @@ class TicketController extends Controller
 
         return redirect()->back()->with('success', 'PIC baru berhasil ditugaskan ke tiket.');
     }
+
     public function respond(Request $request, Ticket $ticket)
     {
         $user = auth()->user();
@@ -346,12 +349,12 @@ class TicketController extends Controller
 
         if ($user->role_id != 3) {
             \Log::warning('Unauthorized role: ' . $user->role_id);
-            abort(403, 'Unauthorized action.');
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
         }
 
         if (!$user->isAssignedAsPic()) {
             \Log::warning('User not assigned as PIC: ' . $user->id);
-            abort(403, 'Anda belum ditugaskan sebagai PIC.');
+            return response()->json(['success' => false, 'message' => 'Anda belum ditugaskan sebagai PIC.'], 403);
         }
 
         $isAssignedToTicket = $this->isPicAssignedToTicket($user->id, $ticket);
@@ -359,7 +362,7 @@ class TicketController extends Controller
 
         if (!$isAssignedToTicket) {
             \Log::warning('User ' . $user->id . ' not assigned to ticket ' . $ticket->id);
-            abort(403, 'Anda belum ditugaskan sebagai PIC untuk tiket ini.');
+            return response()->json(['success' => false, 'message' => 'Anda belum ditugaskan sebagai PIC untuk tiket ini.'], 403);
         }
 
         try {
@@ -373,6 +376,7 @@ class TicketController extends Controller
                 'message' => $request->message,
             ]);
 
+            $uploads = [];
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     $uuid = Str::uuid();
@@ -381,12 +385,13 @@ class TicketController extends Controller
                     $path = $image->storeAs($directory, $filename, 'public');
                     \Log::info('File stored at: ' . $path);
                     if ($path) {
-                        TicketResponseUpload::create([
+                        $upload = TicketResponseUpload::create([
                             'ticket_response_id' => $response->id,
                             'uuid' => $uuid,
                             'filename_ori' => $image->getClientOriginalName(),
                             'filename_path' => $path,
                         ]);
+                        $uploads[] = $upload;
                     } else {
                         \Log::error('Failed to store file: ' . $filename);
                     }
@@ -394,12 +399,22 @@ class TicketController extends Controller
             }
 
             \Log::info('Response created successfully for ticket: ' . $ticket->id);
-            return redirect()->back()->with('success', 'Respons berhasil ditambahkan.');
+            return response()->json([
+                'success' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'role_id' => $user->role_id,
+                ],
+                'auth_user_id' => $user->id,
+                'uploads' => $uploads,
+            ]);
         } catch (\Exception $e) {
             \Log::error('Exception in respond: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim respons.');
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat mengirim respons.'], 500);
         }
     }
+
     public function removePic(Request $request, Ticket $ticket)
     {
         $user = auth()->user();
@@ -433,7 +448,7 @@ class TicketController extends Controller
             ->where('pic_id', $pic->id)
             ->update(['pic_stats' => 'inactive', 'updated_at' => now()]);
 
-        \Log::info('PIC ID ' . $pic->id . ' removed from ticket ID ' . $ticket->id);
+        \Log::info('PIC ID ' . $pic->id . ' removed from ticket ID: ' . $ticket->id);
 
         // Tambahkan pesan otomatis ke riwayat percakapan
         $picUser = User::find($pic->user_id);
@@ -515,6 +530,7 @@ class TicketController extends Controller
 
         return redirect()->route('tickets.index')->with('success', 'Aduan berhasil dialihkan ke unit lain.');
     }
+
     public function created()
     {
         // Pastikan hanya operator (role_id = 2) yang dapat mengakses
@@ -529,8 +545,9 @@ class TicketController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('tickets.created', compact('tickets'));
+        return view('theme::tickets.created', compact('tickets'));
     }
+
     public function update(Request $request, Ticket $ticket)
     {
         $user = auth()->user();
@@ -570,25 +587,9 @@ class TicketController extends Controller
                     ->update(['pic_stats' => 'inactive', 'updated_at' => now()]);
 
                 \Log::info('Removed ticket_pic relation for ticket: ' . $ticket->ticket_code . ' and PIC: ' . $assignment->pic_id);
-
-                // Cek apakah PIC ini masih memiliki tiket aktif lainnya
-                // $pic = Pic::find($assignment->pic_id);
-                // if ($pic) {
-                //     $otherTickets = $pic->tickets()
-                //         ->where('tickets.id', '!=', $ticket->id)
-                //         ->where('tickets.status', '!=', 2)
-                //         ->exists();
-
-                //     if (!$otherTickets) {
-                //         $pic->delete();
-                //         \Log::info('PIC entry deleted for PIC ID: ' . $pic->id . ' after ticket resolved: ' . $ticket->ticket_code);
-                //     } else {
-                //         \Log::info('PIC ID ' . $pic->id . ' still has unresolved tickets. Not deleting PIC entry.');
-                //     }
-                // }
             }
 
-            // Ubah status tiket menjadi Resolved
+            // Ubah status tiket menjadi averaging
             $ticket->update(['status' => 2]);
             \Log::info('Ticket resolved by PIC ID: ' . $user->id . ' for ticket: ' . $ticket->ticket_code);
         } else {
@@ -608,18 +609,18 @@ class TicketController extends Controller
 
         if ($user->role_id != 4) {
             \Log::warning('Unauthorized role: ' . $user->role_id);
-            abort(403, 'Unauthorized action.');
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
         }
 
         $ticket = $response->ticket;
         if ($ticket->user_id != $user->id) {
             \Log::warning('Ticket ownership mismatch. User ID: ' . $user->id . ', Ticket User ID: ' . $ticket->user_id);
-            abort(403, 'Anda tidak diizinkan membalas respons untuk tiket ini.');
+            return response()->json(['success' => false, 'message' => 'Anda tidak diizinkan membalas respons untuk tiket ini.'], 403);
         }
 
         if ($ticket->status == 2) {
             \Log::warning('Ticket resolved. Status: ' . $ticket->status);
-            abort(403, 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.');
+            return response()->json(['success' => false, 'message' => 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.'], 403);
         }
 
         $latestResponse = $ticket->responses()->latest()->first();
@@ -627,17 +628,17 @@ class TicketController extends Controller
 
         if (!$latestResponse) {
             \Log::warning('No latest response found.');
-            abort(403, 'Tidak ada respons yang dapat dibalas.');
+            return response()->json(['success' => false, 'message' => 'Tidak ada respons yang dapat dibalas.'], 403);
         }
 
         if ($latestResponse->user_id == $user->id) {
             \Log::warning('User trying to reply to own message. User ID: ' . $user->id);
-            abort(403, 'Anda tidak dapat membalas pesan Anda sendiri.');
+            return response()->json(['success' => false, 'message' => 'Anda tidak dapat membalas pesan Anda sendiri.'], 403);
         }
 
         if ($response->id != $latestResponse->id) {
             \Log::warning('Response ID mismatch. Selected: ' . $response->id . ', Latest: ' . $latestResponse->id);
-            abort(403, 'Anda hanya dapat membalas pesan terakhir.');
+            return response()->json(['success' => false, 'message' => 'Anda hanya dapat membalas pesan terakhir.'], 403);
         }
 
         $request->validate([
@@ -651,6 +652,7 @@ class TicketController extends Controller
             'message' => $request->message,
         ]);
 
+        $uploads = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $uuid = Str::uuid();
@@ -658,18 +660,29 @@ class TicketController extends Controller
                 $filename = $uuid . '.' . $image->extension();
                 $path = $image->storeAs($directory, $filename, 'public');
                 if ($path) {
-                    TicketResponseUpload::create([
+                    $upload = TicketResponseUpload::create([
                         'ticket_response_id' => $newResponse->id,
                         'uuid' => $uuid,
                         'filename_ori' => $image->getClientOriginalName(),
                         'filename_path' => $path,
                     ]);
+                    $uploads[] = $upload;
                 } else {
                     \Log::error('Failed to store file: ' . $filename);
                 }
             }
         }
 
-        return redirect()->back()->with('success', 'Balasan berhasil dikirim.');
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'role_id' => $user->role_id,
+            ],
+            'auth_user_id' => $user->id,
+            'quoted_message' => $response->message,
+            'uploads' => $uploads,
+        ]);
     }
 }

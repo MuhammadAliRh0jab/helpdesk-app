@@ -82,17 +82,8 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                                     @else
                                     <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Selesai</span>
                                     @endif
-
+                                </td>
                                 <td class="p-2 text-dark">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
-                                <!-- <td class="p-2 text-dark">{{ $ticket->description }}</td>
-                    <td class="p-2 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
-                    <td class="p-2 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
-                    <td class="p-2 text-dark">
-                        @if($ticket->status == 0) Pending
-                        @elseif($ticket->status == 1) Ditugaskan
-                        @else Resolved
-                        @endif
-                    </td> -->
                                 @if (auth()->user()->role_id == 2)
                                 <td class="p-2">
                                     @if ($ticket->status != 2)
@@ -176,19 +167,18 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                                         </button>
                                     </div>
                                 </td>
-
                             </tr>
 
                             <!-- Modal Detail -->
-                            <div class="modal fade bg-dark" id="detailModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="detailModal-{{ $ticket->id }}" aria-hidden="true" style="font-size: 12px;">
-                                <div class=" modal-dialog">
+                            <div class="modal fade bg-dark" id="detailModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="detailModalLabel-{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
+                                <div class="modal-dialog modal-lg">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="userDetailModalLabel">Detail Aduan</h5>
+                                            <h5 class="modal-title" id="detailModalLabel-{{ $ticket->id }}">Detail Tiket: {{ $ticket->ticket_code }}</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <p><strong>Tanggal Dibuat:</strong> {{ $ticket->created_at }}</p>
+                                            <p><strong>Waktu Dibuat:</strong> {{ $ticket->created_at->timezone('Asia/Jakarta')->format('j F Y, H:i') }}</p>
                                             <p><strong>Kode Tiket:</strong> {{ $ticket->ticket_code }}</p>
                                             <p><strong>Judul:</strong> {{ $ticket->title }}</p>
                                             <p><strong>Status:</strong>
@@ -197,7 +187,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                                                 @elseif($ticket->status == 1)
                                                 <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info">Ditugaskan</span>
                                                 @else
-                                                <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Resolved</span>
+                                                <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Selesai</span>
                                                 @endif
                                             </p>
                                             <p><strong>Layanan:</strong> {{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</p>
@@ -211,14 +201,14 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
 
                             <!-- Modal untuk Percakapan -->
                             <div class="modal fade bg-dark" id="chatModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="chatModalLabel-{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
-                                <div class=" modal-dialog modal-lg">
+                                <div class="modal-dialog modal-lg">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="chatModalLabel-{{ $ticket->id }}">Kode Tiket: {{ $ticket->ticket_code }}</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body-chat">
-                                            <div class="chat-container" style="max-height: 400px; overflow-y: auto; padding: 10px;">
+                                            <div class="chat-container" id="chat-container-{{ $ticket->id }}" style="max-height: 400px; overflow-y: auto; padding: 10px;">
                                                 @forelse($ticket->responses as $response)
                                                 @php
                                                 $isSender = $response->user_id == auth()->user()->id;
@@ -239,15 +229,11 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                                                         (Membalas: "{{ $response->quotedResponse->message }}")
                                                     </span>
                                                     @endif
-                                                    <div class="message-box p-1 rounded shadow-sm"
-                                                        style="max-width: 50%; background-color: {{$bgColor}}">
+                                                    <div class="message-box p-1 rounded shadow-sm" style="max-width: 50%; background-color: {{$bgColor}}">
                                                         @forelse($response->uploads as $upload)
                                                         <div class="mt-2">
                                                             <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
-                                                                <img src="{{ asset('storage/' . $upload->filename_path) }}"
-                                                                    alt="{{ $upload->filename_ori }}"
-                                                                    class="img-thumbnail"
-                                                                    style="width: 128px; height: 128px; object-fit: cover;">
+                                                                <img src="{{ asset('storage/' . $upload->filename_path) }}" alt="{{ $upload->filename_ori }}" class="img-thumbnail" style="width: 128px; height: 128px; object-fit: cover;">
                                                             </a>
                                                         </div>
                                                         @empty
@@ -265,7 +251,7 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
 
                                                 @if (auth()->user()->role_id == 4 && $ticket->user_id == auth()->user()->id && $ticket->status != 2 && $ticket->responses->last() && $ticket->responses->last()->user_id != auth()->user()->id && $ticket->responses->last()->user->role_id != 2)
                                                 <div class="reply-form mt-3" style="display: flex; justify-content: flex-start;">
-                                                    <form id="replyForm" action="{{ route('tickets.reply', $ticket->responses->last()->id) }}" method="POST" enctype="multipart/form-data" style="width: 100%;">
+                                                    <form id="reply-form-{{ $ticket->id }}" action="{{ route('tickets.reply', $ticket->responses->last()->id) }}" method="POST" enctype="multipart/form-data" style="width: 100%;">
                                                         @csrf
                                                         <textarea name="message" class="form-control mb-2" placeholder="Masukkan balasan Anda..." required></textarea>
                                                         <input type="file" name="images[]" multiple class="form-control mb-2">
@@ -290,62 +276,6 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                 </div>
             </div>
         </div>
+    </main>
 </div>
-</div>
-<style>
-    .modal-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .modal-content::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: url('/assets/media/img/bg-chat.jpg');
-        background-size: cover;
-        background-position: center;
-        opacity: 0.03;
-        z-index: 0;
-    }
-
-    .modal-content>* {
-        position: relative;
-        z-index: 1;
-    }
-
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-
-    .modal-content {
-        font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
-
-    .message-box p {
-        font-size: 14px;
-        color: #fff;
-    }
-</style>
-<script>
-    $('#replyForm').on('submit', function(e) {
-        e.preventDefault(); // Mencegah form submit default yang menutup modal
-
-        var form = $(this)[0];
-        var data = new FormData(form);
-
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: data,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                alert('Balasan berhasil dikirim!');
-            },
-            error: function(xhr) {
-                alert('Terjadi kesalahan, coba lagi.');
-            }
-        });
-    });
-</script>
-
 @endsection

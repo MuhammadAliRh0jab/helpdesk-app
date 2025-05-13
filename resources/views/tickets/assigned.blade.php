@@ -12,7 +12,8 @@
                         Aduan Ditugaskan
                     </h1>
                     <h2 class="h6 fw-medium fw-medium text-muted mb-0">
-                        Aduan yang ditugaskan harus segera diproses dan dibalas</h2>
+                        Aduan yang ditugaskan harus segera diproses dan dibalas
+                    </h2>
                 </div>
             </div>
         </div>
@@ -82,7 +83,7 @@
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body" style="padding: 0; display: flex; flex-direction: column">
-                                                    <div class="chat-container" style="flex: 1; overflow-y: auto; padding: 20px;">
+                                                    <div class="chat-container" id="chat-container-{{ $ticket->id }}" style="flex: 1; overflow-y: auto; padding: 20px;">
                                                         @forelse($ticket->responses as $response)
                                                         @php
                                                         $isSender = $response->user_id == auth()->user()->id;
@@ -120,7 +121,7 @@
 
                                                     @if ($ticket->status != 2)
                                                     <div class="form-container" style="position: sticky; bottom: 0; z-index: 10">
-                                                        <form action="{{ route('tickets.respond', $ticket->id) }}" method="POST" enctype="multipart/form-data">
+                                                        <form id="chat-form-{{ $ticket->id }}" action="{{ route('tickets.respond', $ticket->id) }}" method="POST" enctype="multipart/form-data">
                                                             @csrf
                                                             <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3 gap-2">
                                                                 <textarea class="form-control form-control-lg" name="message" placeholder="Masukkan pesan..." required></textarea>
@@ -169,6 +170,7 @@
     </main>
 </div>
 @endsection
+
 <style>
     .modal-content {
         position: relative;
@@ -202,23 +204,3 @@
         color: #fff;
     }
 </style>
-
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        @foreach($tickets as $ticket)
-        document.getElementById('custom-button-{{ $ticket->id }}').addEventListener('click', function() {
-            document.getElementById('images-{{ $ticket->id }}').click();
-        });
-
-        document.getElementById('images-{{ $ticket->id }}').addEventListener('change', function() {
-            const files = this.files;
-            const fileNameDisplay = document.getElementById('file-name-{{ $ticket->id }}');
-            fileNameDisplay.textContent = files.length > 0 ?
-                (files.length > 1 ? `${files.length} file dipilih` : files[0].name) :
-                'Tidak ada file dipilih';
-        });
-        @endforeach
-    });
-</script>
-@endsection
