@@ -67,6 +67,8 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/services/{service}/allow-guest', [ServiceManagementController::class, 'updateAllowGuest'])->middleware('role:2')->name('services.updateAllowGuest');
     Route::patch('/services/{service}/category', [ServiceManagementController::class, 'updateCategory'])->middleware('role:2')->name('services.updateCategory');
     Route::get('/tickets/created', [TicketController::class, 'created'])->middleware('role:2')->name('tickets.created');
+    Route::get('/services/{service}/edit', [ServiceManagementController::class, 'edit'])->middleware('role:2')->name('services.edit');
+    Route::put('/services/{service}', [ServiceManagementController::class, 'update'])->middleware('role:2')->name('services.update');
     // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });
 

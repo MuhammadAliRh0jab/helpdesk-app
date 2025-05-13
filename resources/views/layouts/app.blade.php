@@ -45,11 +45,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <script src="{{ asset('js/chart.min.js') }}"></script>
+    <script src="{{ asset('assets/js/chart.js') }}"></script>
+
 
     <!-- Theme and Dark Mode -->
-    <script src="{{ asset('assets2/js/setTheme.js') }}"></script>
+    {{-- <script src="{{ asset('assets2/js/setTheme.js') }}"></script> --}}
 
     <!-- DataTables Plugins -->
     <script src="{{ asset('assets2/js/plugins/datatables/dataTables.min.js') }}"></script>

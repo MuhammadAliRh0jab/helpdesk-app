@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.app')
 
 @section('title', 'Daftar Aduan')

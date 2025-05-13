@@ -14,15 +14,21 @@
                     <h2 class="h6 fw-medium fw-medium text-muted mb-0">
                         Layanan dapat diaktifkan atau dinonaktifkan sesuai dengan kebutuhan
                     </h2>
+                    @if (auth()->user()->role_id == 2)
+                    <a href="{{ route('services.create') }}" class="btn btn-primary btn-sm mt-2">
+                        <i class="fas fa-plus"></i> Tambah Layanan
+                    </a>
+                    @endif
                 </div>
             </div>
         </div>
-
         @if (session('success'))
-        <div class="alert alert-success p-4 mb-4 rounded">
-            {{ session('success') }}
+        <div id="success-toast" style="position: fixed; top: 4rem; right: 1rem; background-color: #16a34a; color: white; padding: 0.5rem 1rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 0.5rem; z-index: 1000; max-width: 320px; opacity: 1; visibility: visible;" class="animate-slide-in">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
         </div>
         @endif
+
         @if (session('error'))
         <div class="alert alert-danger p-4 mb-4 rounded">
             {{ session('error') }}
@@ -58,49 +64,11 @@
                                 <td class="p-3 text-dark">
                                     {{ $service->allow_guest ? 'Ya' : 'Tidak' }}
                                 </td>
-                                <td class="p-3">
+                                <td class="p-3 text-center">
                                     @if (auth()->user()->role_id == 2)
-                                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                                        <!-- Form untuk Kategori -->
-                                        <form action="{{ route('services.updateCategory', $service) }}" method="POST" class="d-flex align-items-center gap-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <select name="category_id" class="form-select form-select-sm">
-                                                <option disabled selected>Kategori</option>
-                                                <option value="1" {{ $service->category_id == 1 ? 'selected' : '' }}>Pemerintah</option>
-                                                <option value="2" {{ $service->category_id == 2 ? 'selected' : '' }}>Publik</option>
-                                            </select>
-                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan Kategori">
-                                                <i class="fas fa-save"></i>
-                                            </button>
-                                        </form>
-                                        <!-- Form untuk Status -->
-                                        <form action="{{ route('services.updateStatus', $service) }}" method="POST" class="d-flex align-items-center gap-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <select name="status" class="form-select form-select-sm">
-                                                <option disabled selected>Status</option>
-                                                <option value="active" {{ $service->status == 'active' ? 'selected' : '' }}>Aktif</option>
-                                                <option value="inactive" {{ $service->status == 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
-                                            </select>
-                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan Status">
-                                                <i class="fas fa-save"></i>
-                                            </button>
-                                        </form>
-                                        <!-- Form untuk Allow Guest -->
-                                        <form action="{{ route('services.updateAllowGuest', $service) }}" method="POST" class="d-flex align-items-center gap-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <select name="allow_guest" class="form-select form-select-sm" {{ $service->category_id != 2 ? 'disabled' : '' }}>
-                                                <option disabled selected>Akses Tamu</option>
-                                                <option value="1" {{ $service->allow_guest == 1 ? 'selected' : '' }}>Ya</option>
-                                                <option value="0" {{ $service->allow_guest == 0 ? 'selected' : '' }}>Tidak</option>
-                                            </select>
-                                            <button type="submit" class="btn btn-primary btn-sm" title="Simpan Akses Tamu" {{ $service->category_id != 2 ? 'disabled' : '' }}>
-                                                <i class="fas fa-save"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <a href="{{ route('services.edit', $service->id) }}" class="btn btn-primary btn-sm" title="Edit Layanan">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                     @endif
                                 </td>
                             </tr>
@@ -112,13 +80,13 @@
                             </tr>
                             @endforelse
                         </tbody>
-                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </main>
 </div>
+
 <style>
     .form-select.form-select-sm {
         width: 120px;
@@ -126,5 +94,47 @@
         border: 1px solid #ced4da;
         border-radius: 4px;
     }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+    }
+
+    .animate-slide-in {
+        animation: slideIn 0.5s ease-out forwards;
+    }
+
+    .animate-fade-out {
+        animation: fadeOut 0.5s ease-in forwards;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const successToast = document.getElementById('success-toast');
+        if (successToast) {
+            setTimeout(() => {
+                successToast.classList.remove('animate-slide-in');
+                successToast.classList.add('animate-fade-out');
+            }, 2000); // Auto-dismiss after 3 seconds
+        }
+    });
+</script>
+
 @endsection
