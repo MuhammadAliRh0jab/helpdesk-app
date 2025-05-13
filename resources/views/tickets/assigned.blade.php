@@ -8,12 +8,8 @@
         <div class="content">
             <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center py-2 text-center text-md-start">
                 <div class="flex-grow-1 mb-1 mb-md-0">
-                    <h1 class="h3 fw-bold mb-2">
-                        Aduan Ditugaskan
-                    </h1>
-                    <h2 class="h6 fw-medium fw-medium text-muted mb-0">
-                        Aduan yang ditugaskan harus segera diproses dan dibalas
-                    </h2>
+                    <h1 class="h3 fw-bold mb-2">Aduan Ditugaskan</h1>
+                    <h2 class="h6 fw-medium fw-medium text-muted mb-0">Aduan yang ditugaskan harus segera diproses dan dibalas</h2>
                 </div>
             </div>
         </div>
@@ -33,7 +29,6 @@
         <div class="content">
             <div class="row">
                 <div class="col-xl-12">
-                    <!-- Default Table -->
                     <div class="block block-rounded">
                         <div class="block-header block-header-default">
                             <!-- <h3 class="block-title">Riwayat Aduan</h3> -->
@@ -83,35 +78,57 @@
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body" style="padding: 0; display: flex; flex-direction: column">
-                                                    <div class="chat-container" id="chat-container-{{ $ticket->id }}" style="flex: 1; overflow-y: auto; padding: 20px;">
+                                                    <div class="chat-container px-4 py-3" id="chat-container-{{ $ticket->id }}" style="flex: 1; overflow-y: auto; background-color: #f9fafb;">
+                                                        <div class="mb-4">
+                                                            <strong>Lokasi Aduan:</strong>
+                                                            @if ($ticket->latitude && $ticket->longitude)
+                                                                <div class="d-flex flex-column gap-2 mt-2">
+                                                                    <div class="d-flex gap-3">
+                                                                        <p class="mb-0"><strong>Latitude:</strong> {{ $ticket->latitude }}</p>
+                                                                        <p class="mb-0"><strong>Longitude:</strong> {{ $ticket->longitude }}</p>
+                                                                    </div>
+                                                                    <div id="map-{{ $ticket->id }}" style="height: 200px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                                                                </div>
+                                                            @else
+                                                                <p class="text-muted">Lokasi tidak tersedia.</p>
+                                                            @endif
+                                                        </div>
                                                         @forelse($ticket->responses as $response)
                                                         @php
                                                         $isSender = $response->user_id == auth()->user()->id;
-                                                        $bgColor = $isSender ? 'rgb(84, 163, 242)' : 'rgb(54, 56, 59)';
                                                         @endphp
                                                         <div class="message-wrapper mb-3" style="display: flex; flex-direction: column; align-items: {{ $isSender ? 'flex-end' : 'flex-start' }};">
-                                                            <p class="text-dark mb-1">
-                                                                <strong>
+                                                            <div class="message-info d-flex align-items-center gap-2 mb-1">
+                                                                @if (!$isSender)
+                                                                <div class="avatar" style="width: 28px; height: 28px; border-radius: 50%; background-color: #1e3a8a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600;">
+                                                                    {{ substr($response->user->username, 0, 1) }}
+                                                                </div>
+                                                                @endif
+                                                                <span class="message-sender" style="font-weight: 600; font-size: 0.85rem; color: #374151;">
                                                                     @if ($response->user->role_id == 2)
                                                                     Sistem (Operator)
                                                                     @else
                                                                     {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
                                                                     @endif
-                                                                </strong>
-                                                            </p>
+                                                                </span>
+                                                            </div>
                                                             @if ($response->ticket_id_quote)
-                                                            <span class="fst-italic text-muted small d-block mb-1">
-                                                                (Membalas: "{{ $response->quotedResponse->message }}")
-                                                            </span>
+                                                            <div class="message-quote" style="font-style: italic; {{ $isSender ? 'color: rgba(255, 255, 255, 0.8);' : 'color: #6b7280;' }} font-size: 0.8rem; margin-bottom: 6px; padding-left: 8px; border-left: 2px solid {{ $isSender ? 'rgba(255, 255, 255, 0.5)' : '#d1d5db' }};">
+                                                                "{{ $response->quotedResponse->message }}"
+                                                            </div>
                                                             @endif
-                                                            <div class="message-box p-2 rounded shadow-sm" style="max-width: 60%; background-color: {{ $bgColor }};">
-                                                                <p class="mb-1">{{ $response->message }}</p>
+                                                            <div class="message-box {{ $isSender ? 'sent' : 'received' }}" style="max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 0.5rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                                                                <p class="mb-0" style="line-height: 1.5; font-size: 0.9rem;">{{ $response->message }}</p>
                                                                 @foreach($response->uploads as $upload)
-                                                                <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
-                                                                    <img src="{{ asset('storage/' . $upload->filename_path) }}" class="img-thumbnail mt-1" style="width: 128px; height: 128px; object-fit: cover;">
-                                                                </a>
+                                                                <div class="message-attachment mb-2">
+                                                                    <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
+                                                                        <img src="{{ asset('storage/' . $upload->filename_path) }}" alt="{{ $upload->filename_ori }}" style="width: 128px; height: 128px; object-fit: cover; border-radius: 8px; {{ !$isSender ? 'border: 1px solid #e5e7eb;' : '' }}">
+                                                                    </a>
+                                                                </div>
                                                                 @endforeach
-                                                                <small class="text-muted d-block text-end">{{ $response->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}</small>
+                                                                <span class="message-time" style="font-size: 0.7rem; {{ $isSender ? 'color: rgba(255, 255, 255, 0.85);' : 'color: #6b7280;' }} display: block; text-align: right; margin-top: 4px;">
+                                                                    {{ $response->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
+                                                                </span>
                                                             </div>
                                                         </div>
                                                         @empty
@@ -120,22 +137,25 @@
                                                     </div>
 
                                                     @if ($ticket->status != 2)
-                                                    <div class="form-container" style="position: sticky; bottom: 0; z-index: 10">
+                                                    <div class="reply-container" style="background-color: white; border-top: 1px solid #e5e7eb; padding: 1rem;">
                                                         <form id="chat-form-{{ $ticket->id }}" action="{{ route('tickets.respond', $ticket->id) }}" method="POST" enctype="multipart/form-data">
                                                             @csrf
-                                                            <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3 gap-2">
-                                                                <textarea class="form-control form-control-lg" name="message" placeholder="Masukkan pesan..." required></textarea>
-                                                            </div>
-                                                            <div class="input-group text-muted mb-2 p-3 gap-2">
-                                                                <button class="btn btn-outline-secondary" type="button" id="custom-button-{{ $ticket->id }}">Pilih File</button>
-                                                                <span class="input-group-text" id="file-name-{{ $ticket->id }}" style="width: 75%;">Tidak ada file dipilih</span>
-                                                                <input type="file" name="images[]" id="images-{{ $ticket->id }}" multiple class="form-control d-none">
-                                                                <button type="submit" class="btn p-0 text-primary" title="Kirim Pesan">
-                                                                    <i class="fas fa-paper-plane fs-5"></i>
+                                                            <div class="reply-input-row d-flex gap-2 mb-2">
+                                                                <textarea class="form-control" name="message" placeholder="Masukkan pesan..." required style="border-radius: 24px; border-color: #d1d5db; padding: 12px 16px; font-size: 0.9rem; resize: none;"></textarea>
+                                                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;">
+                                                                    <i class="fas fa-paper-plane"></i>
                                                                 </button>
+                                                            </div>
+                                                            <div class="attachment-row d-flex align-items-center gap-2">
+                                                                <button class="btn btn-outline-primary" type="button" id="custom-button-{{ $ticket->id }}" style="border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                                                                    <i class="fas fa-paperclip"></i>
+                                                                    <span>Pilih File</span>
+                                                                </button>
+                                                                <span id="file-name-{{ $ticket->id }}" class="text-muted" style="font-size: 0.85rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tidak ada file dipilih</span>
+                                                                <input type="file" name="images[]" id="images-{{ $ticket->id }}" multiple class="form-control d-none">
                                                                 @if ($ticket->status == 1)
-                                                                <button type="submit" form="resolve-form-{{ $ticket->id }}" class="btn p-0 text-success ms-2 border-0 bg-transparent" title="Tandai Selesai">
-                                                                    <i class="fas fa-check-circle fs-5"></i>
+                                                                <button type="submit" form="resolve-form-{{ $ticket->id }}" class="btn btn-success d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;" title="Tandai Selesai">
+                                                                    <i class="fas fa-check-circle"></i>
                                                                 </button>
                                                                 @endif
                                                             </div>
@@ -169,7 +189,6 @@
         </div>
     </main>
 </div>
-@endsection
 
 <style>
     .modal-content {
@@ -199,8 +218,112 @@
         font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
-    .message-box p {
-        font-size: 14px;
-        color: #fff;
+    /* Custom styling for chat modal */
+    .modal-content {
+        border: none;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Styling for chat messages */
+    .chat-container .message-wrapper {
+        margin-bottom: 16px;
+    }
+
+    .chat-container .message-box.sent {
+        background-color: #2563eb;
+        color: white;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .chat-container .message-box.received {
+        background-color: white;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Styling for input area */
+    .reply-container textarea:focus {
+        box-shadow: none;
+        border-color: #2563eb;
+    }
+
+    /* Custom file input */
+    .attachment-row .btn-outline-primary {
+        color: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .attachment-row .btn-outline-primary:hover {
+        background-color: #dbeafe;
+        color: #2563eb;
+    }
+
+    /* Styling for avatars */
+    .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @forelse($tickets as $ticket)
+        const customBtn{{ $ticket->id }} = document.getElementById('custom-button-{{ $ticket->id }}');
+        const fileInput{{ $ticket->id }} = document.getElementById('images-{{ $ticket->id }}');
+        const fileName{{ $ticket->id }} = document.getElementById('file-name-{{ $ticket->id }}');
+
+        if (customBtn{{ $ticket->id }} && fileInput{{ $ticket->id }} && fileName{{ $ticket->id }}) {
+            customBtn{{ $ticket->id }}.addEventListener('click', function() {
+                fileInput{{ $ticket->id }}.click();
+            });
+
+            fileInput{{ $ticket->id }}.addEventListener('change', function() {
+                if (fileInput{{ $ticket->id }}.files.length > 0) {
+                    if (fileInput{{ $ticket->id }}.files.length === 1) {
+                        fileName{{ $ticket->id }}.textContent = fileInput{{ $ticket->id }}.files[0].name;
+                    } else {
+                        fileName{{ $ticket->id }}.textContent = fileInput{{ $ticket->id }}.files.length + ' file dipilih';
+                    }
+                } else {
+                    fileName{{ $ticket->id }}.textContent = 'Tidak ada file dipilih';
+                }
+            });
+        }
+
+        // Initialize map when modal is shown
+        const modal{{ $ticket->id }} = document.getElementById('modalTicket{{ $ticket->id }}');
+        if (modal{{ $ticket->id }}) {
+            modal{{ $ticket->id }}.addEventListener('shown.bs.modal', function () {
+                @if ($ticket->latitude && $ticket->longitude)
+                    const map = L.map('map-{{ $ticket->id }}').setView([{{ $ticket->latitude }}, {{ $ticket->longitude }}], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    // Set the default icon path
+                    delete L.Icon.Default.prototype._getIconUrl;
+                    L.Icon.Default.mergeOptions({
+                        iconRetinaUrl: '{{ asset('assets/leaflet/images/marker-icon-2x.png') }}',
+                        iconUrl: '{{ asset('assets/leaflet/images/marker-icon.png') }}',
+                        shadowUrl: '{{ asset('assets/leaflet/images/marker-shadow.png') }}'
+                    });
+
+                    const marker = L.marker([{{ $ticket->latitude }}, {{ $ticket->longitude }}]).addTo(map);
+                @endif
+            });
+        }
+    @empty
+    @endforelse
+});
+</script>
+@endsection

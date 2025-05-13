@@ -18,6 +18,8 @@ class Ticket extends Model
         'title',
         'description',
         'status',
+        'latitude', 
+        'longitude',
         'guest_name',
         'guest_email'
     ];

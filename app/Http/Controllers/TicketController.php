@@ -136,50 +136,50 @@ class TicketController extends Controller
         return view('theme::auth.landing', compact('units', 'services'));
     }
 
-    public function storeGuest(Request $request)
-    {
-        $request->validate([
-            'unit_id' => 'required|exists:units,id',
-            'service_id' => 'required|exists:services,id',
-            'title' => 'required',
-            'description' => 'required',
-            'images.*' => 'nullable|image|max:2048',
-            'guest_name' => 'required|string|max:255',
-            'guest_email' => 'required|email|max:255',
-        ]);
+    // public function storeGuest(Request $request)
+    // {
+    //     $request->validate([
+    //         'unit_id' => 'required|exists:units,id',
+    //         'service_id' => 'required|exists:services,id',
+    //         'title' => 'required',
+    //         'description' => 'required',
+    //         'images.*' => 'nullable|image|max:2048',
+    //         'guest_name' => 'required|string|max:255',
+    //         'guest_email' => 'required|email|max:255',
+    //     ]);
 
-        $service = Service::findOrFail($request->service_id);
-        if ($service->category_id != 2 || $service->allow_guest != 1) {
-            return redirect()->back()->with('error', 'Layanan ini tidak mengizinkan tamu untuk membuat laporan.');
-        }
+    //     $service = Service::findOrFail($request->service_id);
+    //     if ($service->category_id != 2 || $service->allow_guest != 1) {
+    //         return redirect()->back()->with('error', 'Layanan ini tidak mengizinkan tamu untuk membuat laporan.');
+    //     }
 
-        $ticket = Ticket::create([
-            'user_id' => null,
-            'unit_id' => $request->unit_id,
-            'service_id' => $request->service_id,
-            'ticket_code' => 'TCK' . now()->format('Ymd') . rand(1000, 9999),
-            'title' => $request->title,
-            'description' => $request->description,
-            'status' => 0,
-            'guest_name' => $request->guest_name,
-            'guest_email' => $request->guest_email,
-        ]);
+    //     $ticket = Ticket::create([
+    //         'user_id' => null,
+    //         'unit_id' => $request->unit_id,
+    //         'service_id' => $request->service_id,
+    //         'ticket_code' => 'TCK' . now()->format('Ymd') . rand(1000, 9999),
+    //         'title' => $request->title,
+    //         'description' => $request->description,
+    //         'status' => 0,
+    //         'guest_name' => $request->guest_name,
+    //         'guest_email' => $request->guest_email,
+    //     ]);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $uuid = Str::uuid();
-                $path = $image->storeAs('uploads/' . now()->format('Ymd'), $uuid . '.' . $image->extension(), 'public');
-                TicketUpload::create([
-                    'ticket_id' => $ticket->id,
-                    'uuid' => $uuid,
-                    'filename_ori' => $image->getClientOriginalName(),
-                    'filename_path' => $path,
-                ]);
-            }
-        }
+    //     if ($request->hasFile('images')) {
+    //         foreach ($request->file('images') as $image) {
+    //             $uuid = Str::uuid();
+    //             $path = $image->storeAs('uploads/' . now()->format('Ymd'), $uuid . '.' . $image->extension(), 'public');
+    //             TicketUpload::create([
+    //                 'ticket_id' => $ticket->id,
+    //                 'uuid' => $uuid,
+    //                 'filename_ori' => $image->getClientOriginalName(),
+    //                 'filename_path' => $path,
+    //             ]);
+    //         }
+    //     }
 
-        return redirect()->route('welcome')->with('success', 'Laporan berhasil dibuat. Anda akan menerima konfirmasi melalui email.');
-    }
+    //     return redirect()->route('welcome')->with('success', 'Laporan berhasil dibuat. Anda akan menerima konfirmasi melalui email.');
+    // }
 
     public function create()
     {
@@ -211,6 +211,8 @@ class TicketController extends Controller
             'service_id' => 'required|exists:services,id',
             'title' => 'required',
             'description' => 'required',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'images.*' => 'nullable|image|max:2048',
         ]);
 
@@ -223,6 +225,8 @@ class TicketController extends Controller
             'ticket_code' => 'TCK' . now()->format('Ymd') . rand(1000, 9999),
             'title' => $request->title,
             'description' => $request->description,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
             'status' => 0,
         ]);
 
@@ -240,6 +244,55 @@ class TicketController extends Controller
         }
 
         return redirect()->route('tickets.index')->with('success', 'Aduan berhasil dibuat.');
+    }
+
+    public function storeGuest(Request $request)
+    {
+        $request->validate([
+            'unit_id' => 'required|exists:units,id',
+            'service_id' => 'required|exists:services,id',
+            'title' => 'required',
+            'description' => 'required',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'images.*' => 'nullable|image|max:2048',
+            'guest_name' => 'required|string|max:255',
+            'guest_email' => 'required|email|max:255',
+        ]);
+
+        $service = Service::findOrFail($request->service_id);
+        if ($service->category_id != 2 || $service->allow_guest != 1) {
+            return redirect()->back()->with('error', 'Layanan ini tidak mengizinkan tamu untuk membuat laporan.');
+        }
+
+        $ticket = Ticket::create([
+            'user_id' => null,
+            'unit_id' => $request->unit_id,
+            'service_id' => $request->service_id,
+            'ticket_code' => 'TCK' . now()->format('Ymd') . rand(1000, 9999),
+            'title' => $request->title,
+            'description' => $request->description,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'status' => 0,
+            'guest_name' => $request->guest_name,
+            'guest_email' => $request->guest_email,
+        ]);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $uuid = Str::uuid();
+                $path = $image->storeAs('uploads/' . now()->format('Ymd'), $uuid . '.' . $image->extension(), 'public');
+                TicketUpload::create([
+                    'ticket_id' => $ticket->id,
+                    'uuid' => $uuid,
+                    'filename_ori' => $image->getClientOriginalName(),
+                    'filename_path' => $path,
+                ]);
+            }
+        }
+
+        return redirect()->route('welcome')->with('success', 'Laporan berhasil dibuat. Anda akan menerima konfirmasi melalui email.');
     }
 
     public function getServices($unitId)
