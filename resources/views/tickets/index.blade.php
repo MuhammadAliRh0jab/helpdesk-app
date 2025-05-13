@@ -201,14 +201,14 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
 
                             <!-- Modal untuk Percakapan -->
                             <div class="modal fade bg-dark" id="chatModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="chatModalLabel-{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
-                                <div class="modal-dialog modal-lg">
+                                <div class="modal-dialog modal-lg modal-dialog-scrollable">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="chatModalLabel-{{ $ticket->id }}">Kode Tiket: {{ $ticket->ticket_code }}</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
-                                        <div class="modal-body-chat">
-                                            <div class="chat-container" id="chat-container-{{ $ticket->id }}" style="max-height: 400px; overflow-y: auto; padding: 10px;">
+                                        <div class="modal-body" style="padding: 0; display: flex; flex-direction: column">
+                                            <div class="chat-container" id="chat-container-{{ $ticket->id }}" style="flex: 1; overflow-y: auto; padding: 20px;">
                                                 @forelse($ticket->responses as $response)
                                                 @php
                                                 $isSender = $response->user_id == auth()->user()->id;
@@ -248,18 +248,50 @@ $isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
                                                 @empty
                                                 <p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>
                                                 @endforelse
-
-                                                @if (auth()->user()->role_id == 4 && $ticket->user_id == auth()->user()->id && $ticket->status != 2 && $ticket->responses->last() && $ticket->responses->last()->user_id != auth()->user()->id && $ticket->responses->last()->user->role_id != 2)
-                                                <div class="reply-form mt-3" style="display: flex; justify-content: flex-start;">
-                                                    <form id="reply-form-{{ $ticket->id }}" action="{{ route('tickets.reply', $ticket->responses->last()->id) }}" method="POST" enctype="multipart/form-data" style="width: 100%;">
-                                                        @csrf
-                                                        <textarea name="message" class="form-control mb-2" placeholder="Masukkan balasan Anda..." required></textarea>
-                                                        <input type="file" name="images[]" multiple class="form-control mb-2">
-                                                        <button type="submit" class="btn btn-primary btn-sm">Kirim Balasan</button>
-                                                    </form>
-                                                </div>
-                                                @endif
                                             </div>
+
+                                            @php
+                                            $hasPegawaiResponse = $ticket->responses()
+                                                ->where('user_id', '!=', auth()->user()->id)
+                                                ->whereHas('user', function ($query) {
+                                                    $query->where('role_id', 3);
+                                                })
+                                                ->exists();
+
+                                            $pengaduMessagesSinceLastPegawai = $ticket->responses()->where('user_id', auth()->user()->id)->count();
+                                            if ($hasPegawaiResponse) {
+                                                $lastPegawaiResponse = $ticket->responses()
+                                                    ->where('user_id', '!=', auth()->user()->id)
+                                                    ->whereHas('user', function ($query) {
+                                                        $query->where('role_id', 3);
+                                                    })
+                                                    ->latest()
+                                                    ->first();
+                                                $pengaduMessagesSinceLastPegawai = $ticket->responses()
+                                                    ->where('user_id', auth()->user()->id)
+                                                    ->where('created_at', '>', $lastPegawaiResponse->created_at)
+                                                    ->count();
+                                            }
+                                            @endphp
+
+                                            @if (auth()->user()->role_id == 4 && $ticket->user_id == auth()->user()->id && $ticket->status != 2 && $pengaduMessagesSinceLastPegawai < 10)
+                                            <div class="form-container" style="position: sticky; bottom: 0; z-index: 10">
+                                                <form id="reply-form-{{ $ticket->id }}" action="{{ route('tickets.reply', $ticket->id) }}" method="POST" enctype="multipart/form-data">
+                                                    @csrf
+                                                    <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3 gap-2">
+                                                        <textarea class="form-control form-control-lg" name="message" placeholder="Masukkan pesan..." required></textarea>
+                                                        <button type="submit" class="btn p-0 text-primary" title="Kirim Pesan">
+                                                            <i class="fas fa-paper-plane fs-5"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="input-group text-muted mb-2 p-3 gap-2">
+                                                        <button class="btn btn-outline-secondary" type="button" id="custom-button-{{ $ticket->id }}">Pilih File</button>
+                                                        <span class="input-group-text" id="file-name-{{ $ticket->id }}" style="width: 75%;">Tidak ada file dipilih</span>
+                                                        <input type="file" name="images[]" id="images-{{ $ticket->id }}" multiple class="form-control d-none">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

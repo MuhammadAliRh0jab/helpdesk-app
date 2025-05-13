@@ -601,88 +601,133 @@ class TicketController extends Controller
         return redirect()->back()->with('success', 'Status tiket berhasil diperbarui.');
     }
 
-    public function reply(Request $request, TicketResponse $response)
-    {
-        $user = auth()->user();
-        \Log::info('Entering reply method. User ID: ' . $user->id . ', TicketResponse ID: ' . $response->id);
-        \Log::info('Request data: ', $request->all());
+    public function reply(Request $request, $ticketId)
+{
+    $user = auth()->user();
+    \Log::info('Entering reply method. User ID: ' . $user->id . ', Ticket ID: ' . $ticketId);
+    \Log::info('Request data: ', $request->all());
 
-        if ($user->role_id != 4) {
-            \Log::warning('Unauthorized role: ' . $user->role_id);
-            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
-        }
+    if ($user->role_id != 4) {
+        \Log::warning('Unauthorized role: ' . $user->role_id);
+        return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
+    }
 
-        $ticket = $response->ticket;
-        if ($ticket->user_id != $user->id) {
-            \Log::warning('Ticket ownership mismatch. User ID: ' . $user->id . ', Ticket User ID: ' . $ticket->user_id);
-            return response()->json(['success' => false, 'message' => 'Anda tidak diizinkan membalas respons untuk tiket ini.'], 403);
-        }
+    $ticket = \App\Models\Ticket::findOrFail($ticketId);
+    if ($ticket->user_id != $user->id) {
+        \Log::warning('Ticket ownership mismatch. User ID: ' . $user->id . ', Ticket User ID: ' . $ticket->id);
+        return response()->json(['success' => false, 'message' => 'Anda tidak diizinkan membalas respons untuk tiket ini.'], 403);
+    }
 
-        if ($ticket->status == 2) {
-            \Log::warning('Ticket resolved. Status: ' . $ticket->status);
-            return response()->json(['success' => false, 'message' => 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.'], 403);
-        }
+    if ($ticket->status == 2) {
+        \Log::warning('Ticket resolved. Status: ' . $ticket->status);
+        return response()->json(['success' => false, 'message' => 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.'], 403);
+    }
 
-        $latestResponse = $ticket->responses()->latest()->first();
-        \Log::info('Latest response ID: ' . ($latestResponse ? $latestResponse->id : 'null'));
+    // Count pengadu's responses before adding a new one
+    $pengaduResponses = $ticket->responses()
+        ->where('user_id', $user->id)
+        ->count();
+    \Log::info('Pengadu responses count before sending: ' . $pengaduResponses);
 
-        if (!$latestResponse) {
-            \Log::warning('No latest response found.');
-            return response()->json(['success' => false, 'message' => 'Tidak ada respons yang dapat dibalas.'], 403);
-        }
+    // Check if a pegawai has ever responded in the ticket's history
+    $hasPegawaiResponse = $ticket->responses()
+        ->where('user_id', '!=', $user->id)
+        ->whereHas('user', function ($query) {
+            $query->where('role_id', 3);
+        })
+        ->exists();
 
-        if ($latestResponse->user_id == $user->id) {
-            \Log::warning('User trying to reply to own message. User ID: ' . $user->id);
-            return response()->json(['success' => false, 'message' => 'Anda tidak dapat membalas pesan Anda sendiri.'], 403);
-        }
+    // If a pegawai has responded, count pengadu messages since the last pegawai response
+    $pengaduMessagesSinceLastPegawai = $pengaduResponses;
+    if ($hasPegawaiResponse) {
+        $lastPegawaiResponse = $ticket->responses()
+            ->where('user_id', '!=', $user->id)
+            ->whereHas('user', function ($query) {
+                $query->where('role_id', 3);
+            })
+            ->latest()
+            ->first();
 
-        if ($response->id != $latestResponse->id) {
-            \Log::warning('Response ID mismatch. Selected: ' . $response->id . ', Latest: ' . $latestResponse->id);
-            return response()->json(['success' => false, 'message' => 'Anda hanya dapat membalas pesan terakhir.'], 403);
-        }
+        $pengaduMessagesSinceLastPegawai = $ticket->responses()
+            ->where('user_id', $user->id)
+            ->where('created_at', '>', $lastPegawaiResponse->created_at)
+            ->count();
+        \Log::info('Pengadu messages since last pegawai response: ' . $pengaduMessagesSinceLastPegawai);
+    }
 
-        $request->validate([
-            'message' => 'required|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+    $canSend = true;
+    $messageLimitReached = false;
 
-        $newResponse = $ticket->responses()->create([
-            'user_id' => $user->id,
-            'ticket_id_quote' => $response->id,
-            'message' => $request->message,
-        ]);
+    // If there are 10 or more messages from pengadu since the last pegawai response
+    if ($pengaduMessagesSinceLastPegawai >= 10) {
+        $canSend = false;
+        $messageLimitReached = true;
+        \Log::info('Pengadu reached 10 messages since last pegawai reply. Ticket ID: ' . $ticket->id);
+    }
 
-        $uploads = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $uuid = Str::uuid();
-                $directory = 'uploads/' . now()->format('Ymd');
-                $filename = $uuid . '.' . $image->extension();
-                $path = $image->storeAs($directory, $filename, 'public');
-                if ($path) {
-                    $upload = TicketResponseUpload::create([
-                        'ticket_response_id' => $newResponse->id,
-                        'uuid' => $uuid,
-                        'filename_ori' => $image->getClientOriginalName(),
-                        'filename_path' => $path,
-                    ]);
-                    $uploads[] = $upload;
-                } else {
-                    \Log::error('Failed to store file: ' . $filename);
-                }
+    if (!$canSend) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda telah mencapai batas 10 pesan. Tunggu balasan dari pegawai untuk mengirim lagi.',
+            'message_count' => $pengaduMessagesSinceLastPegawai,
+            'limit_reached' => $messageLimitReached,
+        ], 403);
+    }
+
+    $request->validate([
+        'message' => 'required|string',
+        'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    // If there's a previous response to quote (optional)
+    $quotedResponseId = $ticket->responses()->latest()->first()?->id;
+    $newResponse = $ticket->responses()->create([
+        'user_id' => $user->id,
+        'ticket_id_quote' => $quotedResponseId,
+        'message' => $request->message,
+    ]);
+
+    $uploads = [];
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+            $uuid = Str::uuid();
+            $directory = 'Uploads/' . now()->format('Ymd');
+            $filename = $uuid . '.' . $image->extension();
+            $path = $image->storeAs($directory, $filename, 'public');
+            if ($path) {
+                $upload = TicketResponseUpload::create([
+                    'ticket_response_id' => $newResponse->id,
+                    'uuid' => $uuid,
+                    'filename_ori' => $image->getClientOriginalName(),
+                    'filename_path' => $path,
+                ]);
+                $uploads[] = $upload;
+            } else {
+                \Log::error('Failed to store file: ' . $filename);
             }
         }
-
-        return response()->json([
-            'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'username' => $user->username,
-                'role_id' => $user->role_id,
-            ],
-            'auth_user_id' => $user->id,
-            'quoted_message' => $response->message,
-            'uploads' => $uploads,
-        ]);
     }
+
+    // Recount pengadu messages since last pegawai response
+    $pengaduMessagesSinceLastPegawai = $ticket->responses()
+        ->where('user_id', $user->id)
+        ->when($hasPegawaiResponse, function ($query) use ($lastPegawaiResponse) {
+            $query->where('created_at', '>', $lastPegawaiResponse->created_at);
+        })
+        ->count();
+
+    return response()->json([
+        'success' => true,
+        'user' => [
+            'id' => $user->id,
+            'username' => $user->username,
+            'role_id' => $user->role_id,
+        ],
+        'auth_user_id' => $user->id,
+        'quoted_message' => $quotedResponseId ? $ticket->responses()->find($quotedResponseId)->message : null,
+        'uploads' => $uploads,
+        'message_count' => $pengaduMessagesSinceLastPegawai,
+        'limit_reached' => $messageLimitReached,
+    ]);
+}
 }

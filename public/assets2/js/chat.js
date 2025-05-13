@@ -149,9 +149,13 @@ $(document).ready(function () {
 
                     // Clear the form
                     $(form)[0].reset();
+                    $('#file-name-' + ticketId).text('Tidak ada file dipilih');
 
-                    // Hide the reply form after successful submission
-                    $(form).closest('.reply-form').hide();
+                    // Hide the reply form if limit is reached
+                    if (data.message_count >= 10 && data.limit_reached) {
+                        $(form).closest('.form-container').hide();
+                        chatContainer.prepend(`<div class="alert alert-warning">Anda telah mencapai batas 10 pesan. Tunggu balasan dari pegawai untuk mengirim lagi.</div>`);
+                    }
                 } else {
                     chatContainer.prepend(`<div class="alert alert-danger">${data.message || 'Terjadi kesalahan saat mengirim balasan.'}</div>`);
                 }
