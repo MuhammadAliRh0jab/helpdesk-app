@@ -196,17 +196,6 @@
         z-index: 1;
     }
 
-    .modal-content::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: url('/assets/media/img/bg-chat.jpg');
-        background-size: cover;
-        background-position: center;
-        opacity: 0.03;
-        z-index: 0;
-    }
-
     .modal-content>* {
         position: relative;
         z-index: 1;

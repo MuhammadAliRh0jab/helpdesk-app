@@ -200,7 +200,7 @@
                                 </div>
 
                                 <!-- Modal untuk Percakapan -->
-                                <div class="modal fade" id="chatModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="chatModalLabel-{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true">
+                                <div class="modal fade bg-dark" id="chatModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="chatModalLabel-{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content shadow-lg" style="border-radius: 12px; overflow: hidden;">
                                             <div class="modal-header d-flex justify-content-between align-items-center py-3 px-4" style="background-color: #ffffff; border-bottom: 1px solid #e5e7eb;">

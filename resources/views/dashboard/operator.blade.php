@@ -290,18 +290,21 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <table class="table table-borderless table-striped table-vcenter fs-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Kode</th>
-                                        <th>Judul</th>
-                                        <th class="text-center" style="width: 80px;">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recent-tickets-table">
-                                    <!-- Will be populated by JS -->
-                                </tbody>
-                            </table>
+                            <!-- Tambahkan table-responsive di sini -->
+                            <div class="table-responsive">
+                                <table class="table table-borderless table-striped table-vcenter fs-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Kode</th>
+                                            <th>Judul</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-tickets-table">
+                                        <!-- Will be populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="block-content block-content-full bg-body-light">
                             <div class="d-flex justify-content-between">
