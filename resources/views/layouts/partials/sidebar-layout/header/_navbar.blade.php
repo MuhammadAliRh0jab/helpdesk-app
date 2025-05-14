@@ -14,7 +14,6 @@
 
     <!-- OneUI framework -->
     <link rel="stylesheet" id="css-main" href="{{asset('assets2/css/oneui.min.css')}}">
-    <link rel="stylesheet" id="css-theme" href="{{asset('assets2/css/themes/amethyst.min.css')}}">
     <script src="{{asset('assets2/js/setTheme.js/')}}"></script>
     <style>
         .nav-main-link {

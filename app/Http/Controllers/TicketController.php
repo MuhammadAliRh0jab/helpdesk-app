@@ -28,20 +28,20 @@ class TicketController extends Controller
         $user = auth()->user();
         $search = $request->input('search');
         $statusFilter = $request->input('status_filter');
-        
+
         $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
-        
+
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('ticket_code', 'like', '%' . $search . '%')
-                  ->orWhere('title', 'like', '%' . $search . '%');
+                    ->orWhere('title', 'like', '%' . $search . '%');
             });
         }
-        
+
         if ($statusFilter !== null && $statusFilter !== '') {
             $query->where('status', $statusFilter);
         }
-        
+
         if ($user->role_id == 4) {
             $query->where('user_id', $user->id);
         } elseif ($user->role_id == 3) {
@@ -50,25 +50,27 @@ class TicketController extends Controller
             if ($isPicActive) {
                 $query->whereHas('pics', function ($query) use ($user) {
                     $query->where('user_id', $user->id)
-                          ->where('ticket_pic.pic_stats', 'active');
+                        ->where('ticket_pic.pic_stats', 'active');
                 })
-                ->orWhere('user_id', $user->id);
+                    ->orWhere('user_id', $user->id);
             } else {
                 $query->where('user_id', $user->id);
             }
         } elseif ($user->role_id == 2) {
             $query->where('unit_id', $user->unit_id);
         }
-    
+
         $tickets = $query->orderBy('created_at', 'desc')->paginate(5);
-    
+
         $pics = collect();
         if ($user->role_id == 2 && $user->unit_id) {
             $pics = User::where('role_id', 3)
                 ->where('unit_id', $user->unit_id)
-                ->with(['pics' => function ($query) {
-                    $query->where('pic_stats', 'active');
-                }])
+                ->with([
+                    'pics' => function ($query) {
+                        $query->where('pic_stats', 'active');
+                    }
+                ])
                 ->get()
                 ->map(function ($user) {
                     return (object) [
@@ -78,22 +80,141 @@ class TicketController extends Controller
                         'is_active' => $user->pics->first() ? true : false,
                     ];
                 });
-    
+
             Log::info('Operator unit_id: ' . $user->unit_id);
             Log::info('PICs found: ' . $pics->pluck('username')->implode(', ') . ' (Count: ' . $pics->count() . ')');
         }
-    
+
         $servicesQuery = Service::where('status', 'active');
         if ($user->role_id == 4) {
             $servicesQuery->where('category_id', 2);
         }
         $services = $servicesQuery->with('unit')->get();
-    
+
         $canCreateTicket = in_array($user->role_id, [3, 4]);
         Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ', Can Create Ticket: ' . ($canCreateTicket ? 'Yes' : 'No'));
-    
+
         return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
     }
+
+    public function ticketPerformance(Request $request)
+{
+    $unitId = $request->query('unit_id');
+    $timeRange = $request->query('time_range', 'week');
+    
+    // Tentukan rentang waktu
+    $startDate = null;
+    if ($timeRange === 'week') {
+        $startDate = now()->subWeek();
+    } elseif ($timeRange === 'month') {
+        $startDate = now()->subMonth();
+    } elseif ($timeRange === 'quarter') {
+        $startDate = now()->subMonths(3);
+    } elseif ($timeRange === 'year') {
+        $startDate = now()->subYear();
+    }
+    
+    // Dapatkan data tiket yang dibuat per hari
+    $createdTickets = Ticket::select(
+        DB::raw('DATE(created_at) as date'),
+        DB::raw('COUNT(*) as count')
+    )
+    ->where('created_at', '>=', $startDate);
+    
+    // Filter berdasarkan unit_id
+    if ($unitId) {
+        $createdTickets->where('unit_id', $unitId);
+    } else {
+        $user = auth()->user();
+        if ($user->role_id == 2) {
+            $createdTickets->where('unit_id', $user->unit_id);
+        }
+    }
+    
+    $createdTickets = $createdTickets->groupBy('date')->get();
+    
+    // Dapatkan data tiket yang diselesaikan per hari
+    $completedTickets = Ticket::select(
+        DB::raw('DATE(updated_at) as date'),
+        DB::raw('COUNT(*) as count')
+    )
+    ->where('status', 2) // Status selesai
+    ->where('updated_at', '>=', $startDate);
+    
+    // Filter berdasarkan unit_id
+    if ($unitId) {
+        $completedTickets->where('unit_id', $unitId);
+    } else {
+        $user = auth()->user();
+        if ($user->role_id == 2) {
+            $completedTickets->where('unit_id', $user->unit_id);
+        }
+    }
+    
+    $completedTickets = $completedTickets->groupBy('date')->get();
+    
+    // Buat array tanggal dalam rentang
+    $dates = [];
+    $currentDate = clone $startDate;
+    $endDate = now();
+    
+    while ($currentDate <= $endDate) {
+        $dates[] = $currentDate->format('Y-m-d');
+        $currentDate->addDay();
+    }
+    
+    // Siapkan data untuk grafik
+    $labels = $dates;
+    $created = array_fill(0, count($dates), 0);
+    $completed = array_fill(0, count($dates), 0);
+    
+    // Isi data tiket dibuat
+    foreach ($createdTickets as $ticket) {
+        $dateIndex = array_search($ticket->date, $dates);
+        if ($dateIndex !== false) {
+            $created[$dateIndex] = (int) $ticket->count;
+        }
+    }
+    
+    // Isi data tiket selesai
+    foreach ($completedTickets as $ticket) {
+        $dateIndex = array_search($ticket->date, $dates);
+        if ($dateIndex !== false) {
+            $completed[$dateIndex] = (int) $ticket->count;
+        }
+    }
+    
+    // Format tanggal agar lebih mudah dibaca
+    $formattedLabels = array_map(function($date) {
+        return date('d M', strtotime($date));
+    }, $labels);
+    
+    return response()->json([
+        'labels' => $formattedLabels,
+        'created' => $created,
+        'completed' => $completed
+    ]);
+}
+
+public function resolutionTimes(Request $request)
+{
+    $unitId = $request->query('unit_id');
+
+    $resolutionTimes = DB::table('tickets')
+        ->join('services', 'tickets.service_id', '=', 'services.id')
+        ->select('services.svc_name as service_name', DB::raw('AVG(TIMESTAMPDIFF(DAY, tickets.created_at, tickets.updated_at)) as avgResolutionDays'))
+        ->whereNotNull('tickets.updated_at')
+        ->where('tickets.status', 2) // Completed
+        ->where('tickets.unit_id', $unitId)
+        ->whereNull('tickets.deleted_at')
+        ->groupBy('service_name')
+        ->get();
+
+    return response()->json([
+        'services' => $resolutionTimes->pluck('service_name'),
+        'avgResolutionDays' => $resolutionTimes->pluck('avgResolutionDays')
+    ]);
+}
 
     public function assigned()
     {
@@ -655,132 +776,284 @@ class TicketController extends Controller
     }
 
     public function reply(Request $request, $ticketId)
-{
-    $user = auth()->user();
-    \Log::info('Entering reply method. User ID: ' . $user->id . ', Ticket ID: ' . $ticketId);
-    \Log::info('Request data: ', $request->all());
+    {
+        $user = auth()->user();
+        \Log::info('Entering reply method. User ID: ' . $user->id . ', Ticket ID: ' . $ticketId);
+        \Log::info('Request data: ', $request->all());
 
-    if ($user->role_id != 4) {
-        \Log::warning('Unauthorized role: ' . $user->role_id);
-        return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
-    }
+        if ($user->role_id != 4) {
+            \Log::warning('Unauthorized role: ' . $user->role_id);
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
+        }
 
-    $ticket = \App\Models\Ticket::findOrFail($ticketId);
-    if ($ticket->user_id != $user->id) {
-        \Log::warning('Ticket ownership mismatch. User ID: ' . $user->id . ', Ticket User ID: ' . $ticket->id);
-        return response()->json(['success' => false, 'message' => 'Anda tidak diizinkan membalas respons untuk tiket ini.'], 403);
-    }
+        $ticket = \App\Models\Ticket::findOrFail($ticketId);
+        if ($ticket->user_id != $user->id) {
+            \Log::warning('Ticket ownership mismatch. User ID: ' . $user->id . ', Ticket User ID: ' . $ticket->id);
+            return response()->json(['success' => false, 'message' => 'Anda tidak diizinkan membalas respons untuk tiket ini.'], 403);
+        }
 
-    if ($ticket->status == 2) {
-        \Log::warning('Ticket resolved. Status: ' . $ticket->status);
-        return response()->json(['success' => false, 'message' => 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.'], 403);
-    }
+        if ($ticket->status == 2) {
+            \Log::warning('Ticket resolved. Status: ' . $ticket->status);
+            return response()->json(['success' => false, 'message' => 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.'], 403);
+        }
 
-    // Count pengadu's responses before adding a new one
-    $pengaduResponses = $ticket->responses()
-        ->where('user_id', $user->id)
-        ->count();
-    \Log::info('Pengadu responses count before sending: ' . $pengaduResponses);
+        // Count pengadu's responses before adding a new one
+        $pengaduResponses = $ticket->responses()
+            ->where('user_id', $user->id)
+            ->count();
+        \Log::info('Pengadu responses count before sending: ' . $pengaduResponses);
 
-    // Check if a pegawai has ever responded in the ticket's history
-    $hasPegawaiResponse = $ticket->responses()
-        ->where('user_id', '!=', $user->id)
-        ->whereHas('user', function ($query) {
-            $query->where('role_id', 3);
-        })
-        ->exists();
-
-    // If a pegawai has responded, count pengadu messages since the last pegawai response
-    $pengaduMessagesSinceLastPegawai = $pengaduResponses;
-    if ($hasPegawaiResponse) {
-        $lastPegawaiResponse = $ticket->responses()
+        // Check if a pegawai has ever responded in the ticket's history
+        $hasPegawaiResponse = $ticket->responses()
             ->where('user_id', '!=', $user->id)
             ->whereHas('user', function ($query) {
                 $query->where('role_id', 3);
             })
-            ->latest()
-            ->first();
+            ->exists();
 
+        // If a pegawai has responded, count pengadu messages since the last pegawai response
+        $pengaduMessagesSinceLastPegawai = $pengaduResponses;
+        if ($hasPegawaiResponse) {
+            $lastPegawaiResponse = $ticket->responses()
+                ->where('user_id', '!=', $user->id)
+                ->whereHas('user', function ($query) {
+                    $query->where('role_id', 3);
+                })
+                ->latest()
+                ->first();
+
+            $pengaduMessagesSinceLastPegawai = $ticket->responses()
+                ->where('user_id', $user->id)
+                ->where('created_at', '>', $lastPegawaiResponse->created_at)
+                ->count();
+            \Log::info('Pengadu messages since last pegawai response: ' . $pengaduMessagesSinceLastPegawai);
+        }
+
+        $canSend = true;
+        $messageLimitReached = false;
+
+        // If there are 10 or more messages from pengadu since the last pegawai response
+        if ($pengaduMessagesSinceLastPegawai >= 10) {
+            $canSend = false;
+            $messageLimitReached = true;
+            \Log::info('Pengadu reached 10 messages since last pegawai reply. Ticket ID: ' . $ticket->id);
+        }
+
+        if (!$canSend) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda telah mencapai batas 10 pesan. Tunggu balasan dari pegawai untuk mengirim lagi.',
+                'message_count' => $pengaduMessagesSinceLastPegawai,
+                'limit_reached' => $messageLimitReached,
+            ], 403);
+        }
+
+        $request->validate([
+            'message' => 'required|string',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // If there's a previous response to quote (optional)
+        $quotedResponseId = $ticket->responses()->latest()->first()?->id;
+        $newResponse = $ticket->responses()->create([
+            'user_id' => $user->id,
+            'ticket_id_quote' => $quotedResponseId,
+            'message' => $request->message,
+        ]);
+
+        $uploads = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $uuid = Str::uuid();
+                $directory = 'Uploads/' . now()->format('Ymd');
+                $filename = $uuid . '.' . $image->extension();
+                $path = $image->storeAs($directory, $filename, 'public');
+                if ($path) {
+                    $upload = TicketResponseUpload::create([
+                        'ticket_response_id' => $newResponse->id,
+                        'uuid' => $uuid,
+                        'filename_ori' => $image->getClientOriginalName(),
+                        'filename_path' => $path,
+                    ]);
+                    $uploads[] = $upload;
+                } else {
+                    \Log::error('Failed to store file: ' . $filename);
+                }
+            }
+        }
+
+        // Recount pengadu messages since last pegawai response
         $pengaduMessagesSinceLastPegawai = $ticket->responses()
             ->where('user_id', $user->id)
-            ->where('created_at', '>', $lastPegawaiResponse->created_at)
+            ->when($hasPegawaiResponse, function ($query) use ($lastPegawaiResponse) {
+                $query->where('created_at', '>', $lastPegawaiResponse->created_at);
+            })
             ->count();
-        \Log::info('Pengadu messages since last pegawai response: ' . $pengaduMessagesSinceLastPegawai);
-    }
 
-    $canSend = true;
-    $messageLimitReached = false;
-
-    // If there are 10 or more messages from pengadu since the last pegawai response
-    if ($pengaduMessagesSinceLastPegawai >= 10) {
-        $canSend = false;
-        $messageLimitReached = true;
-        \Log::info('Pengadu reached 10 messages since last pegawai reply. Ticket ID: ' . $ticket->id);
-    }
-
-    if (!$canSend) {
         return response()->json([
-            'success' => false,
-            'message' => 'Anda telah mencapai batas 10 pesan. Tunggu balasan dari pegawai untuk mengirim lagi.',
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'role_id' => $user->role_id,
+            ],
+            'auth_user_id' => $user->id,
+            'quoted_message' => $quotedResponseId ? $ticket->responses()->find($quotedResponseId)->message : null,
+            'uploads' => $uploads,
             'message_count' => $pengaduMessagesSinceLastPegawai,
             'limit_reached' => $messageLimitReached,
-        ], 403);
+        ]);
+    }
+    public function recentTickets(Request $request)
+    {
+        $unitId = $request->query('unit_id');
+        $query = Ticket::select('ticket_code', 'title', 'status')
+            ->latest()
+            ->take(10);
+
+        if ($unitId) {
+            $query->where('unit_id', $unitId);
+        } else {
+            // For operators, limit to their unit unless viewing all units
+            $user = auth()->user();
+            if ($user->role_id == 2 && !$unitId) {
+                $query->where('unit_id', $user->unit_id);
+            }
+        }
+
+        $tickets = $query->get()->map(function ($ticket) {
+            // Map status to string for frontend consistency
+            $statusMap = [
+                0 => 'pending',
+                1 => 'assigned',
+                2 => 'completed'
+            ];
+            return [
+                'code' => $ticket->ticket_code,
+                'title' => $ticket->title,
+                'status' => $statusMap[$ticket->status] ?? 'unknown'
+            ];
+        });
+
+        return response()->json($tickets);
     }
 
-    $request->validate([
-        'message' => 'required|string',
-        'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
+    public function stats(Request $request)
+    {
+        $unitId = $request->query('unit_id');
+        $timeRange = $request->query('time_range', 'week');
 
-    // If there's a previous response to quote (optional)
-    $quotedResponseId = $ticket->responses()->latest()->first()?->id;
-    $newResponse = $ticket->responses()->create([
-        'user_id' => $user->id,
-        'ticket_id_quote' => $quotedResponseId,
-        'message' => $request->message,
-    ]);
+        $query = Ticket::query();
 
-    $uploads = [];
-    if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $image) {
-            $uuid = Str::uuid();
-            $directory = 'Uploads/' . now()->format('Ymd');
-            $filename = $uuid . '.' . $image->extension();
-            $path = $image->storeAs($directory, $filename, 'public');
-            if ($path) {
-                $upload = TicketResponseUpload::create([
-                    'ticket_response_id' => $newResponse->id,
-                    'uuid' => $uuid,
-                    'filename_ori' => $image->getClientOriginalName(),
-                    'filename_path' => $path,
-                ]);
-                $uploads[] = $upload;
-            } else {
-                \Log::error('Failed to store file: ' . $filename);
+        if ($unitId) {
+            $query->where('unit_id', $unitId);
+        } else {
+            // For operators, limit to their unit unless viewing all units
+            $user = auth()->user();
+            if ($user->role_id == 2 && !$unitId) {
+                $query->where('unit_id', $user->unit_id);
             }
+        }
+
+        // Apply time range filter
+        if ($timeRange === 'week') {
+            $query->where('created_at', '>=', now()->subWeek());
+        } elseif ($timeRange === 'month') {
+            $query->where('created_at', '>=', now()->subMonth());
+        } elseif ($timeRange === 'quarter') {
+            $query->where('created_at', '>=', now()->subMonths(3));
+        } elseif ($timeRange === 'year') {
+            $query->where('created_at', '>=', now()->subYear());
+        }
+
+        $stats = [
+            'completed' => $query->clone()->where('status', 2)->count(),
+            'pending' => $query->clone()->where('status', 0)->count(),
+            'assigned' => $query->clone()->where('status', 1)->count(),
+        ];
+
+        return response()->json($stats);
+    }
+
+    public function units()
+    {
+        $units = Unit::select('id', 'unit_name as name')->get();
+        return response()->json($units);
+    }
+
+    public function ticketLocations(Request $request)
+    {
+        $unitId = $request->query('unit_id');
+        $query = Ticket::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->select('ticket_code', 'title', 'latitude', 'longitude');
+
+        if ($unitId) {
+            $query->where('unit_id', $unitId);
+        } else {
+            // For operators, limit to their unit unless viewing all units
+            $user = auth()->user();
+            if ($user->role_id == 2 && !$unitId) {
+                $query->where('unit_id', $user->unit_id);
+            }
+        }
+
+        $tickets = $query->get()->map(function ($ticket) {
+            return [
+                'lat' => (float) $ticket->latitude,
+                'lng' => (float) $ticket->longitude,
+                'title' => $ticket->ticket_code,
+                'description' => $ticket->title
+            ];
+        });
+
+        return response()->json($tickets);
+    }
+    public function serviceStats(Request $request)
+{
+    $unitId = $request->query('unit_id');
+    $query = \App\Models\Service::query()
+        ->select('id', 'svc_name')
+        ->where('status', 'active');
+
+    if ($unitId) {
+        $query->where('unit_id', $unitId);
+    } else {
+        $user = auth()->user();
+        if ($user->role_id == 2 && !$unitId) {
+            $query->where('unit_id', $user->unit_id);
         }
     }
 
-    // Recount pengadu messages since last pegawai response
-    $pengaduMessagesSinceLastPegawai = $ticket->responses()
-        ->where('user_id', $user->id)
-        ->when($hasPegawaiResponse, function ($query) use ($lastPegawaiResponse) {
-            $query->where('created_at', '>', $lastPegawaiResponse->created_at);
-        })
-        ->count();
+    $services = $query->get()->map(function ($service) use ($unitId) {
+        $ticketQuery = \App\Models\Ticket::where('service_id', $service->id);
+        if ($unitId) {
+            $ticketQuery->where('unit_id', $unitId);
+        }
+        return [
+            'id' => $service->id,
+            'name' => $service->svc_name,
+            'stats' => [
+                'completed' => $ticketQuery->clone()->where('status', 2)->count(),
+                'pending' => $ticketQuery->clone()->where('status', 0)->count(),
+                'assigned' => $ticketQuery->clone()->where('status', 1)->count(),
+            ]
+        ];
+    });
 
-    return response()->json([
-        'success' => true,
-        'user' => [
-            'id' => $user->id,
-            'username' => $user->username,
-            'role_id' => $user->role_id,
-        ],
-        'auth_user_id' => $user->id,
-        'quoted_message' => $quotedResponseId ? $ticket->responses()->find($quotedResponseId)->message : null,
-        'uploads' => $uploads,
-        'message_count' => $pengaduMessagesSinceLastPegawai,
-        'limit_reached' => $messageLimitReached,
-    ]);
+    return response()->json($services);
+}
+public function ticketCategories(Request $request)
+{
+    $unitId = $request->query('unit_id', 2); // Default to 2 if not provided
+    $categories = DB::table('tickets')
+        ->join('services', 'tickets.service_id', '=', 'services.id')
+        ->select('services.category_id', DB::raw('COUNT(*) as count'))
+        ->where('tickets.unit_id', $unitId) // Specify tickets.unit_id
+        ->whereNull('tickets.deleted_at')
+        ->groupBy('services.category_id')
+        ->get();
+
+    return response()->json($categories);
 }
 }

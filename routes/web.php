@@ -32,7 +32,8 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/warga', [DashboardController::class, 'warga'])->name('dashboard.warga')->middleware('role:4');
     Route::get('/dashboard/pegawai', [DashboardController::class, 'pegawai'])->name('dashboard.pegawai')->middleware('role:3');
-    Route::get('/dashboard/operator', [DashboardController::class, 'operator'])->name('dashboard.operator')->middleware('role:2');
+    Route::get('/dashboard/operator', [DashboardController::class, 'operatorDashboard'])->name('dashboard.operator')->middleware('auth');
+    // Route::get('/dashboard/operator', [DashboardController::class, 'operator'])->name('dashboard.operator')->middleware('role:2');
     Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin')->middleware('role:1');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/assigned', [TicketController::class, 'assigned'])->name('tickets.assigned');

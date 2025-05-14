@@ -93,6 +93,23 @@ class DashboardController extends Controller
         return view('dashboard.operator', compact('user', 'ticketStats', 'personalStats'));
     }
 
+    public function operatorDashboard(Request $request)
+{
+    $user = auth()->user();
+    if ($user->role_id != 2) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $query = Ticket::where('unit_id', $user->unit_id);
+    $ticketStats = [
+        'completed' => $query->clone()->where('status', 2)->count(),
+        'pending' => $query->clone()->where('status', 0)->count(),
+        'assigned' => $query->clone()->where('status', 1)->count(),
+    ];
+
+    return view('theme::dashboard.operator', compact('ticketStats'));
+}
+
     public function admin()
     {
         $user = Auth::user();
