@@ -107,6 +107,8 @@ class DashboardController extends Controller
         'assigned' => $query->clone()->where('status', 1)->count(),
     ];
 
+    $ticketStats['total'] = $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'];
+
     return view('theme::dashboard.operator', compact('ticketStats'));
 }
 
@@ -162,6 +164,17 @@ class DashboardController extends Controller
             'assigned' => Ticket::where('unit_id', $unitId)->where('status', 1)->count(),
         ];
     }
+
+    public function dashboard()
+{
+    $unitId = auth()->user()->unit_id;
+    $ticketStats = $this->getTicketStatsForOperator($unitId);
+    
+    // Calculate total here
+    $ticketStats['total'] = $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'];
+    
+    return view('dashboard.operator', compact('ticketStats'));
+}
 
     private function getPersonalStatsForOperator($userId)
     {
