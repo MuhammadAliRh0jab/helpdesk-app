@@ -50,7 +50,7 @@
                 <dd class="fs-sm fw-medium text-muted mb-0">Tiket Pending</dd>
               </dl>
               <div class="item item-rounded-lg bg-body-light">
-                <i class="far fa-gem fs-3 text-primary"></i>
+                <i class="fas fa-clock fs-3 text-warning"></i>
               </div>
             </div>
             <div class="bg-body-light rounded-bottom">
@@ -70,7 +70,7 @@
                 <dd class="fs-sm fw-medium text-muted mb-0">Tiket Ditugaskan</dd>
               </dl>
               <div class="item item-rounded-lg bg-body-light">
-                <i class="far fa-paper-plane fs-3 text-primary"></i>
+                <i class="fas fa-user-clock fs-3 text-info"></i>
               </div>
             </div>
             <div class="bg-body-light rounded-bottom">
@@ -90,7 +90,7 @@
                 <dd class="fs-sm fw-medium text-muted mb-0">Tiket Selesai</dd>
               </dl>
               <div class="item item-rounded-lg bg-body-light">
-                <i class="fa fa-chart-bar fs-3 text-primary"></i>
+                <i class="fas fa-check-circle fs-3 text-success"></i>
               </div>
             </div>
             <div class="bg-body-light rounded-bottom">
