@@ -26,4 +26,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/recent-tickets', [TicketController::class, 'recentTickets']);
     Route::get('/units', [TicketController::class, 'units']);
     Route::get('/service-stats', [TicketController::class, 'serviceStats']);
+    Route::get('/service-distribution', [TicketController::class, 'serviceDistribution']);
 });

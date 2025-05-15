@@ -19,6 +19,7 @@
         "aos": "^2.3.4",
         "apexcharts": "^4.7.0",
         "chart.js": "^4.4.9",
+        "flatpickr": "^4.6.13",
         "jquery": "^3.7.1",
         "leaflet": "^1.9.4"
     }

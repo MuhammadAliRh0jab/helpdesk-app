@@ -45,7 +45,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tickets/{ticket}/remove-pic', [TicketController::class, 'removePic'])->middleware('role:2')->name('tickets.removePic');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->middleware('role:3')->name('tickets.update');
     Route::post('tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
-    
+    Route::get('/api/ticket-performance', [TicketController::class, 'ticketPerformance']);
     // Rute untuk manajemen pengguna (Super_admin)
     Route::prefix('users')->middleware('role:1')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
