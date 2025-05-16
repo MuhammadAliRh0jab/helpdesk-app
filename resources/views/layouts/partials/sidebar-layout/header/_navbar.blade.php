@@ -76,7 +76,7 @@
                     <ul class="nav-main">
                         @if (auth()->user()->role_id == 2) {{-- Operator --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.operator') }}">
+                            <a class="nav-main-link d-flex align-items-center text-dark {{ request()->routeIs('dashboard.operator') ? 'active' : '' }}" href="{{ route('dashboard.operator') }}">
                                 <i class="nav-main-link-icon si si-speedometer me-2"></i>
                                 Dashboard
                             </a>
@@ -107,7 +107,7 @@
                         </li>
                         @elseif (auth()->user()->role_id == 3) {{-- Pegawai --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.pegawai') }}">
+                            <a class="nav-main-link d-flex align-items-center text-dark {{ request()->routeIs('dashboard.pegawai') ? 'active' : '' }}" href="{{ route('dashboard.pegawai') }}">
                                 <i class="nav-main-link-icon si si-speedometer me-2"></i>
                                 Dashboard
                             </a>
@@ -132,7 +132,7 @@
                         </li>
                         @elseif (auth()->user()->role_id == 1) {{-- Admin --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.admin') }}">
+                            <a class="nav-main-link d-flex align-items-center text-dark {{ request()->routeIs('dashboard.admin') ? 'active' : '' }}" href="{{ route('dashboard.admin') }}">
                                 <i class="nav-main-link-icon si si-speedometer me-2"></i>
                                 Dashboard
                             </a>
@@ -151,7 +151,7 @@
                         </li>
                         @else {{-- Warga --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.warga') }}">
+                            <a class="nav-main-link d-flex align-items-center text-dark {{ request()->routeIs('dashboard.warga') ? 'active' : '' }}" href="{{ route('dashboard.warga') }}">
                                 <i class="nav-main-link-icon si si-speedometer me-2"></i>
                                 Dashboard
                             </a>
