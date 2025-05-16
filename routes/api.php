@@ -15,9 +15,8 @@ use App\Http\Controllers\TicketController;
 |
 */
 
-
-
 Route::middleware('auth:sanctum')->group(function () {
+    // Endpoint untuk Operator Dashboard
     Route::get('/ticket-stats', [TicketController::class, 'ticketStats']);
     Route::get('/ticket-performance', [TicketController::class, 'ticketPerformance']);
     Route::get('/ticket-categories', [TicketController::class, 'ticketCategories']);
@@ -27,4 +26,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/units', [TicketController::class, 'units']);
     Route::get('/service-stats', [TicketController::class, 'serviceStats']);
     Route::get('/service-distribution', [TicketController::class, 'serviceDistribution']);
+
+    // Endpoint untuk Pegawai Dashboard
+    Route::get('/pegawai-ticket-stats', [TicketController::class, 'pegawaiTicketStats']);
+    Route::get('/pegawai-resolution-times', [TicketController::class, 'pegawaiResolutionTimes']);
+    Route::get('/pegawai-recent-tickets', [TicketController::class, 'pegawaiRecentTickets']);
+    
 });
