@@ -17,12 +17,12 @@
         <div class="content">
             <!-- Statistics Cards -->
             <div class="row items-push">
-                <div class="col-sm-6 col-xl-4">
+                <div class="col-sm-6 col-xl-2">
                     <div class="block block-rounded d-flex flex-column h-100 mb-0">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="resolved-tickets"></dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Diselesaikan</dd>
+                                <dt class="fs-3 fw-bold" id="resolved-as-handler-tickets">0</dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Diselesaikan (Pelaksana)</dd>
                             </dl>
                             <div class="item item-rounded-lg bg-body-light">
                                 <i class="fas fa-check-circle fs-3 text-success"></i>
@@ -31,12 +31,40 @@
                         <div class="bg-body-light rounded-bottom"></div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-4">
+                <div class="col-sm-6 col-xl-2">
                     <div class="block block-rounded d-flex flex-column h-100 mb-0">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="created-tickets"></dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Diajukan</dd>
+                                <dt class="fs-3 fw-bold" id="to-be-completed-as-handler-tickets">0</dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Harus Diselesaikan (Pelaksana)</dd>
+                            </dl>
+                            <div class="item item-rounded-lg bg-body-light">
+                                <i class="fas fa-user-clock fs-3 text-info"></i>
+                            </div>
+                        </div>
+                        <div class="bg-body-light rounded-bottom"></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-2">
+                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="fs-3 fw-bold" id="pending-as-creator-tickets">0</dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Pending (Pengadu)</dd>
+                            </dl>
+                            <div class="item item-rounded-lg bg-body-light">
+                                <i class="fas fa-hourglass-start fs-3 text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="bg-body-light rounded-bottom"></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-2">
+                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="fs-3 fw-bold" id="assigned-as-creator-tickets">0</dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Ditugaskan (Pengadu)</dd>
                             </dl>
                             <div class="item item-rounded-lg bg-body-light">
                                 <i class="fas fa-ticket-alt fs-3 text-primary"></i>
@@ -45,15 +73,15 @@
                         <div class="bg-body-light rounded-bottom"></div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-4">
+                <div class="col-sm-6 col-xl-2">
                     <div class="block block-rounded d-flex flex-column h-100 mb-0">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="assigned-tickets"></dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Ditugaskan</dd>
+                                <dt class="fs-3 fw-bold" id="completed-as-creator-tickets">0</dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Selesai (Pengadu)</dd>
                             </dl>
                             <div class="item item-rounded-lg bg-body-light">
-                                <i class="fas fa-user-clock fs-3 text-info"></i>
+                                <i class="fas fa-check-double fs-3 text-success"></i>
                             </div>
                         </div>
                         <div class="bg-body-light rounded-bottom"></div>
@@ -398,9 +426,6 @@
 @section('scripts')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
-        window.initialTicketStats = @json($ticketStats ?? ['resolved' => 0, 'created' => 0, 'assigned' => 0]);
-    </script>
     <script src="{{ asset('assets/js/pegawai_dashboard.js') }}"></script>
 </body>
 </html>

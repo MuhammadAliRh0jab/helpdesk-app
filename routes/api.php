@@ -45,8 +45,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/pegawai-resolution-times', [PegawaiDashboardController::class, 'getResolutionTimes']);
     Route::get('/pegawai-completed-tickets-history', [PegawaiDashboardController::class, 'getCompletedTicketsHistory']);
     Route::get('/pegawai-resolution-time-by-service', [PegawaiDashboardController::class, 'getResolutionTimeByService']);
-    Route::get('pegawai-completed-tickets', [PegawaiDashboardController::class, 'getCompletedTickets']);
+    Route::get('/pegawai-completed-tickets', [PegawaiDashboardController::class, 'getCompletedTickets']);
     Route::get('/pegawai-ticket-distribution', [PegawaiDashboardController::class, 'getTicketDistribution']);
     Route::get('/pegawai-assignment-completion', [PegawaiDashboardController::class, 'getAssignmentCompletion']);
     Route::get('/pegawai-ticket-list', [PegawaiDashboardController::class, 'getTicketList']);
+    Route::get('/pegawai-dashboard-metrics', [PegawaiDashboardController::class, 'getDashboardMetrics']);
+    Route::get('/pegawai-stats', [PegawaiDashboardController::class, 'getStats']);
 });

@@ -940,4 +940,27 @@ class PegawaiDashboardController extends Controller
             return response()->json(['error' => 'Failed to fetch resolution times'], 500);
         }
     }
+    public function getStats()
+{
+    $user = Auth::user();
+
+    $stats = [
+        'resolved_as_handler' => Ticket::whereHas('picsHistory', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->where('status', 2)->count(),
+
+        'to_be_completed_as_handler' => Ticket::whereHas('pics', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->whereIn('status', [0, 1])->count(),
+
+        'pending_as_creator' => Ticket::where('user_id', $user->id)->where('status', 0)->count(),
+
+        'assigned_as_creator' => Ticket::where('user_id', $user->id)->where('status', 1)->count(),
+
+        'completed_as_creator' => Ticket::where('user_id', $user->id)->where('status', 2)->count(),
+    ];
+
+    return response()->json($stats);
+}
+
 }

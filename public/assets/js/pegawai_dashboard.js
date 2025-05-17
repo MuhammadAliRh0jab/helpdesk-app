@@ -3,12 +3,20 @@ axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[nam
 axios.defaults.withCredentials = true;
 
 // Initial data from backend (fallback if undefined)
-const initialTicketStats = window.initialTicketStats || { resolved: 0, created: 0, assigned: 0 };
+const initialTicketStats = window.initialTicketStats || {
+    resolved_as_handler: 0,
+    to_be_completed_as_handler: 0,
+    pending_as_creator: 0,
+    assigned_as_creator: 0,
+    completed_as_creator: 0
+};
 
 // DOM Elements
-const resolvedCountElement = document.getElementById('resolved-tickets');
-const createdCountElement = document.getElementById('created-tickets');
-const assignedCountElement = document.getElementById('assigned-tickets');
+const resolvedAsHandlerCountElement = document.getElementById('resolved-as-handler-tickets');
+const toBeCompletedAsHandlerCountElement = document.getElementById('to-be-completed-as-handler-tickets');
+const pendingAsCreatorCountElement = document.getElementById('pending-as-creator-tickets');
+const assignedAsCreatorCountElement = document.getElementById('assigned-as-creator-tickets');
+const completedAsCreatorCountElement = document.getElementById('completed-as-creator-tickets');
 const pendingPercentElement = document.getElementById('pending-percent');
 const assignedPercentElement = document.getElementById('assigned-percent');
 const completedPercentElement = document.getElementById('completed-percent');
@@ -24,6 +32,7 @@ let assignmentCompletionChart = null;
 
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', () => {
+    updateStatisticCards(); // Fetch and update statistic cards once on page load
     updateInitialDisplays();
     setupTicketStatsChart(initialTicketStats);
     setupTicketDistributionChart();
@@ -54,15 +63,44 @@ document.addEventListener('DOMContentLoaded', () => {
 /* Update Initial Displays */
 function updateInitialDisplays() {
     try {
-        if (resolvedCountElement) resolvedCountElement.textContent = initialTicketStats.resolved || 0;
-        if (createdCountElement) createdCountElement.textContent = initialTicketStats.created || 0;
-        if (assignedCountElement) assignedCountElement.textContent = initialTicketStats.assigned || 0;
+        if (resolvedAsHandlerCountElement) resolvedAsHandlerCountElement.textContent = initialTicketStats.resolved_as_handler || 0;
+        if (toBeCompletedAsHandlerCountElement) toBeCompletedAsHandlerCountElement.textContent = initialTicketStats.to_be_completed_as_handler || 0;
+        if (pendingAsCreatorCountElement) pendingAsCreatorCountElement.textContent = initialTicketStats.pending_as_creator || 0;
+        if (assignedAsCreatorCountElement) assignedAsCreatorCountElement.textContent = initialTicketStats.assigned_as_creator || 0;
+        if (completedAsCreatorCountElement) completedAsCreatorCountElement.textContent = initialTicketStats.completed_as_creator || 0;
     } catch (err) {
         console.error('Error updating initial displays:', err.message);
     }
 }
 
-/* Setup Time Range Listeners */
+/* Update Statistic Cards */
+function updateStatisticCards() {
+    axios.get('/api/pegawai-stats')
+        .then(response => {
+            const { 
+                resolved_as_handler = 0, 
+                to_be_completed_as_handler = 0, 
+                pending_as_creator = 0, 
+                assigned_as_creator = 0, 
+                completed_as_creator = 0 
+            } = response.data;
+            if (resolvedAsHandlerCountElement) resolvedAsHandlerCountElement.textContent = resolved_as_handler;
+            if (toBeCompletedAsHandlerCountElement) toBeCompletedAsHandlerCountElement.textContent = to_be_completed_as_handler;
+            if (pendingAsCreatorCountElement) pendingAsCreatorCountElement.textContent = pending_as_creator;
+            if (assignedAsCreatorCountElement) assignedAsCreatorCountElement.textContent = assigned_as_creator;
+            if (completedAsCreatorCountElement) completedAsCreatorCountElement.textContent = completed_as_creator;
+        })
+        .catch(error => {
+            console.error('Error fetching statistic cards:', error.response?.data || error.message);
+            if (resolvedAsHandlerCountElement) resolvedAsHandlerCountElement.textContent = '0';
+            if (toBeCompletedAsHandlerCountElement) toBeCompletedAsHandlerCountElement.textContent = '0';
+            if (pendingAsCreatorCountElement) pendingAsCreatorCountElement.textContent = '0';
+            if (assignedAsCreatorCountElement) assignedAsCreatorCountElement.textContent = '0';
+            if (completedAsCreatorCountElement) completedAsCreatorCountElement.textContent = '0';
+        });
+}
+
+/* Setup Time Range Listeners (unchanged) */
 function setupTimeRangeListeners() {
     // Ticket Stats Chart (Creator Tab)
     document.querySelectorAll('#ticket-stats-time-range .dropdown-item[data-time-range]')?.forEach(item => {
@@ -153,7 +191,7 @@ function setupTimeRangeListeners() {
     }
 }
 
-/* 1. Ticket Stats Chart (Line Chart with Fill) - Creator Tab */
+/* 1. Ticket Stats Chart (Line Chart with Fill) - Creator Tab (unchanged) */
 function setupTicketStatsChart(ticketStats) {
     setupTicketStatsChartWithCustomRange(ticketStats, null, null);
 }
@@ -180,7 +218,7 @@ function setupTicketStatsChartWithCustomRange(ticketStats, startDate, endDate) {
 
     axios.get('/api/pegawai-ticket-stats', { params })
         .then(response => {
-            const { resolved = 0, created = 0, assigned = 0 } = response.data.totalStats || {};
+            const { resolved = 0, created = 0, assigned = 0, pending = 0, completed = 0 } = response.data.totalStats || {};
             const createdPending = response.data.created?.pending?.data || [];
             const createdCompleted = response.data.created?.completed?.data || [];
             const createdLabels = response.data.created?.pending?.labels || [];
@@ -249,16 +287,14 @@ function setupTicketStatsChartWithCustomRange(ticketStats, startDate, endDate) {
                 }
             });
 
-            if (resolvedCountElement) resolvedCountElement.textContent = resolved;
-            if (createdCountElement) createdCountElement.textContent = created;
-            if (assignedCountElement) assignedCountElement.textContent = assigned;
+            // No need to update statistic cards here since they should remain static
         })
         .catch(error => {
             console.error('Error loading ticket stats:', error.response?.data || error.message);
         });
 }
 
-/* 2. Ticket Distribution Chart (Doughnut Chart) - Creator Tab */
+/* 2. Ticket Distribution Chart (Doughnut Chart) - Creator Tab (unchanged) */
 function setupTicketDistributionChart() {
     const chartContainer = document.getElementById('ticketDistributionChart');
     if (!chartContainer) {
@@ -336,7 +372,7 @@ function setupTicketDistributionChart() {
         });
 }
 
-/* 3. Handler Ticket Distribution Chart (Pie Chart) - Handler Tab */
+/* 3. Handler Ticket Distribution Chart (Pie Chart) - Handler Tab (unchanged) */
 function setupHandlerTicketDistributionChart() {
     const chartContainer = document.getElementById('handlerTicketDistributionChart');
     if (!chartContainer) {
@@ -403,7 +439,7 @@ function setupHandlerTicketDistributionChart() {
         });
 }
 
-/* 4. Resolution Time by Service Chart (Bar Chart) - Handler Tab */
+/* 4. Resolution Time by Service Chart (Bar Chart) - Handler Tab (unchanged) */
 function setupResolutionByServiceChart() {
     const chartContainer = document.getElementById('resolutionByServiceChart');
     if (!chartContainer) {
@@ -556,7 +592,7 @@ function setupResolutionByServiceChart() {
         });
 }
 
-/* 5. Assignment and Completion Time Series Chart - Handler Tab */
+/* 5. Assignment and Completion Time Series Chart - Handler Tab (unchanged) */
 function setupAssignmentCompletionChart() {
     setupAssignmentCompletionChartWithCustomRange(null, null);
 }
@@ -646,7 +682,7 @@ function setupAssignmentCompletionChartWithCustomRange(startDate, endDate) {
         });
 }
 
-/* 6. Load Recent Tickets - Creator Tab */
+/* 6. Load Recent Tickets - Creator Tab (unchanged) */
 function loadRecentTickets() {
     const tableBody = document.getElementById('recent-tickets-table');
     if (!tableBody) {
@@ -684,7 +720,7 @@ function loadRecentTickets() {
         });
 }
 
-/* 7. Load Ticket List (To Be Completed and Completed) - Handler Tab */
+/* 7. Load Ticket List (To Be Completed and Completed) - Handler Tab (unchanged) */
 function loadTicketList() {
     const tableBody = document.getElementById('ticket-list-table');
     if (!tableBody) {
@@ -723,7 +759,7 @@ function loadTicketList() {
         });
 }
 
-/* Helper Function to Get Status Badge */
+/* Helper Function to Get Status Badge (unchanged) */
 function getStatusBadge(status) {
     const statusStr = String(status || '').toLowerCase();
     switch (statusStr) {
