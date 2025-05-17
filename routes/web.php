@@ -9,6 +9,7 @@ use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceManagementController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PegawaiDashboardController;
 
 Route::get('/', function () {
     return view('theme::auth.landing');
@@ -36,7 +37,13 @@ Route::middleware(['auth'])->group(function () {
     // Route::get('/dashboard/operator', [DashboardController::class, 'operator'])->name('dashboard.operator')->middleware('role:2');
     Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin')->middleware('role:1');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
-    Route::get('/api/pegawai-resolved-tickets', [TicketController::class, 'pegawaiResolvedTickets'])->middleware('role:3');
+    // Route::get('/api/pegawai-resolved-tickets', [TicketController::class, 'pegawaiResolvedTickets'])->middleware('role:3');
+    // Route::get('/api/pegawai-ticket-distribution', [TicketController::class, 'getTicketDistribution'])->middleware('role:3');
+    // Route::get('/api/pegawai-recent-tickets', [PegawaiDashboardController::class, 'getRecentTickets']);
+    // Route::get('/api/pegawai-ticket-stats', [PegawaiDashboardController::class, 'getTicketStats']);
+    // Route::get('/api/pegawai-ticket-distribution/created', [PegawaiDashboardController::class, 'getTicketDistributionCreated']);
+    // Route::get('/api/pegawai-ticket-distribution/assigned', [PegawaiDashboardController::class, 'getTicketDistributionAssigned']);
+    // Route::get('/api/pegawai-resolution-times', [PegawaiDashboardController::class, 'getResolutionTimes']);
     Route::get('/tickets/assigned', [TicketController::class, 'assigned'])->name('tickets.assigned');
     Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
@@ -46,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tickets/{ticket}/remove-pic', [TicketController::class, 'removePic'])->middleware('role:2')->name('tickets.removePic');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->middleware('role:3')->name('tickets.update');
     Route::post('tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
-    Route::get('/api/ticket-performance', [TicketController::class, 'ticketPerformance']);
+    
     // Rute untuk manajemen pengguna (Super_admin)
     Route::prefix('users')->middleware('role:1')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');

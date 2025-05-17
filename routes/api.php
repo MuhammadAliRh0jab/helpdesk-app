@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\PegawaiDashboardController;
+use App\Http\Controllers\OperatorDashboardContorller;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,19 +19,34 @@ use App\Http\Controllers\TicketController;
 
 Route::middleware('auth:sanctum')->group(function () {
     // Endpoint untuk Operator Dashboard
-    Route::get('/ticket-stats', [TicketController::class, 'ticketStats']);
-    Route::get('/ticket-performance', [TicketController::class, 'ticketPerformance']);
-    Route::get('/ticket-categories', [TicketController::class, 'ticketCategories']);
-    Route::get('/resolution-times', [TicketController::class, 'resolutionTimes']);
-    Route::get('/ticket-locations', [TicketController::class, 'ticketLocations']);
-    Route::get('/recent-tickets', [TicketController::class, 'recentTickets']);
-    Route::get('/units', [TicketController::class, 'units']);
-    Route::get('/service-stats', [TicketController::class, 'serviceStats']);
-    Route::get('/service-distribution', [TicketController::class, 'serviceDistribution']);
+    Route::get('/ticket-stats', [OperatorDashboardContorller::class, 'ticketStats']);
+    Route::get('/ticket-performance', [OperatorDashboardContorller::class, 'ticketPerformance']);
+    Route::get('/ticket-categories', [OperatorDashboardContorller::class, 'ticketCategories']);
+    Route::get('/resolution-times', [OperatorDashboardContorller::class, 'resolutionTimes']);
+    // Route::get('/ticket-locations', [OperatorDashboardContorller::class, 'ticketLocations']);
+    Route::get('/recent-tickets', [OperatorDashboardContorller::class, 'recentTickets']);
+    Route::get('/units', [OperatorDashboardContorller::class, 'units']);
+    Route::get('/service-stats', [OperatorDashboardContorller::class, 'serviceStats']);
+    Route::get('/service-distribution', [OperatorDashboardContorller::class, 'serviceDistribution']);
+    Route::get('/ticket-performance', [OperatorDashboardContorller::class, 'ticketPerformance']);
 
-    // Endpoint untuk Pegawai Dashboard
-    Route::get('/pegawai-ticket-stats', [TicketController::class, 'pegawaiTicketStats']);
-    Route::get('/pegawai-resolution-times', [TicketController::class, 'pegawaiResolutionTimes']);
-    Route::get('/pegawai-recent-tickets', [TicketController::class, 'pegawaiRecentTickets']);
-    
+    // Route::get('/pegawai-recent-tickets', [PegawaiDashboardController::class, 'getRecentTickets']);
+    // Route::get('/pegawai-ticket-stats', [PegawaiDashboardController::class, 'getTicketStats']);
+    // Route::get('/pegawai-ticket-distribution/created', [PegawaiDashboardController::class, 'getTicketDistributionCreated']);
+    // Route::get('/pegawai-ticket-distribution/assigned', [PegawaiDashboardController::class, 'getTicketDistributionAssigned']);
+    // Route::get('/pegawai-resolution-times', [PegawaiDashboardController::class, 'getResolutionTimes']);
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/pegawai-recent-tickets', [PegawaiDashboardController::class, 'getRecentTickets']);
+    Route::get('/pegawai-ticket-stats', [PegawaiDashboardController::class, 'getTicketStats']);
+    Route::get('/pegawai-ticket-distribution-created', [PegawaiDashboardController::class, 'getTicketDistributionCreated']);
+    Route::get('/pegawai-ticket-distribution-assigned', [PegawaiDashboardController::class, 'getTicketDistributionAssigned']);
+    Route::get('/pegawai-resolution-times', [PegawaiDashboardController::class, 'getResolutionTimes']);
+    Route::get('/pegawai-completed-tickets-history', [PegawaiDashboardController::class, 'getCompletedTicketsHistory']);
+    Route::get('/pegawai-resolution-time-by-service', [PegawaiDashboardController::class, 'getResolutionTimeByService']);
+    Route::get('pegawai-completed-tickets', [PegawaiDashboardController::class, 'getCompletedTickets']);
+    Route::get('/pegawai-ticket-distribution', [PegawaiDashboardController::class, 'getTicketDistribution']);
+    Route::get('/pegawai-assignment-completion', [PegawaiDashboardController::class, 'getAssignmentCompletion']);
+    Route::get('/pegawai-ticket-list', [PegawaiDashboardController::class, 'getTicketList']);
 });
