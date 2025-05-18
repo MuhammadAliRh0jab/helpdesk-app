@@ -35,16 +35,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/warga', [WargaDashboardController::class, 'index'])->name('dashboard.warga')->middleware('role:4');
     Route::get('/dashboard/pegawai', [DashboardController::class, 'pegawai'])->name('dashboard.pegawai')->middleware('role:3');
     Route::get('/dashboard/operator', [DashboardController::class, 'operatorDashboard'])->name('dashboard.operator')->middleware('auth');
-    // Route::get('/dashboard/operator', [DashboardController::class, 'operator'])->name('dashboard.operator')->middleware('role:2');
     Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin')->middleware('role:1');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
-    // Route::get('/api/pegawai-resolved-tickets', [TicketController::class, 'pegawaiResolvedTickets'])->middleware('role:3');
-    // Route::get('/api/pegawai-ticket-distribution', [TicketController::class, 'getTicketDistribution'])->middleware('role:3');
-    // Route::get('/api/pegawai-recent-tickets', [PegawaiDashboardController::class, 'getRecentTickets']);
-    // Route::get('/api/pegawai-ticket-stats', [PegawaiDashboardController::class, 'getTicketStats']);
-    // Route::get('/api/pegawai-ticket-distribution/created', [PegawaiDashboardController::class, 'getTicketDistributionCreated']);
-    // Route::get('/api/pegawai-ticket-distribution/assigned', [PegawaiDashboardController::class, 'getTicketDistributionAssigned']);
-    // Route::get('/api/pegawai-resolution-times', [PegawaiDashboardController::class, 'getResolutionTimes']);
     Route::get('/tickets/assigned', [TicketController::class, 'assigned'])->name('tickets.assigned');
     Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');

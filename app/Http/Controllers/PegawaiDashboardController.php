@@ -364,71 +364,64 @@ class PegawaiDashboardController extends Controller
     }
 
     public function getRecentTickets(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            if (!$user) {
-                return response()->json(['error' => 'Unauthenticated'], 401);
-            }
-
-            $pic = Pic::where('user_id', $user->id)->first();
-
-            // Fetch created tickets with unit information
-            $createdTickets = Ticket::where('user_id', $user->id)
-                ->select('tickets.id', 'tickets.ticket_code as code', 'tickets.title', 'tickets.status', 'tickets.created_at', 'units.unit_name')
-                ->join('services', 'tickets.service_id', '=', 'services.id')
-                ->join('units', 'services.unit_id', '=', 'units.id')
-                ->orderBy('tickets.created_at', 'desc')
-                ->get()
-                ->map(function ($ticket) {
-                    return [
-                        'id' => $ticket->id,
-                        'code' => $ticket->code,
-                        'title' => $ticket->title,
-                        'status' => $ticket->status,
-                        'created_at' => $ticket->created_at,
-                        'unit_name' => $ticket->unit_name ?? 'N/A',
-                        'type' => 'created'
-                    ];
-                });
-
-            // Fetch assigned tickets with unit information
-            $assignedTickets = collect();
-            if ($pic) {
-                $assignedTickets = TicketPic::where('pic_id', $pic->id)
-                    ->join('tickets', 'ticket_pic.ticket_id', '=', 'tickets.id')
-                    ->select('tickets.id', 'tickets.ticket_code as code', 'tickets.title', 'tickets.status', 'tickets.created_at', 'units.unit_name')
-                    ->join('services', 'tickets.service_id', '=', 'services.id')
-                    ->join('units', 'services.unit_id', '=', 'units.id')
-                    ->orderBy('tickets.updated_at', 'desc')
-                    ->get()
-                    ->map(function ($ticket) {
-                        return [
-                            'id' => $ticket->id,
-                            'code' => $ticket->code,
-                            'title' => $ticket->title,
-                            'status' => $ticket->status,
-                            'created_at' => $ticket->created_at,
-                            'unit_name' => $ticket->unit_name ?? 'N/A',
-                            'type' => 'assigned'
-                        ];
-                    });
-            } else {
-                Log::warning('No PIC record found for user ID: ' . $user->id);
-            }
-
-            // Merge and sort tickets by created_at (most recent first)
-            $tickets = $createdTickets->merge($assignedTickets)
-                ->sortByDesc('created_at')
-                ->take(5)
-                ->values();
-
-            return response()->json($tickets);
-        } catch (\Exception $e) {
-            Log::error('Error fetching recent tickets: ' . $e->getMessage(), ['exception' => $e]);
-            return response()->json(['error' => 'Failed to fetch recent tickets'], 500);
+{
+    try {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
         }
+
+        // Fetch created tickets with unit information
+        $createdTickets = Ticket::where('user_id', $user->id)
+            ->select(
+                'tickets.id',
+                'tickets.ticket_code as code',
+                'tickets.title',
+                'tickets.status',
+                'tickets.created_at',
+                'tickets.updated_at',
+                'units.unit_name'
+            )
+            ->leftJoin('services', 'tickets.service_id', '=', 'services.id')
+            ->leftJoin('units', 'services.unit_id', '=', 'units.id')
+            ->orderBy('tickets.created_at', 'desc')
+            ->take(5) // Ambil 5 tiket teratas
+            ->get()
+            ->map(function ($ticket) {
+                return [
+                    'id' => $ticket->id,
+                    'code' => $ticket->code,
+                    'title' => $ticket->title,
+                    'status' => $ticket->status,
+                    'status_label' => $this->getStatusLabel($ticket->status),
+                    'created_at' => $ticket->created_at,
+                    'updated_at' => $ticket->updated_at,
+                    'unit_name' => $ticket->unit_name ?? 'N/A',
+                    'type' => 'created'
+                ];
+            });
+
+        return response()->json($createdTickets);
+    } catch (\Exception $e) {
+        Log::error('Error fetching recent tickets: ' . $e->getMessage(), ['exception' => $e]);
+        return response()->json(['error' => 'Failed to fetch recent tickets'], 500);
     }
+}
+
+// Helper method untuk mengonversi status ke label
+private function getStatusLabel($status)
+{
+    switch ($status) {
+        case 0:
+            return 'Pending';
+        case 1:
+            return 'Ditugaskan';
+        case 2:
+            return 'Selesai';
+        default:
+            return 'Tidak Diketahui';
+    }
+}
 
     public function getTicketStats(Request $request)
     {

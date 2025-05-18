@@ -55,4 +55,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/warga/ticket-stats', [WargaDashboardController::class, 'getTicketStats']);
     Route::get('/warga/tickets', [WargaDashboardController::class, 'getTickets']);
     Route::get('/warga/tickets/{id}', [WargaDashboardController::class, 'getTicketDetail']);
+    Route::get('/warga/static-stats', [WargaDashboardController::class, 'getStaticStats']);
 });

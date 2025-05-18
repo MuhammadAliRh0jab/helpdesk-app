@@ -4,11 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let ticketStatsChart = null;
 let ticketDistributionChart = null;
-let ticketStats = { pending: 0, assigned: 0, completed: 0 };
+let ticketStats = { pending: 0, assigned: 0, completed: 0 }; // Untuk distribusi chart dan statistic card
 
 function initializeWargaDashboard() {
     setupTimeRangeListeners();
-    fetchTicketStats();
+    fetchStaticStats(); // Ambil data untuk statistic card dan distribusi chart
+    fetchTicketStats(); // Ambil data untuk ticket stats chart
     fetchTickets();
 }
 
@@ -71,6 +72,40 @@ function setupTimeRangeListeners() {
     setupFilterListeners();
 }
 
+// Fungsi baru untuk mengambil data statis (tanpa filter waktu)
+function fetchStaticStats() {
+    fetch("/api/warga/static-stats", {
+        headers: {
+            Accept: "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
+                .content,
+        },
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            ticketStats = {
+                pending: data.pending || 0,
+                assigned: data.assigned || 0,
+                completed: data.completed || 0,
+            };
+            updateStatisticCards();
+            setupTicketDistributionChart();
+        })
+        .catch((error) => {
+            console.error("Error fetching static stats:", error);
+            ticketStats = { pending: 0, assigned: 0, completed: 0 };
+            updateStatisticCards();
+            setupTicketDistributionChart();
+        });
+}
+
+// Modifikasi fetchTicketStats untuk hanya memperbarui ticketStatsChart
 function fetchTicketStats(
     timeRange = "week",
     startDate = null,
@@ -100,24 +135,11 @@ function fetchTicketStats(
             return response.json();
         })
         .then((data) => {
-            const totalPending = data.created.pending.data.reduce((a, b) => a + b, 0);
-            const totalAssigned = data.created.assigned.data.reduce((a, b) => a + b, 0);
-            const totalCompleted = data.created.completed.data.reduce((a, b) => a + b, 0);
-            ticketStats = {
-                pending: totalPending,
-                assigned: totalAssigned,
-                completed: totalCompleted
-            };
-            updateStatisticCards();
             setupTicketStatsChart(data.created);
-            setupTicketDistributionChart();
         })
         .catch((error) => {
             console.error("Error fetching ticket stats:", error);
-            ticketStats = { pending: 0, assigned: 0, completed: 0 };
-            updateStatisticCards();
-            setupTicketStatsChart();
-            setupTicketDistributionChart();
+            setupTicketStatsChart({ pending: { labels: [], data: [] }, assigned: { labels: [], data: [] }, completed: { labels: [], data: [] } });
         });
 }
 

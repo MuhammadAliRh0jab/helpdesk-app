@@ -12,6 +12,24 @@ use Illuminate\Support\Facades\DB;
 
 class WargaDashboardController extends Controller
 {
+    public function getStaticStats()
+{
+    $user = Auth::user();
+    if (!$user) {
+        return response()->json(['error' => 'Unauthenticated'], 401);
+    }
+
+    $pending = Ticket::where('user_id', $user->id)->where('status', 0)->count();
+    $assigned = Ticket::where('user_id', $user->id)->where('status', 1)->count();
+    $completed = Ticket::where('user_id', $user->id)->where('status', 2)->count();
+
+    return response()->json([
+        'pending' => $pending,
+        'assigned' => $assigned,
+        'completed' => $completed,
+    ]);
+}
+    
     public function getTicketStats(Request $request)
     {
         try {
