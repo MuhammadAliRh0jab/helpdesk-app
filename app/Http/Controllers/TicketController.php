@@ -24,76 +24,114 @@ class TicketController extends Controller
         $this->middleware('auth')->except(['createGuest', 'storeGuest']);
     }
     
-    public function index(Request $request)
-    {
-        $user = auth()->user();
-        $search = $request->input('search');
-        $statusFilter = $request->input('status_filter');
+public function index(Request $request)
+{
+    $user = auth()->user();
+    $search = $request->input('search');
+    $statusFilter = $request->input('status_filter');
 
-        $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
+    // Base query with eager loading
+    $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
 
+    // Apply search filter
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('ticket_code', 'like', "%$search%")
+              ->orWhere('title', 'like', "%$search%");
+        });
+    }
+
+    // Apply status filter
+    if ($statusFilter !== null && $statusFilter !== '') {
+        $query->where('status', $statusFilter);
+    }
+
+    // Role-based filtering
+    if ($user->role_id == 4) {
+        $query->where('user_id', $user->id); // Only tickets created by the user
+    } elseif ($user->role_id == 3) {
+        $isPicActive = $user->isAssignedAsPic();
+        \Log::info("User {$user->id} isAssignedAsPic: " . ($isPicActive ? 'true' : 'false')); // Log for debugging
+        if ($isPicActive) {
+            $query->whereHas('pics', function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->where('ticket_pic.pic_stats', 'active'); // Explicitly qualify pic_stats
+            });
+        } else {
+            $query->where('user_id', $user->id); // Only tickets created by the user if not a PIC
+        }
+    } elseif ($user->role_id == 2) {
+        $query->where('unit_id', $user->unit_id);
+    }
+
+    // Paginate the main query
+    $tickets = $query->orderBy('created_at', 'desc')->paginate(5);
+
+    // Separate tickets for role_id = 2 (Operator)
+    $myTickets = collect();
+    $managedTickets = collect();
+    if ($user->role_id == 2) {
+        $myTicketsQuery = Ticket::where('user_id', $user->id)
+            ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
+        
+        $managedTicketsQuery = Ticket::where('unit_id', $user->unit_id)
+            ->where('user_id', '!=', $user->id)
+            ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
+
+        // Apply search filter for myTickets and managedTickets
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('ticket_code', 'like', '%' . $search . '%')
-                    ->orWhere('title', 'like', '%' . $search . '%');
+            $myTicketsQuery->where(function ($q) use ($search) {
+                $q->where('ticket_code', 'like', "%$search%")
+                  ->orWhere('title', 'like', "%$search%");
+            });
+            $managedTicketsQuery->where(function ($q) use ($search) {
+                $q->where('ticket_code', 'like', "%$search%")
+                  ->orWhere('title', 'like', "%$search%");
             });
         }
 
+        // Apply status filter for myTickets and managedTickets
         if ($statusFilter !== null && $statusFilter !== '') {
-            $query->where('status', $statusFilter);
+            $myTicketsQuery->where('status', $statusFilter);
+            $managedTicketsQuery->where('status', $statusFilter);
         }
 
-        if ($user->role_id == 4) {
-            $query->where('user_id', $user->id);
-        } elseif ($user->role_id == 3) {
-            $isPicActive = $user->isAssignedAsPic();
-            // Log::info('User ID: ' . $user->id . ', Is PIC Active in index(): ' . ($isPicActive ? 'Yes' : 'No'));
-            if ($isPicActive) {
-                $query->whereHas('pics', function ($query) use ($user) {
-                    $query->where('user_id', $user->id)
-                        ->where('ticket_pic.pic_stats', 'active');
-                })->orWhere('user_id', $user->id);
-            } else {
-                $query->where('user_id', $user->id);
-            }
-        } elseif ($user->role_id == 2) {
-            $query->where('unit_id', $user->unit_id);
-        }
-
-        $tickets = $query->orderBy('created_at', 'desc')->paginate(5);
-
-        $pics = collect();
-        if ($user->role_id == 2 && $user->unit_id) {
-            $pics = User::where('role_id', 3)
-                ->where('unit_id', $user->unit_id)
-                ->with(['pics' => function ($query) {
-                    $query->where('pic_stats', 'active');
-                }])
-                ->get()
-                ->map(function ($user) {
-                    return (object) [
-                        'id' => $user->id,
-                        'username' => $user->username,
-                        'pic_desc' => $user->pics->first()->pic_desc ?? 'Pegawai tanpa deskripsi',
-                        'is_active' => $user->pics->first() ? true : false,
-                    ];
-                });
-
-            // Log::info('Operator unit_id: ' . $user->unit_id);
-            // Log::info('PICs found: ' . $pics->pluck('username')->implode(', ') . ' (Count: ' . $pics->count() . ')');
-        }
-
-        $servicesQuery = Service::where('status', 'active');
-        if ($user->role_id == 4) {
-            $servicesQuery->where('category_id', 2);
-        }
-        $services = $servicesQuery->with('unit')->get();
-
-        $canCreateTicket = in_array($user->role_id, [3, 4]);
-        // Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ', Can Create Ticket: ' . ($canCreateTicket ? 'Yes' : 'No'));
-
-        return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
+        $myTickets = $myTicketsQuery->orderBy('created_at', 'desc')->paginate(5);
+        $managedTickets = $managedTicketsQuery->orderBy('created_at', 'desc')->paginate(5);
     }
+
+    // Fetch PICs for role_id = 2
+    $pics = collect();
+
+if ($user->role_id == 2 && $user->unit_id) {
+    $pics = User::where('role_id', 3)
+        ->where('unit_id', $user->unit_id)
+        ->with(['pics' => function ($query) {
+            $query->where('pic_stats', 'active'); // INI BENAR karena relasi ke tabel 'pics'
+        }])
+        ->get()
+        ->map(function ($user) {
+            return (object) [
+                'id' => $user->id,
+                'username' => $user->username,
+                'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
+                'is_active' => $user->pics->isNotEmpty(), // lebih aman dari pada first() langsung
+            ];
+        });
+}
+
+
+    // Fetch services
+    $servicesQuery = Service::where('status', 'active');
+    if ($user->role_id == 4) {
+        $servicesQuery->where('category_id', 2);
+    }
+    $services = $servicesQuery->with('unit')->get();
+
+    $canCreateTicket = in_array($user->role_id, [3, 4]);
+
+    return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services', 'myTickets', 'managedTickets'));
+}
 
     
 

@@ -27,9 +27,10 @@
     <link rel="stylesheet" href="{{ asset('assets2/js/plugins/datatables-bs5/css/dataTables.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets2/js/plugins/datatables-buttons-bs5/css/buttons.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets2/js/plugins/datatables-responsive-bs5/css/responsive.bootstrap5.min.css') }}">
-
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <!-- OneUI framework -->
     <link rel="stylesheet" id="css-main" href="{{ asset('assets2/css/oneui.min.css') }}">
+    <link href="{{ asset('assets/css/table.css') }}" rel="stylesheet">
 
     <!-- Yield Additional Styles -->
     @yield('styles')
@@ -39,10 +40,10 @@
     <div>
         @yield('content')
     </div>
-
+    
     <!-- jQuery -->
     <script src="{{ asset('assets2/js/lib/jquery.min.js') }}"></script>
-
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <!-- Bootstrap JS -->
     {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
 
@@ -61,7 +62,8 @@
     <script src="{{ asset('assets2/js/plugins/datatables-buttons-pdfmake/vfs_fonts.js') }}"></script>
     <script src="{{ asset('assets2/js/plugins/datatables-buttons/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets2/js/plugins/datatables-buttons/buttons.html5.min.js') }}"></script>
-
+    {{-- <script src="{{ asset('assets2/js/plugins/datatables/jquery.dataTables.min.js') }}"></script> --}}
+    
     <!-- Page JS Code -->
     <script src="{{ asset('assets2/js/pages/be_tables_datatables.min.js') }}"></script>
     <script src="{{ asset('assets2/js/chat.js') }}"></script>
@@ -106,7 +108,7 @@
             margin-bottom: 5rem;
             background-color: #ebeef2;
         }
-
+        
         .flatpickr-calendar {
             z-index: 9999 !important;
         }
