@@ -9,6 +9,8 @@ use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceManagementController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PegawaiDashboardController;
+use App\Http\Controllers\WargaDashboardController;
 
 Route::get('/', function () {
     return view('theme::auth.landing');
@@ -30,9 +32,9 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 
 // Routes yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard/warga', [DashboardController::class, 'warga'])->name('dashboard.warga')->middleware('role:4');
+    Route::get('/dashboard/warga', [WargaDashboardController::class, 'index'])->name('dashboard.warga')->middleware('role:4');
     Route::get('/dashboard/pegawai', [DashboardController::class, 'pegawai'])->name('dashboard.pegawai')->middleware('role:3');
-    Route::get('/dashboard/operator', [DashboardController::class, 'operator'])->name('dashboard.operator')->middleware('role:2');
+    Route::get('/dashboard/operator', [DashboardController::class, 'operatorDashboard'])->name('dashboard.operator')->middleware('auth');
     Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin')->middleware('role:1');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/assigned', [TicketController::class, 'assigned'])->name('tickets.assigned');
@@ -43,7 +45,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tickets/{ticket}/respond', [TicketController::class, 'respond'])->middleware('role:3')->name('tickets.respond');
     Route::post('/tickets/{ticket}/remove-pic', [TicketController::class, 'removePic'])->middleware('role:2')->name('tickets.removePic');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->middleware('role:3')->name('tickets.update');
-    Route::post('/tickets/reply/{response}', [TicketController::class, 'reply'])->middleware('role:4')->name('tickets.reply');
+    Route::post('tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
     
     // Rute untuk manajemen pengguna (Super_admin)
     Route::prefix('users')->middleware('role:1')->group(function () {
@@ -67,6 +69,8 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/services/{service}/allow-guest', [ServiceManagementController::class, 'updateAllowGuest'])->middleware('role:2')->name('services.updateAllowGuest');
     Route::patch('/services/{service}/category', [ServiceManagementController::class, 'updateCategory'])->middleware('role:2')->name('services.updateCategory');
     Route::get('/tickets/created', [TicketController::class, 'created'])->middleware('role:2')->name('tickets.created');
+    Route::get('/services/{service}/edit', [ServiceManagementController::class, 'edit'])->middleware('role:2')->name('services.edit');
+    Route::put('/services/{service}', [ServiceManagementController::class, 'update'])->middleware('role:2')->name('services.update');
     // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });
 

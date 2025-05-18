@@ -9,6 +9,7 @@ use App\Models\TicketResponse;
 use App\Models\TicketResponseUpload;
 use App\Models\Pic;
 use App\Models\Unit;
+use App\Models\TicketPic;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -29,60 +30,98 @@ class TicketController extends Controller
         $search = $request->input('search');
         $statusFilter = $request->input('status_filter');
 
+        // Base query with eager loading
         $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
 
+        // Apply search filter
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('ticket_code', 'like', '%' . $search . '%')
-                    ->orWhere('title', 'like', '%' . $search . '%');
+                $q->where('ticket_code', 'like', "%$search%")
+                    ->orWhere('title', 'like', "%$search%");
             });
         }
 
+        // Apply status filter
         if ($statusFilter !== null && $statusFilter !== '') {
             $query->where('status', $statusFilter);
         }
 
+        // Role-based filtering
         if ($user->role_id == 4) {
-            $query->where('user_id', $user->id);
+            $query->where('user_id', $user->id); // Only tickets created by the user
         } elseif ($user->role_id == 3) {
             $isPicActive = $user->isAssignedAsPic();
-            Log::info('User ID: ' . $user->id . ', Is PIC Active in index(): ' . ($isPicActive ? 'Yes' : 'No'));
+            \Log::info("User {$user->id} isAssignedAsPic: " . ($isPicActive ? 'true' : 'false')); // Log for debugging
             if ($isPicActive) {
                 $query->whereHas('pics', function ($query) use ($user) {
                     $query->where('user_id', $user->id)
-                        ->where('ticket_pic.pic_stats', 'active');
-                })
-                    ->orWhere('user_id', $user->id);
+                        ->where('ticket_pic.pic_stats', 'active'); // Explicitly qualify pic_stats
+                });
             } else {
-                $query->where('user_id', $user->id);
+                $query->where('user_id', $user->id); // Only tickets created by the user if not a PIC
             }
         } elseif ($user->role_id == 2) {
             $query->where('unit_id', $user->unit_id);
         }
 
+        // Paginate the main query
         $tickets = $query->orderBy('created_at', 'desc')->paginate(5);
 
+        // Separate tickets for role_id = 2 (Operator)
+        $myTickets = collect();
+        $managedTickets = collect();
+        if ($user->role_id == 2) {
+            $myTicketsQuery = Ticket::where('user_id', $user->id)
+                ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
+
+            $managedTicketsQuery = Ticket::where('unit_id', $user->unit_id)
+                ->where('user_id', '!=', $user->id)
+                ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit']);
+
+            // Apply search filter for myTickets and managedTickets
+            if ($search) {
+                $myTicketsQuery->where(function ($q) use ($search) {
+                    $q->where('ticket_code', 'like', "%$search%")
+                        ->orWhere('title', 'like', "%$search%");
+                });
+                $managedTicketsQuery->where(function ($q) use ($search) {
+                    $q->where('ticket_code', 'like', "%$search%")
+                        ->orWhere('title', 'like', "%$search%");
+                });
+            }
+
+            // Apply status filter for myTickets and managedTickets
+            if ($statusFilter !== null && $statusFilter !== '') {
+                $myTicketsQuery->where('status', $statusFilter);
+                $managedTicketsQuery->where('status', $statusFilter);
+            }
+
+            $myTickets = $myTicketsQuery->orderBy('created_at', 'desc')->paginate(5);
+            $managedTickets = $managedTicketsQuery->orderBy('created_at', 'desc')->paginate(5);
+        }
+
+        // Fetch PICs for role_id = 2
         $pics = collect();
+
         if ($user->role_id == 2 && $user->unit_id) {
             $pics = User::where('role_id', 3)
                 ->where('unit_id', $user->unit_id)
                 ->with(['pics' => function ($query) {
-                    $query->where('pic_stats', 'active');
+                    $query->where('pic_stats', 'active'); // INI BENAR karena relasi ke tabel 'pics'
                 }])
                 ->get()
                 ->map(function ($user) {
                     return (object) [
                         'id' => $user->id,
                         'username' => $user->username,
-                        'pic_desc' => $user->pics->first()->pic_desc ?? 'Pegawai tanpa deskripsi',
-                        'is_active' => $user->pics->first() ? true : false,
+                        'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
+                        'is_active' => $user->pics->isNotEmpty(), // lebih aman dari pada first() langsung
                     ];
                 });
-
-            Log::info('Operator unit_id: ' . $user->unit_id);
-            Log::info('PICs found: ' . $pics->pluck('username')->implode(', ') . ' (Count: ' . $pics->count() . ')');
         }
 
+
+        // Fetch services
         $servicesQuery = Service::where('status', 'active');
         if ($user->role_id == 4) {
             $servicesQuery->where('category_id', 2);
@@ -90,9 +129,41 @@ class TicketController extends Controller
         $services = $servicesQuery->with('unit')->get();
 
         $canCreateTicket = in_array($user->role_id, [3, 4]);
-        Log::info('User ID: ' . $user->id . ', Role ID: ' . $user->role_id . ', Can Create Ticket: ' . ($canCreateTicket ? 'Yes' : 'No'));
 
-        return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services'));
+        return view('theme::tickets.index', compact('tickets', 'canCreateTicket', 'pics', 'services', 'myTickets', 'managedTickets'));
+    }
+
+
+
+
+
+    public function assigned()
+    {
+        $user = auth()->user();
+
+        if ($user->role_id != 3) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $isPicActive = $user->isAssignedAsPic();
+        \Log::info('User ID: ' . $user->id . ', Is PIC Active in assigned(): ' . ($isPicActive ? 'Yes' : 'No'));
+
+        if (!$isPicActive) {
+            return redirect()->route('tickets.index')->with('error', 'Anda belum ditugaskan sebagai PIC.');
+        }
+
+        $tickets = Ticket::whereHas('pics', function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                ->where('ticket_pic.pic_stats', 'active');
+        })
+            ->with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit'])
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        \Log::info('Tickets assigned to user: ' . $tickets->pluck('ticket_code')->implode(', '));
+
+        return view('theme::tickets.assigned', compact('tickets'));
     }
 
     public function createGuest()
@@ -182,6 +253,8 @@ class TicketController extends Controller
             'service_id' => 'required|exists:services,id',
             'title' => 'required',
             'description' => 'required',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'images.*' => 'nullable|image|max:2048',
         ]);
 
@@ -194,6 +267,8 @@ class TicketController extends Controller
             'ticket_code' => 'TCK' . now()->format('Ymd') . rand(1000, 9999),
             'title' => $request->title,
             'description' => $request->description,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
             'status' => 0,
         ]);
 
@@ -312,6 +387,9 @@ class TicketController extends Controller
 
         return redirect()->back()->with('success', 'PIC baru berhasil ditugaskan ke tiket.');
     }
+
+
+
     public function respond(Request $request, Ticket $ticket)
     {
         $user = auth()->user();
@@ -319,12 +397,12 @@ class TicketController extends Controller
 
         if ($user->role_id != 3) {
             \Log::warning('Unauthorized role: ' . $user->role_id);
-            abort(403, 'Unauthorized action.');
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
         }
 
         if (!$user->isAssignedAsPic()) {
             \Log::warning('User not assigned as PIC: ' . $user->id);
-            abort(403, 'Anda belum ditugaskan sebagai PIC.');
+            return response()->json(['success' => false, 'message' => 'Anda belum ditugaskan sebagai PIC.'], 403);
         }
 
         $isAssignedToTicket = $this->isPicAssignedToTicket($user->id, $ticket);
@@ -332,7 +410,7 @@ class TicketController extends Controller
 
         if (!$isAssignedToTicket) {
             \Log::warning('User ' . $user->id . ' not assigned to ticket ' . $ticket->id);
-            abort(403, 'Anda belum ditugaskan sebagai PIC untuk tiket ini.');
+            return response()->json(['success' => false, 'message' => 'Anda belum ditugaskan sebagai PIC untuk tiket ini.'], 403);
         }
 
         try {
@@ -346,6 +424,7 @@ class TicketController extends Controller
                 'message' => $request->message,
             ]);
 
+            $uploads = [];
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     $uuid = Str::uuid();
@@ -354,12 +433,13 @@ class TicketController extends Controller
                     $path = $image->storeAs($directory, $filename, 'public');
                     \Log::info('File stored at: ' . $path);
                     if ($path) {
-                        TicketResponseUpload::create([
+                        $upload = TicketResponseUpload::create([
                             'ticket_response_id' => $response->id,
                             'uuid' => $uuid,
                             'filename_ori' => $image->getClientOriginalName(),
                             'filename_path' => $path,
                         ]);
+                        $uploads[] = $upload;
                     } else {
                         \Log::error('Failed to store file: ' . $filename);
                     }
@@ -367,12 +447,22 @@ class TicketController extends Controller
             }
 
             \Log::info('Response created successfully for ticket: ' . $ticket->id);
-            return redirect()->back()->with('success', 'Respons berhasil ditambahkan.');
+            return response()->json([
+                'success' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'role_id' => $user->role_id,
+                ],
+                'auth_user_id' => $user->id,
+                'uploads' => $uploads,
+            ]);
         } catch (\Exception $e) {
             \Log::error('Exception in respond: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim respons.');
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat mengirim respons.'], 500);
         }
     }
+
     public function removePic(Request $request, Ticket $ticket)
     {
         $user = auth()->user();
@@ -406,7 +496,7 @@ class TicketController extends Controller
             ->where('pic_id', $pic->id)
             ->update(['pic_stats' => 'inactive', 'updated_at' => now()]);
 
-        \Log::info('PIC ID ' . $pic->id . ' removed from ticket ID ' . $ticket->id);
+        \Log::info('PIC ID ' . $pic->id . ' removed from ticket ID: ' . $ticket->id);
 
         // Tambahkan pesan otomatis ke riwayat percakapan
         $picUser = User::find($pic->user_id);
@@ -516,6 +606,7 @@ class TicketController extends Controller
 
         return redirect()->route('tickets.index')->with('success', 'Aduan berhasil dialihkan ke unit lain.');
     }
+
     public function created()
     {
         // Pastikan hanya operator (role_id = 2) yang dapat mengakses
@@ -530,8 +621,9 @@ class TicketController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('tickets.created', compact('tickets'));
+        return view('theme::tickets.created', compact('tickets'));
     }
+
     public function update(Request $request, Ticket $ticket)
     {
         $user = auth()->user();
@@ -571,25 +663,9 @@ class TicketController extends Controller
                     ->update(['pic_stats' => 'inactive', 'updated_at' => now()]);
 
                 \Log::info('Removed ticket_pic relation for ticket: ' . $ticket->ticket_code . ' and PIC: ' . $assignment->pic_id);
-
-                // Cek apakah PIC ini masih memiliki tiket aktif lainnya
-                // $pic = Pic::find($assignment->pic_id);
-                // if ($pic) {
-                //     $otherTickets = $pic->tickets()
-                //         ->where('tickets.id', '!=', $ticket->id)
-                //         ->where('tickets.status', '!=', 2)
-                //         ->exists();
-
-                //     if (!$otherTickets) {
-                //         $pic->delete();
-                //         \Log::info('PIC entry deleted for PIC ID: ' . $pic->id . ' after ticket resolved: ' . $ticket->ticket_code);
-                //     } else {
-                //         \Log::info('PIC ID ' . $pic->id . ' still has unresolved tickets. Not deleting PIC entry.');
-                //     }
-                // }
             }
 
-            // Ubah status tiket menjadi Resolved
+            // Ubah status tiket menjadi averaging
             $ticket->update(['status' => 2]);
             \Log::info('Ticket resolved by PIC ID: ' . $user->id . ' for ticket: ' . $ticket->ticket_code);
         } else {
@@ -601,44 +677,77 @@ class TicketController extends Controller
         return redirect()->back()->with('success', 'Status tiket berhasil diperbarui.');
     }
 
-    public function reply(Request $request, TicketResponse $response)
+    public function reply(Request $request, $ticketId)
     {
         $user = auth()->user();
-        \Log::info('Entering reply method. User ID: ' . $user->id . ', TicketResponse ID: ' . $response->id);
+        \Log::info('Entering reply method. User ID: ' . $user->id . ', Ticket ID: ' . $ticketId);
         \Log::info('Request data: ', $request->all());
 
         if ($user->role_id != 4) {
             \Log::warning('Unauthorized role: ' . $user->role_id);
-            abort(403, 'Unauthorized action.');
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
         }
 
-        $ticket = $response->ticket;
+        $ticket = \App\Models\Ticket::findOrFail($ticketId);
         if ($ticket->user_id != $user->id) {
-            \Log::warning('Ticket ownership mismatch. User ID: ' . $user->id . ', Ticket User ID: ' . $ticket->user_id);
-            abort(403, 'Anda tidak diizinkan membalas respons untuk tiket ini.');
+            \Log::warning('Ticket ownership mismatch. User ID: ' . $user->id . ', Ticket User ID: ' . $ticket->id);
+            return response()->json(['success' => false, 'message' => 'Anda tidak diizinkan membalas respons untuk tiket ini.'], 403);
         }
 
         if ($ticket->status == 2) {
             \Log::warning('Ticket resolved. Status: ' . $ticket->status);
-            abort(403, 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.');
+            return response()->json(['success' => false, 'message' => 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.'], 403);
         }
 
-        $latestResponse = $ticket->responses()->latest()->first();
-        \Log::info('Latest response ID: ' . ($latestResponse ? $latestResponse->id : 'null'));
+        // Count pengadu's responses before adding a new one
+        $pengaduResponses = $ticket->responses()
+            ->where('user_id', $user->id)
+            ->count();
+        \Log::info('Pengadu responses count before sending: ' . $pengaduResponses);
 
-        if (!$latestResponse) {
-            \Log::warning('No latest response found.');
-            abort(403, 'Tidak ada respons yang dapat dibalas.');
+        // Check if a pegawai has ever responded in the ticket's history
+        $hasPegawaiResponse = $ticket->responses()
+            ->where('user_id', '!=', $user->id)
+            ->whereHas('user', function ($query) {
+                $query->where('role_id', 3);
+            })
+            ->exists();
+
+        // If a pegawai has responded, count pengadu messages since the last pegawai response
+        $pengaduMessagesSinceLastPegawai = $pengaduResponses;
+        if ($hasPegawaiResponse) {
+            $lastPegawaiResponse = $ticket->responses()
+                ->where('user_id', '!=', $user->id)
+                ->whereHas('user', function ($query) {
+                    $query->where('role_id', 3);
+                })
+                ->latest()
+                ->first();
+
+            $pengaduMessagesSinceLastPegawai = $ticket->responses()
+                ->where('user_id', $user->id)
+                ->where('created_at', '>', $lastPegawaiResponse->created_at)
+                ->count();
+            \Log::info('Pengadu messages since last pegawai response: ' . $pengaduMessagesSinceLastPegawai);
         }
 
-        if ($latestResponse->user_id == $user->id) {
-            \Log::warning('User trying to reply to own message. User ID: ' . $user->id);
-            abort(403, 'Anda tidak dapat membalas pesan Anda sendiri.');
+        $canSend = true;
+        $messageLimitReached = false;
+
+        // If there are 10 or more messages from pengadu since the last pegawai response
+        if ($pengaduMessagesSinceLastPegawai >= 10) {
+            $canSend = false;
+            $messageLimitReached = true;
+            \Log::info('Pengadu reached 10 messages since last pegawai reply. Ticket ID: ' . $ticket->id);
         }
 
-        if ($response->id != $latestResponse->id) {
-            \Log::warning('Response ID mismatch. Selected: ' . $response->id . ', Latest: ' . $latestResponse->id);
-            abort(403, 'Anda hanya dapat membalas pesan terakhir.');
+        if (!$canSend) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda telah mencapai batas 10 pesan. Tunggu balasan dari pegawai untuk mengirim lagi.',
+                'message_count' => $pengaduMessagesSinceLastPegawai,
+                'limit_reached' => $messageLimitReached,
+            ], 403);
         }
 
         $request->validate([
@@ -646,31 +755,262 @@ class TicketController extends Controller
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // If there's a previous response to quote (optional)
+        $quotedResponseId = $ticket->responses()->latest()->first()?->id;
         $newResponse = $ticket->responses()->create([
             'user_id' => $user->id,
-            'ticket_id_quote' => $response->id,
+            'ticket_id_quote' => $quotedResponseId,
             'message' => $request->message,
         ]);
 
+        $uploads = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $uuid = Str::uuid();
-                $directory = 'uploads/' . now()->format('Ymd');
+                $directory = 'Uploads/' . now()->format('Ymd');
                 $filename = $uuid . '.' . $image->extension();
                 $path = $image->storeAs($directory, $filename, 'public');
                 if ($path) {
-                    TicketResponseUpload::create([
+                    $upload = TicketResponseUpload::create([
                         'ticket_response_id' => $newResponse->id,
                         'uuid' => $uuid,
                         'filename_ori' => $image->getClientOriginalName(),
                         'filename_path' => $path,
                     ]);
+                    $uploads[] = $upload;
                 } else {
                     \Log::error('Failed to store file: ' . $filename);
                 }
             }
         }
 
-        return redirect()->back()->with('success', 'Balasan berhasil dikirim.');
+        // Recount pengadu messages since last pegawai response
+        $pengaduMessagesSinceLastPegawai = $ticket->responses()
+            ->where('user_id', $user->id)
+            ->when($hasPegawaiResponse, function ($query) use ($lastPegawaiResponse) {
+                $query->where('created_at', '>', $lastPegawaiResponse->created_at);
+            })
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'role_id' => $user->role_id,
+            ],
+            'auth_user_id' => $user->id,
+            'quoted_message' => $quotedResponseId ? $ticket->responses()->find($quotedResponseId)->message : null,
+            'uploads' => $uploads,
+            'message_count' => $pengaduMessagesSinceLastPegawai,
+            'limit_reached' => $messageLimitReached,
+        ]);
+    }
+
+
+
+    public function stats(Request $request)
+    {
+        $unitId = $request->query('unit_id');
+        $query = Ticket::query();
+
+        if ($unitId) {
+            $query->where('unit_id', $unitId);
+        } else {
+            // For operators, limit to their unit unless viewing all units
+            $user = auth()->user();
+            if ($user->role_id == 2 && !$unitId) {
+                $query->where('unit_id', $user->unit_id);
+            }
+        }
+
+        // Remove time range filter to show all-time stats
+        $stats = [
+            'completed' => $query->clone()->where('status', 2)->count(),
+            'pending' => $query->clone()->where('status', 0)->count(),
+            'assigned' => $query->clone()->where('status', 1)->count(),
+        ];
+
+        return response()->json($stats);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    public function pegawaiTicketStats()
+    {
+        $user = auth()->user();
+        if ($user->role_id != 3) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $userId = $user->id;
+        $picIds = Pic::where('user_id', $userId)
+            ->where('pic_stats', 'active')
+            ->pluck('id')
+            ->toArray();
+
+        // Tiket yang diselesaikan (status = 2, pic_stats = inactive)
+        $resolved = DB::table('tickets')
+            ->join('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
+            ->whereIn('ticket_pic.pic_id', $picIds)
+            ->where('ticket_pic.pic_stats', 'inactive')
+            ->where('tickets.status', 2)
+            ->whereNull('tickets.deleted_at')
+            ->distinct()
+            ->count('tickets.id');
+
+        // Tiket yang diajukan oleh pegawai
+        $created = Ticket::where('user_id', $userId)
+            ->whereNull('deleted_at')
+            ->count();
+
+        // Tiket yang sedang diproses (status = 1, pic_stats = active)
+        $assigned = DB::table('tickets')
+            ->join('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
+            ->whereIn('ticket_pic.pic_id', $picIds)
+            ->where('ticket_pic.pic_stats', 'active')
+            ->where('tickets.status', 1)
+            ->whereNull('tickets.deleted_at')
+            ->distinct()
+            ->count('tickets.id');
+
+        // Tiket yang pending (status = 0, diajukan oleh user atau ditugaskan)
+        $pending = DB::table('tickets')
+            ->leftJoin('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
+            ->where(function ($query) use ($userId, $picIds) {
+                $query->where('tickets.user_id', $userId)
+                    ->orWhereIn('ticket_pic.pic_id', $picIds);
+            })
+            ->where('tickets.status', 0)
+            ->whereNull('tickets.deleted_at')
+            ->distinct()
+            ->count('tickets.id');
+
+        return response()->json([
+            'resolved' => $resolved,
+            'created' => $created,
+            'assigned' => $assigned,
+            'pending' => $pending,
+        ]);
+    }
+
+    public function pegawaiResolutionTimes()
+    {
+        $user = auth()->user();;
+        if ($user->role_id != 3) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $userId = $user->id;
+        $picIds = Pic::where('user_id', $userId)->pluck('id')->toArray();
+
+        $resolutionTimes = DB::table('tickets')
+            ->join('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
+            ->join('services', 'tickets.service_id', '=', 'services.id')
+            ->whereIn('ticket_pic.pic_id', $picIds)
+            ->where('ticket_pic.pic_stats', 'inactive')
+            ->where('tickets.status', 2)
+            ->whereNull('tickets.deleted_at')
+            ->select('services.svc_name as service', DB::raw('AVG(TIMESTAMPDIFF(DAY, tickets.created_at, tickets.updated_at)) as avg_days'))
+            ->groupBy('services.svc_name')
+            ->get();
+
+        $services = $resolutionTimes->pluck('service')->all();
+        $avgResolutionDays = $resolutionTimes->pluck('avg_days')->map(function ($value) {
+            return $value ? round($value, 2) : 0;
+        })->all();
+
+        return response()->json([
+            'services' => $services,
+            'avgResolutionDays' => $avgResolutionDays,
+        ]);
+    }
+
+    public function pegawaiRecentTickets()
+    {
+        $user = auth()->user();
+        if ($user->role_id != 3) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $userId = $user->id;
+        $picIds = Pic::where('user_id', $userId)
+            ->where('pic_stats', 'active')
+            ->pluck('id')
+            ->toArray();
+
+        $tickets = DB::table('tickets')
+            ->leftJoin('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
+            ->where(function ($query) use ($userId, $picIds) {
+                $query->where('tickets.user_id', $userId)
+                    ->orWhereIn('ticket_pic.pic_id', $picIds);
+            })
+            ->whereNull('tickets.deleted_at')
+            ->select('tickets.ticket_code as code', 'tickets.title', 'tickets.created_at', 'tickets.status')
+            ->orderBy('tickets.created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        return response()->json($tickets);
+    }
+
+    public function pegawaiResolvedTickets()
+    {
+        $user = auth()->user();
+        if ($user->role_id != 3) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $userId = $user->id;
+        $picIds = Pic::where('user_id', $userId)
+            ->where('pic_stats', 'active')
+            ->pluck('id')
+            ->toArray();
+
+        $resolvedTickets = DB::table('tickets')
+            ->join('ticket_pic', 'tickets.id', '=', 'ticket_pic.ticket_id')
+            ->whereIn('ticket_pic.pic_id', $picIds)
+            ->where('ticket_pic.pic_stats', 'inactive')
+            ->where('tickets.status', 2)
+            ->whereNull('tickets.deleted_at')
+            ->select('tickets.ticket_code as code', 'tickets.title', 'tickets.created_at', 'tickets.updated_at')
+            ->orderBy('tickets.updated_at', 'desc')
+            ->get();
+
+        return response()->json($resolvedTickets);
+    }
+    public function getTicketDistribution(Request $request)
+    {
+        $user = auth()->user(); // pegawai_22 (user_id 9)
+        $pic = Pic::where('user_id', $user->id)->first(); // pic_id 14
+        $tickets = TicketPic::where('pic_id', $pic->id)
+            ->join('tickets', 'ticket_pic.ticket_id', '=', 'tickets.id')
+            ->select('tickets.status')
+            ->get();
+
+        $total = $tickets->count();
+        $pending = $tickets->where('status', 0)->count();
+        $assigned = $tickets->where('status', 1)->count();
+        $completed = $tickets->where('status', 2)->count();
+
+        $percentages = [
+            'pending' => $total ? ($pending / $total) * 100 : 0,
+            'assigned' => $total ? ($assigned / $total) * 100 : 0,
+            'completed' => $total ? ($completed / $total) * 100 : 0,
+        ];
+
+        return response()->json([
+            'labels' => ['Pending', 'Ditugaskan', 'Selesai'],
+            'data' => [$pending, $assigned, $completed],
+            'percentages' => $percentages,
+        ]);
     }
 }

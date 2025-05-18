@@ -3,21 +3,16 @@
 @section('title', 'Riwayat Aduan Saya')
 
 @section('content')
-
 <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
     <main id="main-container">
         <div class="content">
             <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center py-2 text-center text-md-start">
                 <div class="flex-grow-1 mb-1 mb-md-0">
-                    <h1 class="h3 fw-bold mb-2">
-                        Riwayat Aduan
-                    </h1>
-                    <h2 class="h6 fw-medium fw-medium text-muted mb-0">
-                    </h2>
+                    <h1 class="h3 fw-bold mb-2">Riwayat Aduan</h1>
+                    <h2 class="h6 fw-medium fw-medium text-muted mb-0"></h2>
                 </div>
             </div>
         </div>
-
 
         @if (session('success'))
         <div class="alert alert-success p-4 mb-4 rounded">
@@ -34,7 +29,6 @@
         <div class="content">
             <div class="row">
                 <div class="col-xl-12">
-                    <!-- Default Table -->
                     <div class="block block-rounded">
                         <div class="block-header block-header-default">
                             <!-- <h3 class="block-title">Riwayat Aduan</h3> -->
@@ -75,6 +69,21 @@
                                     <tr>
                                         <td colspan="7" class="p-2">
                                             <div class="ms-4">
+                                                <h3 class="h5 fw-semibold text-dark">Detail untuk {{ $ticket->ticket_code }}</h3>
+                                                <div class="mt-3 mb-4">
+                                                    <strong>Lokasi Aduan:</strong>
+                                                    @if ($ticket->latitude && $ticket->longitude)
+                                                        <div class="d-flex flex-column gap-2 mt-2">
+                                                            <div class="d-flex gap-3">
+                                                                <p class="mb-0"><strong>Latitude:</strong> {{ $ticket->latitude }}</p>
+                                                                <p class="mb-0"><strong>Longitude:</strong> {{ $ticket->longitude }}</p>
+                                                            </div>
+                                                            <div id="map-{{ $ticket->id }}" style="height: 200px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-muted">Lokasi tidak tersedia.</p>
+                                                    @endif
+                                                </div>
                                                 <h3 class="h5 fw-semibold text-dark">Percakapan untuk {{ $ticket->ticket_code }}</h3>
                                                 @forelse($ticket->responses as $response)
                                                 <div class="border-start border-4 ps-4 mt-2 {{ $response->user->role_id == 4 ? 'border-success' : ($response->user->role_id == 2 ? 'border-warning' : 'border-primary') }}">
@@ -128,4 +137,28 @@
         </div>
     </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @forelse($tickets as $ticket)
+        @if ($ticket->latitude && $ticket->longitude)
+            const map{{ $ticket->id }} = L.map('map-{{ $ticket->id }}').setView([{{ $ticket->latitude }}, {{ $ticket->longitude }}], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map{{ $ticket->id }});
+
+            // Set the default icon path
+            delete L.Icon.Default.prototype._getIconUrl;
+            L.Icon.Default.mergeOptions({
+                iconRetinaUrl: '{{ asset('assets/leaflet/images/marker-icon-2x.png') }}',
+                iconUrl: '{{ asset('assets/leaflet/images/marker-icon.png') }}',
+                shadowUrl: '{{ asset('assets/leaflet/images/marker-shadow.png') }}'
+            });
+
+            const marker{{ $ticket->id }} = L.marker([{{ $ticket->latitude }}, {{ $ticket->longitude }}]).addTo(map{{ $ticket->id }});
+        @endif
+    @empty
+    @endforelse
+});
+</script>
 @endsection

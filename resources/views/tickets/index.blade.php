@@ -1,351 +1,573 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Aduan')
-
 @section('content')
-@if (auth()->user()->role_id == 3)
-@php
-$isPicActive = \App\Models\Pic::where('user_id', auth()->user()->id)
-->where('pic_stats', 'active')
-->exists();
-@endphp
-@if (!$isPicActive)
-<div class="alert alert-warning p-4 mb-4 rounded">
-    Anda belum ditugaskan sebagai PIC. Anda hanya dapat membuat atau melihat aduan yang Anda buat.
-</div>
-@endif
-@endif
-<div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
-
-    <!-- Main Container -->
-    <main id="main-container">
-        <!-- Hero -->
-        <div>
-            <div class="content content-full">
-                <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center py-2">
-                    <div class="flex-grow-1">
-                        <h1 class="h3 fw-bold mb-1">
-                            Detail Aduan
-                        </h1>
-                        <h2 class="fs-base lh-base fw-medium text-muted mb-0">
-                            Aduan yang telah dikirimkan
-                        </h2>
+    <!-- Page Content -->
+    <div class="content">
+        <!-- Dynamic Page Header -->
+        <div class="block block-rounded">
+            <div class="block-header block-header-default">
+                <h3 class="block-title">Daftar Tiket</h3>
+            </div>
+            <div class="block-content">
+                @if ($canCreateTicket)
+                    <div class="mb-3">
+                        <a href="{{ route('tickets.create') }}" class="btn btn-primary">Buat Tiket Baru</a>
                     </div>
-                    <nav class="flex-shrink-0 mt-3 mt-sm-0 ms-sm-3" aria-label="breadcrumb">
-                        <ol class="breadcrumb breadcrumb-alt">
-                            <li class="breadcrumb-item">
-                                <a class="link-fx" href="javascript:void(0)">Aduan</a>
-                            </li>
-                            <li class="breadcrumb-item" aria-current="page">
-                                List
-                            </li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-        </div>
-        <!-- END Hero -->
+                @endif
 
-        <!-- Page Content -->
-        <div class="content">
-            <!-- Dynamic Table Full -->
-            <div class="block block-rounded">
-                <div class="block-content block-content-full overflow-x-auto">
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 80px;">#</th>
-                                <th>Tanggal Dibuat</th>
-                                <th class="d-none d-sm-table-cell">Kode Tiket</th>
-                                <th class="d-none d-sm-table-cell">Judul</th>
-                                <th class="d-none d-sm-table-cell">Status</th>
-                                <th class="d-none d-sm-table-cell">Layanan</th>
-                                @if (auth()->user()->role_id == 2)
-                                <th class="d-none d-sm-table-cell">Tugaskan PIC</th>
-                                <th class="d-none d-sm-table-cell">Alihkan Unit</th>
-                                @endif
-                                <th class="d-none d-sm-table-cell">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($tickets as $ticket)
-                            <tr class="text-center">
-                                <td class="p-2 text-dark text-center">{{ ($tickets->currentPage() - 1) * $tickets->perPage() + $loop->iteration }}</td>
-                                <td class="p-2 text-dark">{{ $ticket->created_at->timezone('Asia/Jakarta')->format('j F Y, H.i') }}</td>
-                                <td class="p-2 text-dark">{{ $ticket->ticket_code }}</td>
-                                <td class="p-2 text-dark">{{ $ticket->title }}</td>
-                                <td class="p-2 text-dark">
-                                    @if($ticket->status == 0)
-                                    <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>
-                                    @elseif($ticket->status == 1)
-                                    <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info">Ditugaskan</span>
-                                    @else
-                                    <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Selesai</span>
-                                    @endif
+                @if (auth()->user()->role_id == 2)
+                    <!-- Tabs Nav -->
+                    <ul class="custom-tabs nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="my-tickets-tab" data-bs-toggle="tab"
+                                data-bs-target="#my-tickets" type="button" role="tab" aria-controls="my-tickets"
+                                aria-selected="true">Tiket Saya</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="managed-tickets-tab" data-bs-toggle="tab"
+                                data-bs-target="#managed-tickets" type="button" role="tab"
+                                aria-controls="managed-tickets" aria-selected="false">Tiket yang Ditangani</button>
+                        </li>
+                    </ul>
+                    <!-- END Tabs Nav -->
 
-                                <td class="p-2 text-dark">{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
-                                <!-- <td class="p-2 text-dark">{{ $ticket->description }}</td>
-                    <td class="p-2 text-dark">{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
-                    <td class="p-2 text-dark">{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
-                    <td class="p-2 text-dark">
-                        @if($ticket->status == 0) Pending
-                        @elseif($ticket->status == 1) Ditugaskan
-                        @else Resolved
-                        @endif
-                    </td> -->
-                                @if (auth()->user()->role_id == 2)
-                                <td class="p-2">
-                                    @if ($ticket->status != 2)
-                                    @if ($pics->isNotEmpty())
-                                    <form action="{{ route('tickets.assign', $ticket) }}" method="POST" class="mb-2">
-                                        @csrf
-                                        <select name="pic_id" class="form-select mb-2">
-                                            <option value="">Pilih PIC</option>
-                                            @foreach ($pics as $pic)
-                                            <option value="{{ $pic->id }}">{{ $pic->username }} ({{ $pic->pic_desc }})</option>
-                                            @endforeach
-                                        </select>
-                                        <button type="submit" class="btn btn-success btn-sm" title="Tugaskan PIC"><i class="far fa-user"></i></button>
-                                    </form>
-                                    @php
-                                    $activePics = DB::table('ticket_pic')
-                                    ->join('pics', 'ticket_pic.pic_id', '=', 'pics.id')
-                                    ->join('users', 'pics.user_id', '=', 'users.id')
-                                    ->where('ticket_pic.ticket_id', $ticket->id)
-                                    ->where('ticket_pic.pic_stats', 'active')
-                                    ->select('users.id as user_id', 'users.username', 'pics.id as pic_id')
-                                    ->get();
-                                    @endphp
-                                    @if($activePics->isNotEmpty())
-                                    <ul class="list-group list-group-flush text-dark">
-                                        @foreach($activePics as $pic)
-                                        <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                                            <p style="font-weight: 600; font-size: 14px; color: #333; background: #f1f3f5; padding: 4px 8px; border-radius: 4px; display: inline-block; margin: 0;">{{ $pic->username }}</p>
-                                            <form action="{{ route('tickets.removePic', $ticket) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <input type="hidden" name="pic_id" value="{{ $pic->pic_id }}">
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Hapus PIC">
-                                                    <i class="fa fa-fw fa-trash-can"></i>
-                                                </button>
-                                            </form>
-                                        </li>
-                                        @endforeach
-                                    </ul>
-                                    @else
-                                    <span class="text-muted">Belum ada PIC ditugaskan.</span>
-                                    @endif
-                                    @else
-                                    <span class="text-danger">Tidak ada PIC tersedia untuk unit ini.</span>
-                                    @endif
-                                    @else
-                                    <span class="text-muted">Tiket sudah resolved</span>
-                                    @endif
-                                </td>
-                                <td class="p-2">
-                                    @if ($ticket->status == 0)
-                                    <form action="{{ route('tickets.transfer', $ticket) }}" method="POST" id="transferForm-{{ $ticket->id }}" class="transfer-form">
-                                        @csrf
-                                        <select name="unit_id" id="unit_id-{{ $ticket->id }}" class="form-select mb-2" required>
-                                            <option value="">Pilih Unit</option>
-                                            @foreach (\App\Models\Unit::all() as $unit)
-                                            @if ($unit->id != $ticket->unit_id)
-                                            <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
-                                            @endif
-                                            @endforeach
-                                        </select>
-                                        <select name="service_id" id="service_id-{{ $ticket->id }}" class="form-select mb-2" required>
-                                            <option value="">Pilih Layanan</option>
-                                        </select>
-                                        <button type="submit" class="btn btn-warning btn-sm">Alihkan</button>
-                                    </form>
-                                    @else
-                                    <span class="text-muted">Tidak dapat dialihkan</span>
-                                    @endif
-                                </td>
-                                @endif
-                                <td class="action-button p-2 text-center">
-                                    <div class="mb-2">
-                                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-{{ $ticket->id }}" title="Detail">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-
-                                    <div>
-                                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#chatModal-{{ $ticket->id }}" title="Pesan">
-                                            <i class="fas fa-comments"></i>
-                                        </button>
-                                    </div>
-                                </td>
-
-                            </tr>
-
-                            <!-- Modal Detail -->
-                            <div class="modal fade bg-dark" id="detailModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="detailModal-{{ $ticket->id }}" aria-hidden="true" style="font-size: 12px;">
-                                <div class=" modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="userDetailModalLabel">Detail Aduan</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <!-- Tabs Content -->
+                    <div class="tab-content">
+                        <!-- My Tickets -->
+                        <div class="tab-pane active" id="my-tickets" role="tabpanel" aria-labelledby="my-tickets-tab">
+                            <div class="block-content block-content-full">
+                                <!-- Search and Filter -->
+                                <div class="search-filter-container mb-4">
+                                    <form action="{{ route('tickets.index') }}" method="GET" class="search-filter-form">
+                                        <div class="input-group">
+                                            <input type="text" name="search" class="form-control search-input"
+                                                placeholder="Cari tiket..." value="{{ request('search') }}">
+                                            <button type="submit" class="btn btn-primary search-button">
+                                                <i class="fas fa-search"></i>
+                                            </button>
                                         </div>
-                                        <div class="modal-body">
-                                            <p><strong>Tanggal Dibuat:</strong> {{ $ticket->created_at }}</p>
-                                            <p><strong>Kode Tiket:</strong> {{ $ticket->ticket_code }}</p>
-                                            <p><strong>Judul:</strong> {{ $ticket->title }}</p>
-                                            <p><strong>Status:</strong>
-                                                @if($ticket->status == 0)
-                                                <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>
-                                                @elseif($ticket->status == 1)
-                                                <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info">Ditugaskan</span>
-                                                @else
-                                                <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Resolved</span>
-                                                @endif
-                                            </p>
-                                            <p><strong>Layanan:</strong> {{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</p>
-                                            <p><strong>Deskripsi:</strong> {{ $ticket->description }}</p>
-                                            <p><strong>Unit Asal:</strong> {{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</p>
-                                            <p><strong>Unit Saat Ini:</strong> {{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</p>
+                                        <div class="filter-group">
+                                            <select name="status_filter" class="form-control filter-select"
+                                                onchange="this.form.submit()">
+                                                <option value="">Semua Status</option>
+                                                <option value="0"
+                                                    {{ request('status_filter') == '0' ? 'selected' : '' }}>Pending</option>
+                                                <option value="1"
+                                                    {{ request('status_filter') == '1' ? 'selected' : '' }}>Ditugaskan
+                                                </option>
+                                                <option value="2"
+                                                    {{ request('status_filter') == '2' ? 'selected' : '' }}>Selesai</option>
+                                            </select>
                                         </div>
-                                    </div>
+                                        <input type="hidden" name="tab" value="my-tickets">
+                                    </form>
                                 </div>
-                            </div>
 
-                            <!-- Modal untuk Percakapan -->
-                            <div class="modal fade bg-dark" id="chatModal-{{ $ticket->id }}" tabindex="-1" aria-labelledby="chatModalLabel-{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
-                                <div class=" modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="chatModalLabel-{{ $ticket->id }}">Kode Tiket: {{ $ticket->ticket_code }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <!-- Ticket Table -->
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center" style="width: 5%;">#</th>
+                                                <th style="width: 15%;">Tanggal</th>
+                                                <th style="width: 10%;">Kode</th>
+                                                <th style="width: 20%;">Judul</th>
+                                                <th style="width: 10%;">Status</th>
+                                                <th class="d-none d-md-table-cell" style="width: 10%;">Layanan</th>
+                                                <th class="d-none d-md-table-cell" style="width: 10%;">Unit</th>
+                                                <th class="d-none d-md-table-cell" style="width: 15%;">PIC</th>
+                                                <th style="width: 15%;">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($myTickets as $ticket)
+                                                <tr class="text-center align-middle">
+                                                    <td class="p-1">
+                                                        {{ ($myTickets->currentPage() - 1) * $myTickets->perPage() + $loop->iteration }}
+                                                    </td>
+                                                    <td class="p-1">
+                                                        {{ $ticket->created_at->timezone('Asia/Jakarta')->format('j F Y') }}<br>{{ $ticket->created_at->timezone('Asia/Jakarta')->format('H.i') }}
+                                                    </td>
+                                                    <td class="p-1">{{ $ticket->ticket_code }}</td>
+                                                    <td class="p-1 text-start text-truncate" title="{{ $ticket->title }}">
+                                                        {{ $ticket->title }}</td>
+                                                    <td class="p-1">
+                                                        <span
+                                                            class="ticket-status badge
+                                                            {{ $ticket->status == 0 ? 'badge-warning' : ($ticket->status == 1 ? 'badge-info' : 'badge-success') }}">
+                                                            {{ $ticket->status == 0 ? 'Pending' : ($ticket->status == 1 ? 'Ditugaskan' : 'Selesai') }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="p-1 d-none d-md-table-cell text-truncate"
+                                                        title="{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}">
+                                                        {{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                                                    <td class="p-1 d-none d-md-table-cell text-truncate"
+                                                        title="{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}">
+                                                        {{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
+                                                    <td class="p-1 d-none d-md-table-cell text-truncate">
+                                                        @foreach ($ticket->pics as $pic)
+                                                            <div
+                                                                title="{{ $pic->user->username }} ({{ $pic->pic_desc }}) {{ $pic->pivot->pic_stats === 'inactive' ? '[Nonaktif]' : '' }}">
+                                                                {{ Str::limit($pic->user->username, 10) }}
+                                                                @if ($pic->pivot->pic_stats === 'inactive')
+                                                                    <span class="text-danger">[Nonaktif]</span>
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="p-1 ticket-actions">
+                                                        <button type="button"
+                                                            class="btn btn-outline-primary btn-sm w-100 mb-1"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#detailModal-{{ $ticket->id }}"
+                                                            title="Detail">
+                                                            <i class="fas fa-eye me-1"></i> Detail
+                                                        </button>
+                                                        <button type="button"
+                                                            class="btn btn-outline-success btn-sm w-100 mb-1"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#chatModal-{{ $ticket->id }}" title="Pesan">
+                                                            <i class="fas fa-comments me-1"></i> Pesan
+                                                        </button>
+                                                        @if ($ticket->status == 0)
+                                                            <button type="button"
+                                                                class="btn btn-outline-info btn-sm w-100 mb-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#assignModal-{{ $ticket->id }}"
+                                                                title="Tugaskan PIC">
+                                                                <i class="fas fa-user-plus me-1"></i> Tugaskan
+                                                            </button>
+                                                            <button type="button"
+                                                                class="btn btn-outline-warning btn-sm w-100 mb-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#transferModal-{{ $ticket->id }}"
+                                                                title="Alihkan Unit">
+                                                                <i class="fas fa-exchange-alt me-1"></i> Alihkan
+                                                            </button>
+                                                        @endif
+                                                        @if ($ticket->pics->where('pivot.pic_stats', 'active')->count() > 0)
+                                                            <button type="button"
+                                                                class="btn btn-outline-danger btn-sm w-100 mb-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#removePicModal-{{ $ticket->id }}"
+                                                                title="Hapus PIC">
+                                                                <i class="fas fa-user-minus me-1"></i> Hapus PIC
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @include('theme::tickets.partials.detail-modal', [
+                                                    'ticket' => $ticket,
+                                                ])
+                                                @include('theme::tickets.partials.chat-modal', [
+                                                    'ticket' => $ticket,
+                                                ])
+                                                @include('theme::tickets.partials.assign-modal', [
+                                                    'ticket' => $ticket,
+                                                    'pics' => $pics,
+                                                ])
+                                                @include('theme::tickets.partials.transfer-modal', [
+                                                    'ticket' => $ticket,
+                                                ])
+                                                @include('theme::tickets.partials.remove-pic-modal', [
+                                                    'ticket' => $ticket,
+                                                ])
+                                            @empty
+                                                <tr>
+                                                    <td colspan="9" class="p-2 text-center">Tidak ada tiket yang
+                                                        ditemukan.</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination -->
+                                @if ($myTickets instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                                    <div class="d-flex justify-content-center flex-wrap mt-4">
+                                        {{ $myTickets->appends(['status_filter' => request('status_filter'), 'search' => request('search'), 'tab' => 'my-tickets'])->links() }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <!-- END My Tickets -->
+
+                        <!-- Managed Tickets -->
+                        <div class="tab-pane" id="managed-tickets" role="tabpanel"
+                            aria-labelledby="managed-tickets-tab">
+                            <div class="block-content block-content-full">
+                                <!-- Search and Filter -->
+                                <div class="search-filter-container mb-4">
+                                    <form action="{{ route('tickets.index') }}" method="GET"
+                                        class="search-filter-form">
+                                        <div class="input-group">
+                                            <input type="text" name="search" class="form-control search-input"
+                                                placeholder="Cari tiket..." value="{{ request('search') }}">
+                                            <button type="submit" class="btn btn-primary search-button">
+                                                <i class="fas fa-search"></i>
+                                            </button>
                                         </div>
-                                        <div class="modal-body-chat">
-                                            <div class="chat-container" style="max-height: 400px; overflow-y: auto; padding: 10px;">
-                                                @forelse($ticket->responses as $response)
-                                                @php
-                                                $isSender = $response->user_id == auth()->user()->id;
-                                                $bgColor = $isSender ? 'rgb(84, 163, 242)' : 'rgb(54, 56, 59)';
-                                                @endphp
-                                                <div class="message-wrapper mb-3" style="display: flex; flex-direction: column; align-items: {{ $isSender ? 'flex-end' : 'flex-start' }};">
-                                                    <p class="text-dark mb-1">
-                                                        <strong>
-                                                            @if ($response->user->role_id == 2)
-                                                            Sistem (Operator)
-                                                            @else
-                                                            {{ $response->user->username }}
-                                                            @endif
-                                                        </strong>
-                                                    </p>
-                                                    @if ($response->ticket_id_quote)
-                                                    <span class="fst-italic text-muted small d-block mb-1">
-                                                        (Membalas: "{{ $response->quotedResponse->message }}")
-                                                    </span>
-                                                    @endif
-                                                    <div class="message-box p-1 rounded shadow-sm"
-                                                        style="max-width: 50%; background-color: {{$bgColor}}">
-                                                        @forelse($response->uploads as $upload)
-                                                        <div class="mt-2">
-                                                            <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
-                                                                <img src="{{ asset('storage/' . $upload->filename_path) }}"
-                                                                    alt="{{ $upload->filename_ori }}"
-                                                                    class="img-thumbnail"
-                                                                    style="width: 128px; height: 128px; object-fit: cover;">
-                                                            </a>
-                                                        </div>
-                                                        @empty
-                                                        <!-- <p class="small text-muted mt-1">Tidak ada lampiran gambar.</p> -->
-                                                        @endforelse
-                                                        <p class="mb-0">{{ $response->message }}</p>
-                                                        <small class="text-muted d-block mb-1 text-end">
-                                                            {{ $response->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
-                                                        </small>
+                                        <div class="filter-group">
+                                            <select name="status_filter" class="form-control filter-select"
+                                                onchange="this.form.submit()">
+                                                <option value="">Semua Status</option>
+                                                <option value="0"
+                                                    {{ request('status_filter') == '0' ? 'selected' : '' }}>Pending
+                                                </option>
+                                                <option value="1"
+                                                    {{ request('status_filter') == '1' ? 'selected' : '' }}>Ditugaskan
+                                                </option>
+                                                <option value="2"
+                                                    {{ request('status_filter') == '2' ? 'selected' : '' }}>Selesai
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" name="tab" value="managed-tickets">
+                                    </form>
+                                </div>
+
+                                <!-- Ticket Table -->
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center" style="width: 5%;">#</th>
+                                                <th style="width: 15%;">Tanggal</th>
+                                                <th style="width: 10%;">Kode</th>
+                                                <th style="width: 20%;">Judul</th>
+                                                <th style="width: 10%;">Status</th>
+                                                <th class="d-none d-md-table-cell" style="width: 10%;">Layanan</th>
+                                                <th class="d-none d-md-table-cell" style="width: 10%;">Unit</th>
+                                                <th class="d-none d-md-table-cell" style="width: 15%;">PIC</th>
+                                                <th style="width: 15%;">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($managedTickets as $ticket)
+                                                <tr class="text-center align-middle">
+                                                    <td class="p-1">
+                                                        {{ ($managedTickets->currentPage() - 1) * $managedTickets->perPage() + $loop->iteration }}
+                                                    </td>
+                                                    <td class="p-1">
+                                                        {{ $ticket->created_at->timezone('Asia/Jakarta')->format('j F Y') }}<br>{{ $ticket->created_at->timezone('Asia/Jakarta')->format('H.i') }}
+                                                    </td>
+                                                    <td class="p-1">{{ $ticket->ticket_code }}</td>
+                                                    <td class="p-1 text-start text-truncate"
+                                                        title="{{ $ticket->title }}">{{ $ticket->title }}</td>
+                                                    <td class="p-1">
+                                                        <span
+                                                            class="ticket-status badge
+                                                            {{ $ticket->status == 0 ? 'badge-warning' : ($ticket->status == 1 ? 'badge-info' : 'badge-success') }}">
+                                                            {{ $ticket->status == 0 ? 'Pending' : ($ticket->status == 1 ? 'Ditugaskan' : 'Selesai') }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="p-1 d-none d-md-table-cell text-truncate"
+                                                        title="{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}">
+                                                        {{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                                                    <td class="p-1 d-none d-md-table-cell text-truncate"
+                                                        title="{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}">
+                                                        {{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
+                                                    <td class="p-1 d-none d-md-table-cell text-truncate">
+                                                        @foreach ($ticket->pics as $pic)
+                                                            <div
+                                                                title="{{ $pic->user->username }} ({{ $pic->pic_desc }}) {{ $pic->pivot->pic_stats === 'inactive' ? '[Nonaktif]' : '' }}">
+                                                                {{ Str::limit($pic->user->username, 10) }}
+                                                                @if ($pic->pivot->pic_stats === 'inactive')
+                                                                    <span class="text-danger">[Nonaktif]</span>
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="p-1 ticket-actions">
+                                                        <button type="button"
+                                                            class="btn btn-outline-primary btn-sm w-100 mb-1"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#detailModal-{{ $ticket->id }}"
+                                                            title="Detail">
+                                                            <i class="fas fa-eye me-1"></i> Detail
+                                                        </button>
+                                                        <button type="button"
+                                                            class="btn btn-outline-success btn-sm w-100 mb-1"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#chatModal-{{ $ticket->id }}"
+                                                            title="Pesan">
+                                                            <i class="fas fa-comments me-1"></i> Pesan
+                                                        </button>
+                                                        @if ($ticket->status == 0)
+                                                            <button type="button"
+                                                                class="btn btn-outline-info btn-sm w-100 mb-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#assignModal-{{ $ticket->id }}"
+                                                                title="Tugaskan PIC">
+                                                                <i class="fas fa-user-plus me-1"></i> Tugaskan
+                                                            </button>
+                                                            <button type="button"
+                                                                class="btn btn-outline-warning btn-sm w-100 mb-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#transferModal-{{ $ticket->id }}"
+                                                                title="Alihkan Unit">
+                                                                <i class="fas fa-exchange-alt me-1"></i> Alihkan
+                                                            </button>
+                                                        @endif
+                                                        @if ($ticket->pics->where('pivot.pic_stats', 'active')->count() > 0)
+                                                            <button type="button"
+                                                                class="btn btn-outline-danger btn-sm w-100 mb-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#removePicModal-{{ $ticket->id }}"
+                                                                title="Hapus PIC">
+                                                                <i class="fas fa-user-minus me-1"></i> Hapus PIC
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @include('theme::tickets.partials.detail-modal', [
+                                                    'ticket' => $ticket,
+                                                ])
+                                                @include('theme::tickets.partials.chat-modal', [
+                                                    'ticket' => $ticket,
+                                                ])
+                                                @include('theme::tickets.partials.assign-modal', [
+                                                    'ticket' => $ticket,
+                                                    'pics' => $pics,
+                                                ])
+                                                @include('theme::tickets.partials.transfer-modal', [
+                                                    'ticket' => $ticket,
+                                                ])
+                                                @include('theme::tickets.partials.remove-pic-modal', [
+                                                    'ticket' => $ticket,
+                                                ])
+                                            @empty
+                                                <tr>
+                                                    <td colspan="9" class="p-2 text-center">Tidak ada tiket yang
+                                                        ditemukan.</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination -->
+                                @if ($managedTickets instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                                    <div class="d-flex justify-content-center flex-wrap mt-4">
+                                        {{ $managedTickets->appends(['status_filter' => request('status_filter'), 'search' => request('search'), 'tab' => 'managed-tickets'])->links() }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <!-- END Managed Tickets -->
+                    </div>
+                    <!-- END Tabs Content -->
+                @else
+                    <!-- Single Tab for Role 4 (Warga) and Role 3 (Pegawai) -->
+                    <div class="block-content block-content-full">
+                        <!-- Search and Filter -->
+                        <div class="search-filter-container mb-4">
+                            <form action="{{ route('tickets.index') }}" method="GET" class="search-filter-form">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control search-input"
+                                        placeholder="Cari tiket..." value="{{ request('search') }}">
+                                    <button type="submit" class="btn btn-primary search-button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <div class="filter-group">
+                                    <select name="status_filter" class="form-control filter-select"
+                                        onchange="this.form.submit()">
+                                        <option value="">Semua Status</option>
+                                        <option value="0" {{ request('status_filter') == '0' ? 'selected' : '' }}>
+                                            Pending</option>
+                                        <option value="1" {{ request('status_filter') == '1' ? 'selected' : '' }}>
+                                            Ditugaskan</option>
+                                        <option value="2" {{ request('status_filter') == '2' ? 'selected' : '' }}>
+                                            Selesai</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Ticket Table -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-vcenter">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 5%;">#</th>
+                                        <th style="width: 15%;">Tanggal</th>
+                                        <th style="width: 10%;">Kode</th>
+                                        <th style="width: 20%;">Judul</th>
+                                        <th style="width: 10%;">Status</th>
+                                        <th class="d-none d-md-table-cell" style="width: 15%;">Layanan</th>
+                                        <th class="d-none d-md-table-cell" style="width: 15%;">Unit</th>
+                                        <th style="width: 20%;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($tickets as $ticket)
+                                        <tr class="text-center align-middle">
+                                            <td class="p-1">
+                                                {{ ($tickets->currentPage() - 1) * $tickets->perPage() + $loop->iteration }}
+                                            </td>
+                                            <td class="p-1">
+                                                {{ $ticket->created_at->timezone('Asia/Jakarta')->format('j F Y') }}<br>{{ $ticket->created_at->timezone('Asia/Jakarta')->format('H.i') }}
+                                            </td>
+                                            <td class="p-1">{{ $ticket->ticket_code }}</td>
+                                            <td class="p-1 text-start text-truncate" title="{{ $ticket->title }}">
+                                                {{ $ticket->title }}</td>
+                                            <td class="p-1">
+                                                <span
+                                                    class="ticket-status badge
+                                                    {{ $ticket->status == 0 ? 'badge-warning' : ($ticket->status == 1 ? 'badge-info' : 'badge-success') }}">
+                                                    {{ $ticket->status == 0 ? 'Pending' : ($ticket->status == 1 ? 'Ditugaskan' : 'Selesai') }}
+                                                </span>
+                                                @if (auth()->user()->role_id == 3 && $ticket->status != 2)
+                                                    <div class="ticket-status-update mt-1">
+                                                        <form action="{{ route('tickets.update', $ticket->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <select name="status" class="form-control form-control-sm"
+                                                                onchange="this.form.submit()">
+                                                                <option value="0"
+                                                                    {{ $ticket->status == 0 ? 'selected' : '' }}>Pending
+                                                                </option>
+                                                                <option value="1"
+                                                                    {{ $ticket->status == 1 ? 'selected' : '' }}>Ditugaskan
+                                                                </option>
+                                                                <option value="2">Selesai</option>
+                                                            </select>
+                                                        </form>
                                                     </div>
-                                                </div>
-                                                @empty
-                                                <p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>
-                                                @endforelse
-
-                                                @if (auth()->user()->role_id == 4 && $ticket->user_id == auth()->user()->id && $ticket->status != 2 && $ticket->responses->last() && $ticket->responses->last()->user_id != auth()->user()->id && $ticket->responses->last()->user->role_id != 2)
-                                                <div class="reply-form mt-3" style="display: flex; justify-content: flex-start;">
-                                                    <form id="replyForm" action="{{ route('tickets.reply', $ticket->responses->last()->id) }}" method="POST" enctype="multipart/form-data" style="width: 100%;">
-                                                        @csrf
-                                                        <textarea name="message" class="form-control mb-2" placeholder="Masukkan balasan Anda..." required></textarea>
-                                                        <input type="file" name="images[]" multiple class="form-control mb-2">
-                                                        <button type="submit" class="btn btn-primary btn-sm">Kirim Balasan</button>
-                                                    </form>
-                                                </div>
                                                 @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                            </td>
+                                            <td class="p-1 d-none d-md-table-cell text-truncate"
+                                                title="{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}">
+                                                {{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                                            <td class="p-1 d-none d-md-table-cell text-truncate"
+                                                title="{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}">
+                                                {{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
+                                            <td class="p-1 ticket-actions">
+                                                <button type="button" class="btn btn-outline-primary btn-sm w-100 mb-1"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#detailModal-{{ $ticket->id }}" title="Detail">
+                                                    <i class="fas fa-eye me-1"></i> Detail
+                                                </button>
+                                                <button type="button" class="btn btn-outline-success btn-sm w-100 mb-1"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#chatModal-{{ $ticket->id }}" title="Pesan">
+                                                    <i class="fas fa-comments me-1"></i> Pesan
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        @include('theme::tickets.partials.detail-modal', [
+                                            'ticket' => $ticket,
+                                        ])
+                                        @include('theme::tickets.partials.chat-modal', [
+                                            'ticket' => $ticket,
+                                        ])
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="p-2 text-center">Tidak ada tiket yang ditemukan.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        @if ($tickets instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                            <div class="d-flex justify-content-center flex-wrap mt-4">
+                                {{ $tickets->appends(['status_filter' => request('status_filter'), 'search' => request('search')])->links() }}
                             </div>
-                            @empty
-                            <tr>
-                                <td colspan="{{ auth()->user()->role_id == 2 ? 10 : 8 }}" class="p-2 text-dark text-center">
-                                    Tidak ada aduan yang ditemukan.
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @endif
+                    </div>
+                @endif
             </div>
         </div>
-</div>
-</div>
-<style>
-    .modal-content {
-        position: relative;
-        z-index: 1;
-    }
+        <!-- END Dynamic Page Header -->
+    </div>
+    <!-- END Page Content -->
+@endsection
 
-    .modal-content::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: url('/assets/media/img/bg-chat.jpg');
-        background-size: cover;
-        background-position: center;
-        opacity: 0.03;
-        z-index: 0;
-    }
+@section('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle dynamic service loading for transfer modal
+            document.querySelectorAll('select[name="unit_id"]').forEach(function(unitSelect) {
+                unitSelect.addEventListener('change', function() {
+                    const unitId = this.value;
+                    const serviceSelect = this.closest('form').querySelector(
+                        'select[name="service_id"]');
+                    if (!unitId) {
+                        serviceSelect.innerHTML = '<option value="">Pilih Layanan</option>';
+                        return;
+                    }
 
-    .modal-content>* {
-        position: relative;
-        z-index: 1;
-    }
+                    fetch(`/get-services/${unitId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            serviceSelect.innerHTML = '<option value="">Pilih Layanan</option>';
+                            data.forEach(service => {
+                                const option = document.createElement('option');
+                                option.value = service.id;
+                                option.textContent = service.svc_name;
+                                serviceSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Error fetching services:', error));
+                });
+            });
 
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+            // Handle AJAX form submission for chat
+            document.querySelectorAll('.chat-form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const modal = this.closest('.modal');
+                    const chatMessages = modal.querySelector('.chat-messages');
 
-    .modal-content {
-        font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
+                    fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const messageDiv = document.createElement('div');
+                                messageDiv.className =
+                                    `mb-2 ${data.user.id == data.auth_user_id ? 'text-right' : 'text-left'}`;
+                                messageDiv.innerHTML = `
+                                <strong>${data.user.username}:</strong>
+                                <p>${formData.get('message')}</p>
+                                <small>${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}</small>
+                            `;
+                                chatMessages.appendChild(messageDiv);
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                                form.querySelector('textarea').value = '';
+                                form.querySelector('input[type="file"]').value = '';
+                            } else {
+                                alert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Terjadi kesalahan saat mengirim pesan.');
+                        });
+                });
+            });
 
-    .message-box p {
-        font-size: 14px;
-        color: #fff;
-    }
-</style>
-<script>
-    $('#replyForm').on('submit', function(e) {
-        e.preventDefault(); // Mencegah form submit default yang menutup modal
-
-        var form = $(this)[0];
-        var data = new FormData(form);
-
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: data,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                alert('Balasan berhasil dikirim!');
-            },
-            error: function(xhr) {
-                alert('Terjadi kesalahan, coba lagi.');
+            // Ensure correct tab is active after page load
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab === 'managed-tickets') {
+                document.querySelector('#my-tickets-tab').classList.remove('active');
+                document.querySelector('#my-tickets').classList.remove('active', 'show');
+                document.querySelector('#managed-tickets-tab').classList.add('active');
+                document.querySelector('#managed-tickets').classList.add('active', 'show');
             }
         });
-    });
-</script>
-
+    </script>
 @endsection
