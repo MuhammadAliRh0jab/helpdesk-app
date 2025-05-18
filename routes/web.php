@@ -71,6 +71,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tickets/created', [TicketController::class, 'created'])->middleware('role:2')->name('tickets.created');
     Route::get('/services/{service}/edit', [ServiceManagementController::class, 'edit'])->middleware('role:2')->name('services.edit');
     Route::put('/services/{service}', [ServiceManagementController::class, 'update'])->middleware('role:2')->name('services.update');
+    Route::get('/services/{service}/qrcode', [ServiceManagementController::class, 'generateQrCode'])
+    ->middleware('role:2')
+    ->name('services.qrcode');
+    Route::get('/services/{service}/qrcode/download', [ServiceManagementController::class, 'downloadQrCode'])
+        ->middleware('role:2')
+        ->name('services.qrcode.download');
+    Route::get('/services/{service}/qrcode/data', [ServiceManagementController::class, 'getQrCode'])
+    ->middleware('role:2')
+    ->name('services.qrcode.data');
     // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });
 
@@ -78,6 +87,9 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/favicon.ico', function () {
     return response()->noContent();
 });
+
+Route::get('/report/service/{service}', [TicketController::class, 'createForService'])
+    ->name('tickets.create.service');
 
 // Sertakan route autentikasi tambahan jika ada
 require __DIR__ . '/auth.php';
