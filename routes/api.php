@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PegawaiDashboardController;
 use App\Http\Controllers\OperatorDashboardContorller;
+use App\Http\Controllers\WargaDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,4 +52,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/pegawai-ticket-list', [PegawaiDashboardController::class, 'getTicketList']);
     Route::get('/pegawai-dashboard-metrics', [PegawaiDashboardController::class, 'getDashboardMetrics']);
     Route::get('/pegawai-stats', [PegawaiDashboardController::class, 'getStats']);
+    Route::get('/warga/ticket-stats', [WargaDashboardController::class, 'getTicketStats']);
+    Route::get('/warga/tickets', [WargaDashboardController::class, 'getTickets']);
+    Route::get('/warga/tickets/{id}', [WargaDashboardController::class, 'getTicketDetail']);
 });

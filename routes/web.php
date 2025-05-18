@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceManagementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PegawaiDashboardController;
+use App\Http\Controllers\WargaDashboardController;
 
 Route::get('/', function () {
     return view('theme::auth.landing');
@@ -31,7 +32,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 
 // Routes yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard/warga', [DashboardController::class, 'warga'])->name('dashboard.warga')->middleware('role:4');
+    Route::get('/dashboard/warga', [WargaDashboardController::class, 'index'])->name('dashboard.warga')->middleware('role:4');
     Route::get('/dashboard/pegawai', [DashboardController::class, 'pegawai'])->name('dashboard.pegawai')->middleware('role:3');
     Route::get('/dashboard/operator', [DashboardController::class, 'operatorDashboard'])->name('dashboard.operator')->middleware('auth');
     // Route::get('/dashboard/operator', [DashboardController::class, 'operator'])->name('dashboard.operator')->middleware('role:2');
