@@ -3,195 +3,218 @@
 @section('title', 'Dashboard Warga')
 
 @section('content')
-<div class="card mt-4">
-    <div class="card-body">
-        <h6><strong>Dashboard</strong></h6> <hr><br>
-        <h6 class="card-title- mb-2 fs-5">Selamat Datang, <strong>{{ Auth::user()->name }}</strong> &#128075;&#128522; !</h6>
-            <p>Sebagai Admin, Anda memiliki kendali penuh untuk memantau semua tiket, mengelola pengguna, dan memastikan penyelesaian aduan berjalan lancar.</p>
-        <!-- <hr> -->
-      </div>
-    </div>
-    <div>
-      <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-      </div>
-    </div>
-    <hr>
-
-    <div class="row mt-4">
-      <div class="col-md-6">
-        <div class="flex-column align-items-center justify-content-center" style="margin-top: -20px;">
-          <canvas id="ticketChart"></canvas>
+<div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
+  <main id="main-container">
+    <div class="content">
+      <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center py-2 text-center text-md-start">
+        <div class="flex-grow-1 mb-1 mb-md-0">
+          <h1 class="h3 fw-bold mb-2">
+            Dashboard Admin
+          </h1>
+          <h2 class="h6 fw-medium fw-medium text-muted mb-0">
+            Selamat Datang <a class="fw-semibold" href="be_pages_generic_profile.html">{{ Auth::user()->name }}</a>, &#128075;&#128522; !
+          </h2>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <div class="card-custom card-blue">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <i class="fa-solid fa-ticket"></i>
-                <div class="d-flex flex-column text-end">
-                  <h6 class="card-title">Total Tiket</h6>
-                  <p class="fs-2 text-white">{{ $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'] }}</p>
-                </div>
+    </div>
+
+    <div class="content">
+      <div class="row items-push">
+        <div class="col-sm-6 col-xxl-3">
+          <div class="block block-rounded d-flex flex-column h-100 mb-0">
+            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+              <dl class="mb-0">
+                <dt class="fs-3 fw-bold">
+                  {{ $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'] }}
+                </dt>
+                <dd class="fs-sm fw-medium text-muted mb-0">Total Tiket</dd>
+              </dl>
+              <div class="item item-rounded-lg bg-body-light">
+                <i class="fas fa-ticket fs-3 text-primary"></i>
               </div>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card-custom card-darkblue">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <i class="fa-solid fa-briefcase"></i>
-                <div class="d-flex flex-column text-end">
-                  <h6 class="card-title">Tiket Ditugaskan</h6>
-                  <p class="fs-2 text-white">{{ $ticketStats['assigned'] }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card-custom card-purple">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <i class="fa-solid fa-hourglass-half"></i>
-                <div class="d-flex flex-column text-end">
-                  <h6 class="card-title">Tiket Pending</h6>
-                  <p class="fs-2 text-white">{{ $ticketStats['pending'] }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card-custom card-darkpurple">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <i class="fa-solid fa-circle-check"></i>
-                <div class="d-flex flex-column text-end">
-                  <h6 class="card-title">Tiket Selesai</h6>
-                  <p class="fs-2 text-white">{{ $ticketStats['completed'] }}</p>
-                </div>
-              </div>
+            <div class="bg-body-light rounded-bottom">
+              <a class="block-content block-content-full block-content-sm fs-sm fw-medium d-flex align-items-center justify-content-between"
+                href="javascript:void(0)">
+              </a>
             </div>
           </div>
         </div>
-      </div>
-      <hr>
-      <!-- <div class="container mt-4">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="card-title mb-0">Daftar Aduan Anda</h5>
+        <div class="col-sm-6 col-xxl-3">
+          <div class="block block-rounded d-flex flex-column h-100 mb-0">
+            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+              <dl class="mb-0">
+                <dt class="fs-3 fw-bold">
+                  {{ $ticketStats['pending'] ?? 0 }}
+                </dt>
+                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Pending</dd>
+              </dl>
+              <div class="item item-rounded-lg bg-body-light">
+                <i class="far fa-gem fs-3 text-primary"></i>
+              </div>
             </div>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>#</th>
-                    <th>Judul</th>
-                    <th>Layanan</th>
-                    <th>Deskripsi</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                </tbody>
-              </table>
+            <div class="bg-body-light rounded-bottom">
+              <a class="block-content block-content-full block-content-sm fs-sm fw-medium d-flex align-items-center justify-content-between"
+                href="javascript:void(0)">
+              </a>
             </div>
           </div>
-        </div> -->
-        @endsection
+        </div>
+        <div class="col-sm-6 col-xxl-3">
+          <div class="block block-rounded d-flex flex-column h-100 mb-0">
+            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+              <dl class="mb-0">
+                <dt class="fs-3 fw-bold">
+                  {{ $ticketStats['assigned'] ?? 0 }}
+                </dt>
+                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Ditugaskan</dd>
+              </dl>
+              <div class="item item-rounded-lg bg-body-light">
+                <i class="far fa-paper-plane fs-3 text-primary"></i>
+              </div>
+            </div>
+            <div class="bg-body-light rounded-bottom">
+              <a class="block-content block-content-full block-content-sm fs-sm fw-medium d-flex align-items-center justify-content-between"
+                href="javascript:void(0)">
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xxl-3">
+          <div class="block block-rounded d-flex flex-column h-100 mb-0">
+            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+              <dl class="mb-0">
+                <dt class="fs-3 fw-bold">
+                  {{ $ticketStats['completed'] ?? 0 }}
+                </dt>
+                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Selesai</dd>
+              </dl>
+              <div class="item item-rounded-lg bg-body-light">
+                <i class="fa fa-chart-bar fs-3 text-primary"></i>
+              </div>
+            </div>
+            <div class="bg-body-light rounded-bottom">
+              <a class="block-content block-content-full block-content-sm fs-sm fw-medium d-flex align-items-center justify-content-between"
+                href="javascript:void(0)">
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      <div class="row">
+        <div class="col-xl-12 col-xxl-12 d-flex flex-column">
+          <div class="block block-rounded flex-grow-1 d-flex flex-column">
+            <div class="block-header block-header-default">
+              <h3 class="block-title">Statistik Aduan</h3>
+              <div class="block-options">
+                <button type="button" class="btn-block-option" data-toggle="block-option"
+                  data-action="state_toggle" data-action-mode="demo">
+                  <i class="si si-refresh"></i>
+                </button>
+              </div>
+            </div>
+            <div class="block-content block-content-full flex-grow-1 d-flex align-items-center">
+              <canvas id="statistic"></canvas>
+            </div>
+            <div class="block-content bg-body-light">
+              <div class="row items-push text-center w-100">
+                <div class="col-sm-6">
+                  <dl class="mb-0">
+                    @php
+                    $total = ($ticketStats['completed'] ?? 0) + ($ticketStats['pending'] ?? 0) + ($ticketStats['assigned'] ?? 0);
+                    @endphp
+                    <dt class="fs-3 fw-bold d-inline-flex align-items-center space-x-2">
+                      {{ $total }}
+                    </dt>
+                    <dd class="fs-sm fw-medium text-muted mb-0">Jumlah Aduan</dd>
+                  </dl>
+                </div>
+                <div class="col-sm-6">
+                  @php
+                  $completed = $ticketStats['completed'] ?? 0;
+                  $percentage = $total > 0 ? round(($completed / $total) * 100, 1) : 0;
+                  @endphp
+                  <dl class="mb-0">
+                    <dt class="fs-3 fw-bold d-inline-flex align-items-center space-x-2">
+                      {{ $percentage }}%
+                    </dt>
+                    <dd class="fs-sm fw-medium text-muted mb-0">Aduan Selesai</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </main>
+</div>
 
-        @section('scripts')
-        <script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const total = {{ 
+            ($ticketStats['assigned'] ?? 0) + 
+            ($ticketStats['pending'] ?? 0) + 
+            ($ticketStats['completed'] ?? 0) 
+        }};
+        const completed = {{ 
+            $ticketStats['completed'] ?? 0 
+        }};
+        const percentageCompleted = total > 0 ? ((completed / total) * 100).toFixed(1) : 0;
 
-        const ticketStats = {
-        assigned: {{ $ticketStats['assigned'] ?? 0 }},
-        pending: {{ $ticketStats['pending'] ?? 0 }},
-        completed: {{ $ticketStats['completed'] ?? 0 }}
-        };
-
-          const chartOptions = {
-            type: 'doughnut',
+        const ctx = document.getElementById('statistic').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Selesai', 'Dalam Proses'],
+                datasets: [{
+                    label: 'Persentase Aduan',
+                    data: [percentageCompleted, 100 - percentageCompleted],
+                    backgroundColor: ['#1d4ed8', '#487fff'],
+                    borderWidth: 1
+                }]
+            },
             options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              cutout: '60%',
-              plugins: {
-                legend: {
-                  position: 'left',
-                  labels: {
-                    color: '#11111',
-                    boxWidth: 15,
-                    padding: 40
-                  }
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
                 }
-              }
             }
-          };
+        });
+    });
 
-          document.addEventListener('DOMContentLoaded', function() {
-            const ticketChartCtx = document.getElementById('ticketChart');
-            if (ticketChartCtx) {
-              new Chart(ticketChartCtx, {
-                ...chartOptions,
-                data: {
-                  labels: ['Ditugaskan', 'Pending', 'Selesai'],
-                  datasets: [{
-                    label: 'Jumlah Tiket',
-                    data: [ticketStats.assigned, ticketStats.pending, ticketStats.completed],
-                    backgroundColor: ['#20358A', '#6D5DBA', '#3429D5'],
-                    borderWidth: 1,
-                    radius: '80%'
-                  }]
+    document.querySelectorAll('[data-status]').forEach(el => {el.setAttribute('data-status-row', el.getAttribute('data-status'));
+    });
+
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function () {
+            const filter = this.getAttribute('data-status');
+            const rows = document.querySelectorAll('tr[data-status-row]');
+
+            rows.forEach(row => {
+                if (filter === 'semua' || row.getAttribute('data-status-row') === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
                 }
-              });
-            }
-          });
-        </script>
+            });
+        });
+    });
+</script>
 
-        <style>
-          body {
-            background-color: #f5f7ff;
-            font-family: 'Segoe UI', sans-serif;
-          }
 
-          .sidebar {
-            height: 100vh;
-            background-color: #fff;
-            border-right: 1px solid #ddd;
-          }
-
-          .sidebar .nav-link.active {
-            background-color: #6c63ff;
-            color: white !important;
-            border-radius: 8px;
-          }
-
-          .card-custom {
-            border-radius: 20px;
-            color: white;
-            padding: 20px;
-          }
-
-          .card-blue {
-            background-color: #3E64A9;
-          }
-
-          .card-purple {
-            background-color: #6D5DBA;
-          }
-
-          .card-darkblue {
-            background-color: #20358A;
-          }
-
-          .card-darkpurple {
-            background-color: rgb(19, 9, 160);
-          }
-          .table th{
-            color:rgb(124, 124, 124);
-          }
-        </style>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        @endsection
+@endsection

@@ -15,6 +15,7 @@ class Service extends Model
         'svc_desc',
         'svc_icon',
         'category_id',
+        'allow_guest',
         'status',
     ];
 

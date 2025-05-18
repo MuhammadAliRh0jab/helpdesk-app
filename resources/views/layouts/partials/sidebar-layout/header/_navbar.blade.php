@@ -16,23 +16,55 @@
     <link rel="stylesheet" id="css-main" href="{{asset('assets2/css/oneui.min.css')}}">
     <link rel="stylesheet" id="css-theme" href="{{asset('assets2/css/themes/amethyst.min.css')}}">
     <script src="{{asset('assets2/js/setTheme.js/')}}"></script>
+    <style>
+        .nav-main-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: #4B5563;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+    
+        .nav-main-link:hover {
+            background-color: #487FFF;
+            color: white !important;
+        }
+    
+        .nav-main-link:hover .nav-main-link-icon,
+        .nav-main-link:hover .nav-main-link-name {
+            color: white !important;
+        }
+    
+        .nav-main-link.active {
+            background-color: #487FFF;
+            color: white !important;
+            font-weight: 600;
+        }
+    
+        .nav-main-link.active .nav-main-link-icon,
+        .nav-main-link.active .nav-main-link-name {
+            color: white !important;
+        }
+    </style>
 </head>
 
 <body>
     <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
-        <nav id="sidebar" aria-label="Main Navigation" style="background-color:rgb(11, 48, 98)">
-            <div class="content-header" style="background-color:rgb(213, 219, 229)">
+        <nav id="sidebar" aria-label="Main Navigation" style="background-color:rgb(255, 255, 255)">
+            <div class="content-header" style="background-color:rgb(255, 255, 255)">
                 <a class="fw-semibold text-dual" href="">
                     <span class="smini-visible">
                         <i class="fa fa-circle-notch text-primary"></i>
                     </span>
                     <span class="smini-hide">
-                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="40">
+                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="45">
                     </span>
                 </a>
                 <div class="d-flex align-items-center gap-1">
                     <!-- Dark Mode -->
-                    <div class="dropdown">
+                    <!-- <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-alt-light" id="sidebar-dark-mode-dropdown"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="far fa-fw fa-moon" data-dark-mode-icon></i>
@@ -50,10 +82,10 @@
                                 <span class="fs-sm fw-medium">Gelap</span>
                             </button>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Options -->
-                    <div class="dropdown">
+                    <!-- <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-alt-light" id="sidebar-themes-dropdown"
                             data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false">
@@ -61,7 +93,6 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-end fs-sm smini-hide border-0"
                             aria-labelledby="sidebar-themes-dropdown">
-                            <!-- Color Themes -->
                             <button class="dropdown-item d-flex align-items-center justify-content-between fw-medium"
                                 data-toggle="theme" data-theme="default">
                                 <span>Default</span>
@@ -78,7 +109,7 @@
                                 <i class="fa fa-circle text-modern"></i>
                             </button>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Close Sidebar, Visible only on mobile screens -->
                     <a class="d-lg-none btn btn-sm btn-alt-secondary ms-1" data-toggle="layout"
@@ -94,98 +125,100 @@
                     <ul class="nav-main mt-3">
                         @if (auth()->user()->role_id == 2) {{-- Operator --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('dashboard.operator') }}">
-                                <i class="nav-main-link-icon si si-speedometer"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.operator') }}">
+                                <i class="nav-main-link-icon si si-speedometer me-2"></i>
+                                Dashboard
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.index') }}">
-                                <i class="nav-main-link-icon si si-layers"></i>
-                                <span class="nav-main-link-name">Detail Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
+                                <i class="nav-main-link-icon si si-layers me-2"></i>
+                                Detail Aduan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('services.index') }}">
-                                <i class="nav-main-link-icon si si-wrench"></i>
-                                <span class="nav-main-link-name">Kelola Layanan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('services.index') }}">
+                                <i class="nav-main-link-icon si si-wrench me-2"></i>
+                                Kelola Layanan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.created') }}">
-                                <i class="nav-main-link-icon si si-clock"></i>
-                                <span class="nav-main-link-name">Riwayat Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.created') }}">
+                                <i class="nav-main-link-icon si si-clock me-2"></i>
+                                Riwayat Aduan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.create') }}">
-                                <i class="nav-main-link-icon si si-pencil"></i>
-                                <span class="nav-main-link-name">Buat Aduan Baru</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
+                                <i class="nav-main-link-icon si si-pencil me-2"></i>
+                                Buat Aduan Baru
                             </a>
                         </li>
                         @elseif (auth()->user()->role_id == 3) {{-- Pegawai --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('dashboard.pegawai') }}">
-                                <i class="nav-main-link-icon si si-speedometer"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.pegawai') }}">
+                                <i class="nav-main-link-icon si si-speedometer me-2"></i>
+                                Dashboard
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.index') }}">
-                                <i class="nav-main-link-icon si si-layers"></i>
-                                <span class="nav-main-link-name">Detail Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
+                                <i class="nav-main-link-icon si si-layers me-2"></i>
+                                Detail Aduan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.assigned') }}">
-                                <i class="nav-main-link-icon si si-briefcase"></i>
-                                <span class="nav-main-link-name">Aduan Ditugaskan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.assigned') }}">
+                                <i class="nav-main-link-icon si si-briefcase me-2"></i>
+                                Aduan Ditugaskan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.create') }}">
-                                <i class="nav-main-link-icon si si-pencil"></i>
-                                <span class="nav-main-link-name">Buat Aduan Baru</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
+                                <i class="nav-main-link-icon si si-pencil me-2"></i>
+                                Buat Aduan Baru
                             </a>
                         </li>
                         @elseif (auth()->user()->role_id == 1) {{-- Admin --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('dashboard.admin') }}">
-                                <i class="nav-main-link-icon si si-speedometer"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.admin') }}">
+                                <i class="nav-main-link-icon si si-speedometer me-2"></i>
+                                Dashboard
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.index') }}">
-                                <i class="nav-main-link-icon si si-layers"></i>
-                                <span class="nav-main-link-name">Detail Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
+                                <i class="nav-main-link-icon si si-layers me-2"></i>
+                                Detail Aduan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('users.index') }}">
-                                <i class="nav-main-link-icon si si-users"></i>
-                                <span class="nav-main-link-name">Kelola Pengguna</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('users.index') }}">
+                                <i class="nav-main-link-icon si si-users me-2"></i>
+                                Kelola Pengguna
                             </a>
                         </li>
                         @else {{-- Warga --}}
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('dashboard.warga') }}">
-                                <i class="nav-main-link-icon si si-speedometer"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('dashboard.warga') }}">
+                                <i class="nav-main-link-icon si si-speedometer me-2"></i>
+                                Dashboard
                             </a>
                         </li>
+                        
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.index') }}">
-                                <i class="nav-main-link-icon si si-layers"></i>
-                                <span class="nav-main-link-name">Detail Aduan</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
+                                <i class="nav-main-link-icon si si-layers me-2"></i>
+                                Detail Aduan
                             </a>
                         </li>
+                        
                         <li class="nav-main-item mb-2">
-                            <a class="nav-main-link" href="{{ route('tickets.create') }}">
-                                <i class="nav-main-link-icon si si-pencil"></i>
-                                <span class="nav-main-link-name">Buat Aduan Baru</span>
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
+                                <i class="nav-main-link-icon si si-pencil me-2"></i>
+                                Buat Aduan Baru
                             </a>
-                        </li>
+                        </li>                        
                         @endif
                     </ul>
 
@@ -194,7 +227,7 @@
         </nav>
 
         <!-- Header -->
-        <header id="page-header" style="background-color:rgb(213, 219, 229); position: fixed; top: 0;">
+        <header id="page-header" style="background-color:rgb(255, 255, 255); position: fixed; top: 0;">
             <div class="content-header">
                 <div class="d-flex align-items-center">
                     <!-- Toggle Sidebar -->
@@ -279,6 +312,24 @@
     <style>
         #page-container {
             min-height: 1rem;
+        }
+
+        .nav-main-link:hover {
+            background-color: #0287ff !important;
+            color: rgb(255, 255, 255) !important;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .dropdown-item:hover {
+            background-color: #0287ff !important;
+            color: rgb(255, 255, 255) !important;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #dc3545 !important;
         }
     </style>
 

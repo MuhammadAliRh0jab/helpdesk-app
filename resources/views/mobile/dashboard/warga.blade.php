@@ -110,8 +110,8 @@
                                     <th>No</th>
                                     <th>No Tiket</th>
                                     <th>Judul</th>
+                                    <th>Layanan</th>
                                     <th>Status</th>
-                                    <th>Deskripsi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -122,16 +122,16 @@
                                             <td>{{ ($tickets->currentPage() - 1) * $tickets->perPage() + $index + 1 }}</td>
                                             <td>{{ $ticket->ticket_code }}</td>
                                             <td>{{ $ticket->title }}</td>
+                                            <td>{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
                                             <td>
                                                 @if ($ticket->status == 0)
-                                                    Belum Direspon
+                                                    <span class="badge bg-warning">Belum Direspon</span>
                                                 @elseif($ticket->status == 1)
-                                                    Direspon
+                                                    <span class="badge bg-info">Direspon</span>
                                                 @else
-                                                    Selesai
+                                                    <span class="badge bg-success">Selesai</span>
                                                 @endif
                                             </td>
-                                            <td class="d-none d-sm-table-cell text-center">{{ $ticket->description }}</td>
                                         </tr>
                                     @endforeach
                                 @else

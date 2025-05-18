@@ -28,17 +28,28 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <h5 class="card-title m-0">Semua Tiket</h5>
-                            <a class="btn rounded-pill btn-primary" href="{{ route('tickets.create') }}">Buat Aduan</a>
+                            <form action="{{ route('tickets.index') }}" method="GET">
+                                <select class="pe-4 form-select form-select-sm form-control-clicked" id="statusFilter"
+                                    name="status_filter" aria-label="Filter by status" onchange="this.form.submit()">
+                                    <option value="" {{ request('status_filter') === '' ? 'selected' : '' }}>Tampilkan
+                                        Semua</option>
+                                    <option value="0" {{ request('status_filter') === '0' ? 'selected' : '' }}>Belum
+                                        Direspon</option>
+                                    <option value="1" {{ request('status_filter') === '1' ? 'selected' : '' }}>Direspon
+                                    </option>
+                                    <option value="2" {{ request('status_filter') === '2' ? 'selected' : '' }}>Selesai
+                                    </option>
+                                </select>
+                            </form>
                         </div>
                         <hr>
-                        <div class="table-responsive mt-3">
+                        <div class="table-responsive my-3">
                             <table class="table table-bordered align-items-center align-middle text-center mb-0">
                                 <thead>
                                     <tr class="text-nowrap">
                                         <th scope="col">#</th>
                                         <th>No Tiket</th>
                                         <th>Judul Aduan</th>
-                                        <th>Unit</th>
                                         <th>Layanan</th>
                                         <th>Status</th>
                                         <th>Dibuat</th>
@@ -61,20 +72,21 @@
                                         </tr>
                                     @else
                                         @foreach ($tickets as $ticket)
-                                            <tr class="text-nowrap">
-                                                <th>{{ $loop->iteration }}</th>
+                                            <tr class="text-nowrap"
+                                                data-status="{{ $ticket->status == 0 ? 'belum' : ($ticket->status == 1 ? 'direspon' : 'selesai') }}">
+                                                <td class="ticket-number">
+                                                    {{ ($tickets->currentPage() - 1) * $tickets->perPage() + $loop->iteration }}
+                                                </td>
                                                 <td>{{ $ticket->ticket_code }}</td>
                                                 <td>{{ $ticket->title }}</td>
-                                                <td>{{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name ?? 'Tidak ditentukan' : $ticket->unit->unit_name ?? 'Tidak ditentukan' }}
-                                                </td>
                                                 <td>{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
                                                 <td>
                                                     @if ($ticket->status == 0)
-                                                        Belum Direspon
+                                                        <span class="badge bg-warning">Belum Direspon</span>
                                                     @elseif($ticket->status == 1)
-                                                        Direspon
+                                                        <span class="badge bg-info">Direspon</span>
                                                     @else
-                                                        Selesai
+                                                        <span class="badge bg-success">Selesai</span>
                                                     @endif
                                                 </td>
                                                 <td>{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
@@ -92,8 +104,8 @@
                                                                 'created_at' => $ticket->created_at,
                                                                 'description' => $ticket->description,
                                                                 'uploads' => $ticket->uploads,
-                                                                'responses' => $ticket->responses,
-                                                            ]) }}'>
+                                                            ]) }}'
+                                                            data-bs-toggle="offcanvas" data-bs-target="#ticketDetailModal">
                                                             Detail
                                                         </button>
                                                         @if ($ticket->status == 1)
@@ -117,72 +129,57 @@
                                 </tbody>
                             </table>
                         </div>
+                        <span class="d-flex justify-content-end">
+                            {{ $tickets->appends(request()->except('success'))->links() }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Detail Tiket -->
-    <div class="modal fade" id="ticketDetailModal" tabindex="-1" aria-labelledby="ticketDetailModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title" id="ticketDetailModalLabel">Detail Tiket <span id="modal-ticket-code"></span>
-                    </h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row justify-content-start align-middle">
-                        <div class="col-4">
-                            <p class="m-0 text-dark fw-bold">Judul Aduan</p>
-                        </div>
-                        <div class="col-8">
-                            <p class="m-0 text-dark" id="modal-title"></p>
-                        </div>
-                        <div class="w-100"></div>
-                        <div class="col-4">
-                            <p class="m-0 text-dark fw-bold">Unit</p>
-                        </div>
-                        <div class="col-8">
-                            <p class="m-0 text-dark" id="modal-unit"></p>
-                        </div>
-                        <div class="w-100"></div>
-                        <div class="col-4">
-                            <p class="m-0 text-dark fw-bold">Layanan</p>
-                        </div>
-                        <div class="col-8">
-                            <p class="m-0 text-dark" id="modal-service"></p>
-                        </div>
-                        <div class="w-100"></div>
-                        <div class="col-4">
-                            <p class="m-0 text-dark fw-bold">Status</p>
-                        </div>
-                        <div class="col-8">
-                            <p class="m-0 text-dark" id="modal-status"></p>
-                        </div>
-                        <div class="w-100"></div>
-                        <div class="col-4">
-                            <p class="m-0 text-dark fw-bold">Dibuat</p>
-                        </div>
-                        <div class="col-8">
-                            <p class="m-0 text-dark" id="modal-created"></p>
-                        </div>
-                        <div class="w-100"></div>
-                        <div class="col-4">
-                            <p class="m-0 text-dark fw-bold">Deskripsi</p>
-                        </div>
-                        <div class="col-8">
-                            <p class="m-0 text-dark" id="modal-description"></p>
-                        </div>
-                        <div class="w-100"></div>
-                        <div id="modal-uploads" class="mt-3"></div>
+    <!-- Offcanvas Detail Tiket -->
+    <div class="offcanvas offcanvas-bottom" id="ticketDetailModal" tabindex="-1" aria-labelledby="ticketDetailModalLabel">
+        <!-- Close Button -->
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <!-- Offcanvas Body -->
+        <div class="offcanvas-body">
+            <h5 class="mb-3" id="ticketDetailModalLabel">Detail Tiket <span id="modal-ticket-code"></span></h5>
+            <div class="row">
+                <!-- Kolom Kiri -->
+                <div class="col-6">
+                    <div class="mb-3">
+                        <p class="m-0 fw-bold">Judul Aduan</p>
+                        <p class="m-0 text-muted" id="modal-title"></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="m-0 fw-bold">Unit</p>
+                        <p class="m-0 text-muted" id="modal-unit"></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="m-0 fw-bold">Layanan</p>
+                        <p class="m-0 text-muted" id="modal-service"></p>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn rounded-pill btn-primary" data-bs-dismiss="modal">Tutup</button>
+                <!-- Kolom Kanan -->
+                <div class="col-6">
+                    <div class="mb-3">
+                        <p class="m-0 fw-bold">Status</p>
+                        <p class="m-0 text-muted" id="modal-status"></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="m-0 fw-bold">Dibuat</p>
+                        <p class="m-0 text-muted" id="modal-created"></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="m-0 fw-bold">Deskripsi</p>
+                        <p class="m-0 text-muted" id="modal-description"></p>
+                    </div>
                 </div>
+            </div>
+            <!-- Bagian Gambar -->
+            <div class="mt-4" id="modal-uploads">
+                <h6 class="mb-2">Gambar</h6>
             </div>
         </div>
     </div>
@@ -201,10 +198,25 @@
                     style="max-height: 400px; overflow-y: auto; position: relative;">
                     <!-- Daftar respon akan ditampilkan di sini -->
                     <img class="sticky-bottom" id="imagePreview" src="" alt="No image yet"
-                        style="display: none; max-width: 60%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                        style="display: none; max-width: 30%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
                 </div>
                 <div class="modal-footer" id="modal-responses-footer">
                     <!-- Form balasan akan ditampilkan di sini jika memenuhi syarat -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sukses -->
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-check-circle text-success mb-3" style="font-size: 5rem;"></i>
+                    <h5 id="successModalLabel">Sukses</h5>
+                    <p>Aduan Berhasil Dibuat</p>
+                    <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">OK</button>
                 </div>
             </div>
         </div>
@@ -216,11 +228,34 @@
     @include('mobile.master.footer')
 @endsection
 
+@section('styles')
+    <style>
+        /* Styling untuk modal sukses */
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .bi-check-circle {
+            color: #28a745;
+            /* Bootstrap success green */
+        }
+
+        .modal-body .btn-primary {
+            min-width: 100px;
+        }
+    </style>
+@endsection
+
 @section('scripts')
     <script src="{{ asset('mobile/js/android-bridge.js') }}"></script>
     <script>
         $(document).ready(function() {
-            // Simpan Base64 sementara jika modal belum terbuka
+            // Simpan Base64 sementara jika modal/offcanvas belum terbuka
             let pendingImageBase64 = null;
 
             // Fungsi untuk mengontrol scroll body
@@ -232,7 +267,28 @@
                 }
             }
 
-            // Modal Detail Tiket
+            // Cek query parameter untuk menampilkan modal sukses
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                // Tampilkan modal
+                $('#successModal').modal('show');
+                toggleBodyScroll(false);
+                // Hapus query parameter 'success' dari URL
+                urlParams.delete('success');
+                const cleanUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() :
+                '');
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+
+            // Handle penutupan modal sukses
+            $('#successModal').on('hidden.bs.modal', function() {
+                toggleBodyScroll(true);
+                // Fokus kembali ke elemen yang dapat difokuskan pertama
+                $('body').find('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+                    .first().focus();
+            });
+
+            // Offcanvas Detail Tiket
             $('.show-ticket-detail').on('click', function() {
                 const ticket = $(this).data('ticket');
                 const $triggerButton = $(this);
@@ -254,17 +310,22 @@
 
                 const uploadsContainer = $('#modal-uploads');
                 uploadsContainer.empty();
+                uploadsContainer.append('<h6 class="mb-2">Gambar</h6>');
                 if (ticket.uploads && ticket.uploads.length > 0) {
-                    uploadsContainer.append('<p class="m-0 text-dark fw-bold">Gambar:</p>');
                     ticket.uploads.forEach(upload => {
                         uploadsContainer.append(
-                            `<img src="{{ asset('storage') }}/${upload.filename_path}" alt="Upload" class="img-fluid mb-2" style="max-width: 300px;">`
+                            `<img src="{{ asset('storage') }}/${upload.filename_path}" alt="Upload" class="img-fluid mb-2" style="max-width: 100%;">`
                         );
                     });
+                } else {
+                    uploadsContainer.append('<p class="text-muted">Tidak ada gambar.</p>');
                 }
 
                 toggleBodyScroll(false);
-                $('#ticketDetailModal').modal('show');
+                // Disable swipe refresh when offcanvas is opened
+                if (typeof window.Android !== 'undefined') {
+                    window.Android.toggleSwipeRefresh(false);
+                }
             });
 
             // Modal Respon Tiket
@@ -307,7 +368,7 @@
                                     <div class="single-message">
                                         <p>${response.message || 'Tidak ada pesan'}</p>
                                     </div>
-                    `;
+                        `;
 
                         if (response.uploads && response.uploads.length > 0) {
                             response.uploads.forEach(upload => {
@@ -366,7 +427,7 @@
                             if ($('#imagePreview').length === 0) {
                                 console.log('Creating #imagePreview element');
                                 $('#modal-responses-body').append(
-                                    `<img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 60%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">`
+                                    `<img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 30%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">`
                                 );
                             }
 
@@ -426,15 +487,21 @@
 
                 toggleBodyScroll(false);
                 console.log('Modal show triggered, checking #imagePreview:', $('#imagePreview').length);
+                // Disable swipe refresh when modal is opened
+                if (typeof window.Android !== 'undefined') {
+                    window.Android.toggleSwipeRefresh(false);
+                }
                 $('#ticketResponsesModal').modal('show');
             });
 
-            // Kelola fokus saat modal ditutup
-            $('#ticketDetailModal, #ticketResponsesModal').on('hidden.bs.modal', function() {
+            // Kelola fokus saat offcanvas/modal ditutup
+            $('#ticketDetailModal').on('hidden.bs.offcanvas', function() {
                 toggleBodyScroll(true);
-                $('#imagePreview').css('display', 'none'); // Sembunyikan pratinjau saat modal ditutup
-                pendingImageBase64 = null; // Reset Base64 tertunda
-                const $trigger = $('.show-ticket-detail:focus, .show-ticket-responses:focus');
+                // Re-enable swipe refresh when offcanvas is closed
+                if (typeof window.Android !== 'undefined') {
+                    window.Android.toggleSwipeRefresh(true);
+                }
+                const $trigger = $('.show-ticket-detail:focus');
                 if ($trigger.length) {
                     $trigger.focus();
                 } else {
@@ -444,8 +511,30 @@
                 }
             });
 
-            // Kelola fokus saat modal dibuka
-            $('#ticketDetailModal, #ticketResponsesModal').on('shown.bs.modal', function() {
+            $('#ticketResponsesModal').on('hidden.bs.modal', function() {
+                toggleBodyScroll(true);
+                $('#imagePreview').css('display', 'none'); // Sembunyikan pratinjau saat modal ditutup
+                pendingImageBase64 = null; // Reset Base64 tertunda
+                // Re-enable swipe refresh when modal is closed
+                if (typeof window.Android !== 'undefined') {
+                    window.Android.toggleSwipeRefresh(true);
+                }
+                const $trigger = $('.show-ticket-responses:focus');
+                if ($trigger.length) {
+                    $trigger.focus();
+                } else {
+                    $('body').find(
+                            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+                        .first().focus();
+                }
+            });
+
+            // Kelola fokus saat offcanvas/modal dibuka
+            $('#ticketDetailModal').on('shown.bs.offcanvas', function() {
+                $(this).find('.btn-close').focus();
+            });
+
+            $('#ticketResponsesModal').on('shown.bs.modal', function() {
                 $(this).find('.btn-close').focus();
                 console.log('Modal shown, #imagePreview exists:', $('#imagePreview').length);
                 // Terapkan Base64 yang tertunda jika ada
@@ -518,7 +607,7 @@
                 if ($preview.length === 0) {
                     console.warn('#imagePreview not found, creating new one');
                     $('#modal-responses-body').append(
-                        `<img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 60%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">`
+                        `<img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 30%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">`
                     );
                     $preview = $('#imagePreview');
                 }
