@@ -30,7 +30,9 @@ class TicketController extends Controller
     $search = $request->input('search');
     $statusFilter = $request->input('status_filter');
     $perPage = $request->input('per_page', 10);
+    $tab = $request->input('tab', 'manage'); // Default to 'manage' tab for operators
 
+    // Base query for tickets
     $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit', 'pics.user']);
 
     if ($search) {
@@ -44,6 +46,7 @@ class TicketController extends Controller
         $query->where('status', $statusFilter);
     }
 
+    // Role-based filtering
     if ($user->role_id == 4) {
         $query->where('user_id', $user->id);
     } elseif ($user->role_id == 3) {
@@ -59,7 +62,13 @@ class TicketController extends Controller
             $query->where('user_id', $user->id);
         }
     } elseif ($user->role_id == 2) {
-        $query->where('unit_id', $user->unit_id);
+        if ($tab === 'manage') {
+            // Pengelola Tiket: Tickets in the operator's unit
+            $query->where('unit_id', $user->unit_id);
+        } else {
+            // Pembuat Tiket: Tickets created by the operator
+            $query->where('user_id', $user->id);
+        }
     }
 
     $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
@@ -67,7 +76,7 @@ class TicketController extends Controller
     if ($request->ajax()) {
         return response()->json([
             'tickets' => $tickets,
-            'pics' => $user->role_id == 2 ? User::where('role_id', 3)
+            'pics' => $user->role_id == 2 && $tab === 'manage' ? User::where('role_id', 3)
                 ->where('unit_id', $user->unit_id)
                 ->with(['pics' => function ($query) {
                     $query->where('pic_stats', 'active');
@@ -82,11 +91,11 @@ class TicketController extends Controller
                     ];
                 }) : collect(),
             'units' => \App\Models\Unit::all(),
-            'pagination' => $tickets->links('pagination::bootstrap-5')->render(), // Use 'bootstrap-5' for the style in the image
+            'pagination' => $tickets->links('pagination::bootstrap-5')->render(),
         ]);
     }
 
-    $pics = $user->role_id == 2 && $user->unit_id ? User::where('role_id', 3)
+    $pics = $user->role_id == 2 && $tab === 'manage' ? User::where('role_id', 3)
         ->where('unit_id', $user->unit_id)
         ->with(['pics' => function ($query) {
             $query->where('pic_stats', 'active');
@@ -107,7 +116,7 @@ class TicketController extends Controller
     }
     $services = $servicesQuery->with('unit')->get();
 
-    return view('tickets.index', compact('tickets', 'pics', 'services'));
+    return view('tickets.index', compact('tickets', 'pics', 'services', 'tab'));
 }
 
     
