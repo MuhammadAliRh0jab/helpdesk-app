@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PegawaiDashboardController;
 use App\Http\Controllers\OperatorDashboardContorller;
+use App\Http\Controllers\SuperadminDashboardController;
 use App\Http\Controllers\WargaDashboardController;
 
 /*
@@ -56,4 +57,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/warga/tickets', [WargaDashboardController::class, 'getTickets']);
     Route::get('/warga/tickets/{id}', [WargaDashboardController::class, 'getTicketDetail']);
     Route::get('/warga/static-stats', [WargaDashboardController::class, 'getStaticStats']);
+    Route::get('/top-ticket-categories', [SuperadminDashboardController::class, 'topTicketCategories']);
 });
