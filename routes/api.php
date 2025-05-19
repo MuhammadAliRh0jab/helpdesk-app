@@ -6,6 +6,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PegawaiDashboardController;
 use App\Http\Controllers\OperatorDashboardContorller;
 use App\Http\Controllers\WargaDashboardController;
+use App\Models\Service;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,20 @@ use App\Http\Controllers\WargaDashboardController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+
+Route::get('/service/{id}', function ($id) {
+    $service = Service::with('unit')->find($id);
+
+    if ($service && $service->category_id == 2 && $service->allow_guest == 1 && $service->status == 'active') {
+        return response()->json([
+            'id' => $service->id,
+            'unit_id' => $service->unit_id,
+        ]);
+    }
+
+    return response()->json(['error' => 'Service not found or not accessible'], 404);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     // Endpoint untuk Operator Dashboard

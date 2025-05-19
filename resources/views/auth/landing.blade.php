@@ -169,6 +169,22 @@
         .scrolling-units::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
+
+        .service-list {
+            display: block;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .service-list.hidden {
+            display: none;
+        }
+
+        .form-section.visible {
+            display: block;
+        }
     </style>
 </head>
 
@@ -390,77 +406,60 @@
                             <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Form Pengaduan</h4>
                         </div>
                         <div class="card-body p-4">
-                            <div x-data="{
-                                showServices: true,
-                                selectedService: null,
-                                selectedUnit: null,
-                                search: '',
-                                fileNames: 'Tidak ada file dipilih',
-                                scrollToUnit(unitId) {
-                                    const unitElement = document.getElementById('unit-' + unitId);
-                                    if (unitElement) {
-                                        unitElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    }
-                                },
-                                updateFileNames(event) {
-                                    const files = event.target.files;
-                                    this.fileNames = files.length > 0
-                                        ? files.length > 1
-                                            ? `${files.length} file dipilih`
-                                            : files[0].name
-                                        : 'Tidak ada file dipilih';
-                                }
-                            }">
-                                <!-- Daftar Tombol Layanan -->
-                                <div x-show="showServices" x-transition>
-                                    <div class="mb-4">
-                                        <div class="input-group input-group-lg shadow-sm">
-                                            <span class="input-group-text bg-white border-end-0">
-                                                <i class="fas fa-search text-primary"></i>
-                                            </span>
-                                            <input x-model="search" type="text" class="form-control border-start-0" placeholder="Cari layanan..." aria-label="Cari layanan">
-                                        </div>
-                                        <div class="form-text" x-show="search !== ''">
-                                            <i class="fas fa-info-circle me-1"></i> Pencarian akan menampilkan hasil dari semua unit
+                            <div class="service-list">
+                                <div class="mb-4">
+                                    <div class="input-group input-group-lg shadow-sm">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-search text-primary"></i>
+                                        </span>
+                                        <input type="text" id="search" class="form-control border-start-0" placeholder="Cari layanan..." aria-label="Cari layanan">
+                                    </div>
+                                    <div class="form-text" id="search-hint" style="display: none;">
+                                        <i class="fas fa-info-circle me-1"></i> Pencarian akan menampilkan hasil dari semua unit
+                                    </div>
+                                </div>
+
+                                <!-- Quick Jump Menu -->
+                                <div class="mb-4" id="unit-pills-container">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="text-muted me-2"><i class="fas fa-filter me-1"></i> Pilih Unit:</span>
+                                        <div class="unit-pills">
+                                            @php
+                                                $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
+                                            @endphp
+                                            @foreach($units as $unitName => $unitId)
+                                                <button onclick="scrollToUnit({{ $unitId }})" 
+                                                        class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
+                                                        aria-label="Pilih unit {{ $unitName }}">
+                                                    {{ $unitName }}
+                                                </button>
+                                            @endforeach
                                         </div>
                                     </div>
+                                </div>
 
-                                    <!-- Quick Jump Menu -->
-                                    <div class="mb-4" x-show="search === ''">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <span class="text-muted me-2"><i class="fas fa-filter me-1"></i> Pilih Unit:</span>
-                                            <div class="unit-pills">
-                                                @php
-                                                    $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
-                                                @endphp
-                                                @foreach($units as $unitName => $unitId)
-                                                    <button @click="scrollToUnit({{ $unitId }})" 
-                                                            class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
-                                                            aria-label="Pilih unit {{ $unitName }}">
-                                                        {{ $unitName }}
-                                                    </button>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Daftar Unit dengan Layanan -->
-                                    <div class="scrolling-units">
-                                        <!-- Jika ada pencarian, tampilkan semua layanan yang cocok -->
-                                        <div x-show="search !== ''" class="mb-4">
-                                            <div class="alert alert-info d-flex align-items-center">
-                                                <i class="fas fa-search me-2"></i>
-                                                <div>Menampilkan hasil pencarian untuk: <strong x-text="search"></strong></div>
+                                <!-- Daftar Unit dengan Layanan -->
+                                <div class="scrolling-units" id="service-list-content">
+                                    @foreach($units as $unitName => $unitId)
+                                        <div id="unit-{{ $unitId }}" class="unit-section mb-4">
+                                            <div class="unit-header">
+                                                <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
+                                                    <i class="fas fa-building me-2 text-primary"></i>
+                                                    <span>{{ $unitName }}</span>
+                                                    <div class="ms-auto">
+                                                        <span class="badge bg-primary rounded-pill">
+                                                            {{ $services->where('unit_id', $unitId)->count() }} Layanan
+                                                        </span>
+                                                    </div>
+                                                </h4>
                                             </div>
                                             <div class="row row-cols-1 row-cols-md-3 g-3">
-                                                @foreach ($services as $service)
-                                                    <div class="col service-item" 
-                                                         x-show="'{{ $service->svc_name }}'.toLowerCase().includes(search.toLowerCase())">
+                                                @foreach ($services->where('unit_id', $unitId) as $service)
+                                                    <div class="col service-item">
                                                         <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
                                                             <div class="card-body p-4">
-                                                                <div class="unit-badge mb-2">{{ $service->unit->unit_name }}</div>
                                                                 <button
-                                                                    @click="showServices = false; selectedService = {{ $service->id }}; selectedUnit = {{ $service->unit_id }}"
+                                                                    onclick="selectService({{ $service->id }}, {{ $service->unit_id }})"
                                                                     class="btn btn-link text-decoration-none p-0 w-100 text-start"
                                                                     aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
                                                                     <div class="d-flex align-items-center">
@@ -471,6 +470,7 @@
                                                                         </div>
                                                                         <div class="flex-grow-1">
                                                                             <h5 class="mb-1">{{ $service->svc_name }}</h5>
+                                                                            <div class="text-muted small">{{ $service->unit->unit_name }}</div>
                                                                         </div>
                                                                         <div class="flex-shrink-0 ms-2">
                                                                             <i class="fas fa-chevron-right text-muted"></i>
@@ -483,128 +483,79 @@
                                                 @endforeach
                                             </div>
                                         </div>
+                                    @endforeach
+                                </div>
+                            </div>
 
-                                        <!-- Tampilkan layanan dikelompokkan per unit saat tidak ada pencarian -->
-                                        <div x-show="search === ''">
-                                            @foreach($units as $unitName => $unitId)
-                                                <div id="unit-{{ $unitId }}" class="unit-section mb-4">
-                                                    <div class="unit-header">
-                                                        <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
-                                                            <i class="fas fa-building me-2 text-primary"></i>
-                                                            <span>{{ $unitName }}</span>
-                                                            <div class="ms-auto">
-                                                                <span class="badge bg-primary rounded-pill">
-                                                                    {{ $services->where('unit_id', $unitId)->count() }} Layanan
-                                                                </span>
-                                                            </div>
-                                                        </h4>
-                                                    </div>
-                                                    <div class="row row-cols-1 row-cols-md-3 g-3">
-                                                        @foreach ($services->where('unit_id', $unitId) as $service)
-                                                            <div class="col service-item">
-                                                                <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
-                                                                    <div class="card-body p-4">
-                                                                        <button
-                                                                            @click="showServices = false; selectedService = {{ $service->id }}; selectedUnit = {{ $service->unit_id }}"
-                                                                            class="btn btn-link text-decoration-none p-0 w-100 text-start"
-                                                                            aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
-                                                                            <div class="d-flex align-items-center">
-                                                                                <div class="flex-shrink-0 me-3">
-                                                                                    <div class="bg-light text-primary rounded-circle p-3">
-                                                                                        <i class="fas fa-concierge-bell fa-fw"></i>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="flex-grow-1">
-                                                                                    <h5 class="mb-1">{{ $service->svc_name }}</h5>
-                                                                                    <div class="text-muted small">{{ $service->unit->unit_name }}</div>
-                                                                                </div>
-                                                                                <div class="flex-shrink-0 ms-2">
-                                                                                    <i class="fas fa-chevron-right text-muted"></i>
-                                                                                </div>
-                                                                            </div>
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                            <div class="form-section" id="form-pengaduan">
+                                <form action="{{ route('tickets.store.guest') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="unit_id" id="unit_id">
+                                    <input type="hidden" name="service_id" id="service_id">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="guest_name" name="guest_name" placeholder="Nama Lengkap" value="{{ old('guest_name') }}" required>
+                                                <label for="guest_name"><i class="fas fa-user me-2"></i>Nama Lengkap</label>
+                                                @error('guest_name')
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="email" class="form-control" id="guest_email" name="guest_email" placeholder="Email" value="{{ old('guest_email') }}" required>
+                                                <label for="guest_email"><i class="fas fa-envelope me-2"></i>Email</label>
+                                                @error('guest_email')
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Form Detail Aduan -->
-                                <div x-show="!showServices" x-transition class="animate__animated animate__fadeIn">
-                                    <form action="{{ route('tickets.store.guest') }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <input type="hidden" name="unit_id" x-bind:value="selectedUnit">
-                                        <input type="hidden" name="service_id" x-bind:value="selectedService">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" id="guest_name" name="guest_name" placeholder="Nama Lengkap" value="{{ old('guest_name') }}" required>
-                                                    <label for="guest_name"><i class="fas fa-user me-2"></i>Nama Lengkap</label>
-                                                    @error('guest_name')
-                                                        <div class="text-danger small mt-1">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="title" name="title" placeholder="Judul Aduan" value="{{ old('title') }}" required>
+                                        <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
+                                        @error('title')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-floating mb-3">
+                                        <textarea class="form-control" id="description" name="description" placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px" required>{{ old('description') }}</textarea>
+                                        <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi Masalah</label>
+                                        @error('description')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="images" class="form-label fw-bold"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
+                                        <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light" onclick="document.getElementById('images').click()">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="fas fa-cloud-upload-alt text-primary fa-3x mb-3"></i>
+                                                <p class="mb-2">Klik atau seret file ke sini</p>
+                                                <p class="text-muted small mb-0" id="fileNames">Tidak ada file dipilih</p>
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="form-floating mb-3">
-                                                    <input type="email" class="form-control" id="guest_email" name="guest_email" placeholder="Email" value="{{ old('guest_email') }}" required>
-                                                    <label for="guest_email"><i class="fas fa-envelope me-2"></i>Email</label>
-                                                    @error('guest_email')
-                                                        <div class="text-danger small mt-1">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
+                                            <input type="file" name="images[]" id="images" multiple class="d-none" onchange="updateFileNames(event)" accept="image/*">
                                         </div>
+                                        @error('images')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF (maks 2MB per file)
+                                        </div>
+                                    </div>
 
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="title" name="title" placeholder="Judul Aduan" value="{{ old('title') }}" required>
-                                            <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
-                                            @error('title')
-                                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="form-floating mb-3">
-                                            <textarea class="form-control" id="description" name="description" placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px" required>{{ old('description') }}</textarea>
-                                            <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi Masalah</label>
-                                            @error('description')
-                                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-4">
-                                            <label for="images" class="form-label fw-bold"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
-                                            <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light" @click="$refs.fileInput.click()">
-                                                <div class="d-flex flex-column align-items-center">
-                                                    <i class="fas fa-cloud-upload-alt text-primary fa-3x mb-3"></i>
-                                                    <p class="mb-2">Klik atau seret file ke sini</p>
-                                                    <p class="text-muted small mb-0" x-text="fileNames">Tidak ada file dipilih</p>
-                                                </div>
-                                                <input type="file" name="images[]" id="images" multiple class="d-none" x-ref="fileInput" @change="updateFileNames" accept="image/*">
-                                            </div>
-                                            @error('images')
-                                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                            @enderror
-                                            <div class="form-text">
-                                                <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF (maks 2MB per file)
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex justify-content-between gap-3">
-                                            <button type="button" @click="showServices = true; selectedService = null; selectedUnit = null" class="btn btn-outline-secondary btn-lg px-4" aria-label="Kembali ke daftar layanan">
-                                                <i class="fas fa-arrow-left me-2"></i>Kembali
-                                            </button>
-                                            <button type="submit" class="btn btn-primary btn-lg px-5">
-                                                <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
+                                    <div class="d-flex justify-content-between gap-3">
+                                        <button type="button" onclick="showServices()" class="btn btn-outline-secondary btn-lg px-4" aria-label="Kembali ke daftar layanan">
+                                            <i class="fas fa-arrow-left me-2"></i>Kembali
+                                        </button>
+                                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                                            <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         <div class="card-footer bg-light text-center py-3">
@@ -687,6 +638,90 @@
                 } else {
                     navbar.classList.remove("scrolled");
                     logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
+                }
+            });
+
+            // Function to scroll to a unit
+            function scrollToUnit(unitId) {
+                const unitElement = document.getElementById('unit-' + unitId);
+                if (unitElement) {
+                    unitElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            // Function to update file names
+            function updateFileNames(event) {
+                const files = event.target.files;
+                const fileNamesElement = document.getElementById('fileNames');
+                fileNamesElement.textContent = files.length > 0
+                    ? files.length > 1
+                        ? `${files.length} file dipilih`
+                        : files[0].name
+                    : 'Tidak ada file dipilih';
+            }
+
+            // Function to show services
+            function showServices() {
+                document.querySelector('.service-list').classList.remove('hidden');
+                document.querySelector('.form-section').classList.remove('visible');
+            }
+
+            // Function to select a service
+            function selectService(serviceId, unitId) {
+                document.getElementById('service_id').value = serviceId;
+                document.getElementById('unit_id').value = unitId;
+                document.querySelector('.service-list').classList.add('hidden');
+                document.querySelector('.form-section').classList.add('visible');
+                const formSection = document.getElementById('form-pengaduan');
+                if (formSection) {
+                    formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            // Auto-handle QR code redirect
+            const path = window.location.pathname;
+            const reportServiceRegex = /^\/report\/service\/(\d+)$/;
+            const match = path.match(reportServiceRegex);
+
+            if (match) {
+                const serviceId = parseInt(match[1], 10);
+
+                // Fetch service data from the server
+                fetch(`/api/service/${serviceId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Service not found');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.id) {
+                            selectService(data.id, data.unit_id);
+                            window.history.replaceState(null, '', '/#lapor-tanpa-login');
+                        } else {
+                            console.error('Invalid service data:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching service:', error);
+                    });
+            }
+
+            // Search functionality
+            const searchInput = document.getElementById('search');
+            const searchHint = document.getElementById('search-hint');
+            const unitPillsContainer = document.getElementById('unit-pills-container');
+            const serviceListContent = document.getElementById('service-list-content');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                searchHint.style.display = searchTerm ? 'block' : 'none';
+                unitPillsContainer.style.display = searchTerm ? 'none' : 'block';
+
+                const serviceItems = serviceListContent.getElementsByClassName('service-item');
+                for (let item of serviceItems) {
+                    const serviceName = item.textContent.toLowerCase();
+                    item.style.display = searchTerm && serviceName.includes(searchTerm) ? 'block' : 'none';
                 }
             });
         });
