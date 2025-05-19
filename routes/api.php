@@ -24,7 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ticket-performance', [OperatorDashboardContorller::class, 'ticketPerformance']);
     Route::get('/ticket-categories', [OperatorDashboardContorller::class, 'ticketCategories']);
     Route::get('/resolution-times', [OperatorDashboardContorller::class, 'resolutionTimes']);
-    // Route::get('/ticket-locations', [OperatorDashboardContorller::class, 'ticketLocations']);
     Route::get('/recent-tickets', [OperatorDashboardContorller::class, 'recentTickets']);
     Route::get('/units', [OperatorDashboardContorller::class, 'units']);
     Route::get('/service-stats', [OperatorDashboardContorller::class, 'serviceStats']);

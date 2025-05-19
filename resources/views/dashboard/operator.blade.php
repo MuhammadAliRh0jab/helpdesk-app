@@ -35,78 +35,73 @@
 
         <div class="content">
             <!-- Statistics Cards -->
-            <div class="row items-push">
-                <div class="col-sm-6 col-xxl-3">
-                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
-                        <div
-                            class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                            <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="totall-tickets">
-                                    {{ $ticketStats['total'] }}
-                                    </dt>
-                                    <dd class="fs-sm fw-medium text-muted mb-0">Total Tiket</dd>
-                            </dl>
-                            <div class="item item-rounded-lg bg-body-light">
-                                <i class="fas fa-ticket-alt fs-3 text-primary"></i>
-                            </div>
-                        </div>
-                        <div class="bg-body-light rounded-bottom">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xxl-3">
-                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
-                        <div
-                            class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                            <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="pending-tickets">
-                                    {{ $ticketStats['pending'] ?? 0 }}
-                                </dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Pending</dd>
-                            </dl>
-                            <div class="item item-rounded-lg bg-body-light">
-                                <i class="fas fa-clock fs-3 text-warning"></i>
-                            </div>
-                        </div>
-                        <div class="bg-body-light rounded-bottom">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xxl-3">
-                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
-                        <div
-                            class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                            <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="assigned-tickets">
-                                    {{ $ticketStats['assigned'] ?? 0 }}
-                                </dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Ditugaskan</dd>
-                            </dl>
-                            <div class="item item-rounded-lg bg-body-light">
-                                <i class="fas fa-user-clock fs-3 text-info"></i>
-                            </div>
-                        </div>
-                        <div class="bg-body-light rounded-bottom">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xxl-3">
-                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
-                        <div
-                            class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                            <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="completedd-tickets">
-                                    {{ $ticketStats['completed'] ?? 0 }}
-                                </dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Selesai</dd>
-                            </dl>
-                            <div class="item item-rounded-lg bg-body-light">
-                                <i class="fas fa-check-circle fs-3 text-success"></i>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Statistics Cards -->
+<div class="row items-push">
+    <div class="col-sm-6 col-xxl-3">
+        <div class="block block-rounded d-flex flex-column h-100 mb-0">
+            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                <dl class="mb-0">
+                    <dt class="fs-3 fw-bold" id="total-tickets">
+                        {{ $ticketStats['total'] }}
+                    </dt>
+                    <dd class="fs-sm fw-medium text-muted mb-0">Total Tiket</dd>
+                </dl>
+                <div class="item item-rounded-lg bg-body-light">
+                    <i class="fas fa-ticket-alt fs-3 text-primary"></i>
                 </div>
             </div>
+            <div class="bg-body-light rounded-bottom"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xxl-3">
+        <div class="block block-rounded d-flex flex-column h-100 mb-0">
+            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                <dl class="mb-0">
+                    <dt class="fs-3 fw-bold" id="pending-tickets">
+                        {{ $ticketStats['pending'] ?? 0 }}
+                    </dt>
+                    <dd class="fs-sm fw-medium text-muted mb-0">Tiket Pending</dd>
+                </dl>
+                <div class="item item-rounded-lg bg-body-light">
+                    <i class="fas fa-clock fs-3 text-warning"></i>
+                </div>
+            </div>
+            <div class="bg-body-light rounded-bottom"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xxl-3">
+        <div class="block block-rounded d-flex flex-column h-100 mb-0">
+            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                <dl class="mb-0">
+                    <dt class="fs-3 fw-bold" id="assigned-tickets">
+                        {{ $ticketStats['assigned'] ?? 0 }}
+                    </dt>
+                    <dd class="fs-sm fw-medium text-muted mb-0">Tiket Ditugaskan</dd>
+                </dl>
+                <div class="item item-rounded-lg bg-body-light">
+                    <i class="fas fa-user-clock fs-3 text-info"></i>
+                </div>
+            </div>
+            <div class="bg-body-light rounded-bottom"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xxl-3">
+        <div class="block block-rounded d-flex flex-column h-100 mb-0">
+            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                <dl class="mb-0">
+                    <dt class="fs-3 fw-bold" id="completed-tickets">
+                        {{ $ticketStats['completed'] ?? 0 }}
+                    </dt>
+                    <dd class="fs-sm fw-medium text-muted mb-0">Tiket Selesai</dd>
+                </dl>
+                <div class="item item-rounded-lg bg-body-light">
+                    <i class="fas fa-check-circle fs-3 text-success"></i>
+                </div>
+            </div>
+            <div class="bg-body-light rounded-bottom"></div>
+        </div>
+    </div>
+</div>
 
             <div class="row">
                 <!-- Service Distribution Chart (New) -->
