@@ -1,347 +1,219 @@
-/* Search and Filter Container */
-.search-filter-container {
-    max-width: calc(100% - 270px); /* Adjust for 250px navbar + 20px margin */
-    margin-left: 260px; /* Push to the right of the navbar */
-    margin-bottom: 1.5rem;
-    padding: 0 10px;
+/* General Styles */
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #ebeef2;
+    margin: 0;
 }
 
-/* Search Filter Form */
-.search-filter-form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+#main-container {
+    padding: 20px; /* Padding untuk konten */
+    margin-top: 100px; /* Jarak dari header untuk kesan melayang */
+    margin-left: 280px; /* Jarak dari sidebar */
+    transition: margin-left 0.3s ease;
+    min-height: calc(100vh - 100px); /* Pastikan konten memenuhi tinggi layar */
 }
 
-/* Input Group */
-.input-group {
-    flex: 1;
-    position: relative;
+.sidebar-o #main-container {
+    margin-left: 280px;
 }
 
-.search-input {
-    border-radius: 6px 0 0 6px;
-    border-right: none;
-    padding: 8px 12px;
-    font-size: 14px;
-    transition: border-color 0.2s ease;
+.sidebar-o #sidebar {
+    transform: translateX(0);
 }
 
-.search-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    outline: none;
+#sidebar {
+    width: 250px;
+    background-color: #ebeef2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transition: transform 0.3s ease;
+    transform: translateX(-250px);
+    z-index: 1030;
 }
 
-.search-button {
-    border-radius: 0 6px 6px 0;
-    padding: 8px 12px;
-    background-color: #3b82f6;
-    border: 1px solid #3b82f6;
-    transition: background-color 0.2s ease;
-}
-
-.search-button:hover {
-    background-color: #2563eb;
-}
-
-/* Filter Group */
-.filter-group {
-    min-width: 200px;
-}
-
-.filter-select {
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 14px;
-    border-color: #e5e7eb;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.filter-select:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    outline: none;
-}
-
-/* Table Container */
-.table-responsive {
-    max-width: calc(100% - 270px); /* Adjust for 250px navbar + 20px margin */
-    margin-left: 260px; /* Push to the right of the navbar */
-    margin-right: 10px;
-    padding: 0 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* Table Styling */
-.table {
-    margin-bottom: 0;
+.card {
     background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Efek bayangan untuk kesan melayang */
+    margin-bottom: 20px; /* Jarak antar card */
+}
+
+.card-header {
+    padding: 10px 15px;
+    background-color: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 10px 15px;
+}
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.ticket-table {
+    width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    font-size: 0.85rem; /* Ukuran font lebih kecil */
 }
 
-.table th,
-.table td {
-    vertical-align: middle;
-    padding: 8px;
-    font-size: 14px;
-    line-height: 1.5;
-    border: 1px solid #e9ecef;
-}
-
-/* Table Header */
-.table thead th {
-    background-color: #f8f9fa;
-    color: #495057;
+.ticket-table thead th {
+    background-color: #f3f4f6;
+    border-bottom: 2px solid #e5e7eb;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #dee2e6;
+    letter-spacing: 0.05em;
+    padding: 6px 8px; /* Padding lebih kecil */
+    color: #1f2937;
+    font-size: 0.75rem; /* Ukuran font header lebih kecil */
 }
 
-/* Table Rows */
-.table tbody tr {
+.ticket-table tbody tr {
     transition: background-color 0.2s ease;
 }
 
-.table tbody tr:hover {
-    background-color: #f1f3f5;
+.ticket-table tbody tr:hover {
+    background-color: #f9fafb;
 }
 
-/* Status Badges */
-.ticket-status {
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 12px;
+.ticket-table tbody td {
+    padding: 6px 8px; /* Padding lebih kecil */
+    vertical-align: middle;
+    color: #1f2937;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.8rem; /* Ukuran font lebih kecil */
+}
+
+.ticket-table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9fafb;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 4px 6px; /* Padding lebih kecil */
+    border-radius: 10px;
     font-weight: 500;
+    font-size: 0.7rem; /* Ukuran font badge lebih kecil */
 }
 
-.ticket-status.badge-warning {
-    background-color: #fef3c7;
-    color: #92400e;
+.badge-warning {
+    background-color: #ffeb3b;
+    color: #1f2937;
 }
 
-.ticket-status.badge-info {
-    background-color: #bee3f8;
-    color: #1e40af;
+.badge-info {
+    background-color: #42a5f5;
+    color: #fff;
 }
 
-.ticket-status.badge-success {
-    background-color: #c6f6d5;
-    color: #1f9d55;
+.badge-success {
+    background-color: #66bb6a;
+    color: #fff;
 }
 
-/* Ticket Status Update */
-.ticket-status-update {
-    margin-top: 4px;
-}
-
-.ticket-status-update .form-control-sm {
-    font-size: 12px;
-    padding: 3px 6px;
-}
-
-/* Ticket Actions */
-.ticket-actions {
+/* Buttons */
+.btn-group {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
+    gap: 3px; /* Jarak antar tombol lebih kecil */
 }
 
-.ticket-actions .btn-sm {
-    font-size: 12px;
-    padding: 4px 10px;
+.btn-sm {
+    padding: 3px 6px; /* Padding lebih kecil */
+    font-size: 0.7rem; /* Ukuran font tombol lebih kecil */
     border-radius: 4px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.ticket-actions .btn-sm:hover {
-    transform: translateY(-1px);
-}
-
-.ticket-actions .btn-outline-primary {
-    border-color: #3b82f6;
-    color: #3b82f6;
-}
-
-.ticket-actions .btn-outline-primary:hover {
+.btn-primary.btn-sm {
     background-color: #3b82f6;
+    border-color: #3b82f6;
     color: #fff;
 }
 
-.ticket-actions .btn-outline-success {
-    border-color: #10b981;
-    color: #10b981;
+.btn-primary.btn-sm:hover {
+    background-color: #2563eb;
+    border-color: #2563eb;
 }
 
-.ticket-actions .btn-outline-success:hover {
+.btn-success.btn-sm {
     background-color: #10b981;
+    border-color: #10b981;
     color: #fff;
 }
 
-.ticket-actions .btn-outline-info {
-    border-color: #06b6d4;
-    color: #06b6d4;
+.btn-success.btn-sm:hover {
+    background-color: #059669;
+    border-color: #059669;
 }
 
-.ticket-actions .btn-outline-info:hover {
-    background-color: #06b6d4;
-    color: #fff;
+/* DataTables Custom Styles */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 10px;
 }
 
-.ticket-actions .btn-outline-warning {
-    border-color: #f59e0b;
-    color: #f59e0b;
+.dataTables_wrapper .dataTables_filter input {
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    padding: 4px 6px; /* Padding lebih kecil */
+    font-size: 0.8rem; /* Ukuran font lebih kecil */
 }
 
-.ticket-actions .btn-outline-warning:hover {
-    background-color: #f59e0b;
-    color: #fff;
+.dataTables_wrapper .dataTables_length select {
+    padding: 4px 6px; /* Padding lebih kecil */
+    font-size: 0.8rem; /* Ukuran font lebih kecil */
 }
 
-.ticket-actions .btn-outline-danger {
-    border-color: #ef4444;
-    color: #ef4444;
-}
-
-.ticket-actions .btn-outline-danger:hover {
-    background-color: #ef4444;
-    color: #fff;
-}
-
-/* Text Truncation */
-.table .text-truncate {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 991.98px) {
-    .search-filter-container {
-        max-width: 100%;
-        margin-left: 0;
-        padding: 0 5px;
-    }
-
-    .search-filter-form {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .input-group {
-        width: 100%;
-    }
-
-    .filter-group {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .table-responsive {
-        max-width: 100%;
-        margin-left: 0;
-        margin-right: 0;
-        padding: 0 5px;
-    }
-
-    .table thead th,
-    .table tbody td {
-        font-size: 12px;
-    }
-
-    .table .btn-sm {
-        font-size: 11px;
-        padding: 3px 8px;
-    }
-
-    .ticket-status {
-        font-size: 10px;
-        padding: 3px 6px;
-    }
-
-    .ticket-status-update .form-control-sm {
-        font-size: 11px;
-        padding: 2px 4px;
-    }
-}
-
-/* Pagination */
-.pagination {
-    margin-top: 20px;
-    justify-content: center;
-}
-
-.page-link {
+.dataTables_wrapper .dataTables_paginate .paginate_button {
     border-radius: 4px;
     margin: 0 2px;
-    color: #3b82f6;
-    border: 1px solid #e5e7eb;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    padding: 4px 6px; /* Padding lebih kecil */
+    font-size: 0.8rem; /* Ukuran font lebih kecil */
 }
 
-.page-link:hover {
-    background-color: #eff6ff;
-    color: #2563eb;
-}
-
-.page-item.active .page-link {
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
     background-color: #3b82f6;
     border-color: #3b82f6;
     color: #fff;
 }
 
-.custom-tabs {
-    max-width: calc(100% - 270px); /* Adjust for 250px navbar + 20px margin */
-    margin-left: 260px; /* Push to the right of the navbar */
-    margin-bottom: 1.5rem;
-    padding: 0 10px;
-    border-bottom: 2px solid #e5e7eb;
-    display: flex;
-    gap: 8px;
+.dataTables_wrapper .dataTables_info {
+    font-size: 0.8rem; /* Ukuran font lebih kecil */
+    padding-top: 8px;
 }
 
-.custom-tabs .nav-item {
-    margin-bottom: -2px;
-}
-
-.custom-tabs .nav-link {
-    position: relative;
-    padding: 10px 20px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #6b7280;
-    background-color: transparent;
-    border: none;
-    border-radius: 6px 6px 0 0;
-    transition: color 0.2s ease, background-color 0.2s ease;
-}
-
-.custom-tabs .nav-link:hover {
-    color: #3b82f6;
-    background-color: #f8fafc;
-}
-
-.custom-tabs .nav-link.active {
-    color: #3b82f6;
-    background-color: #fff;
-    border-bottom: 3px solid #3b82f6;
-}
-
-/* Responsive Adjustments for Tabs */
+/* Responsive Design */
 @media (max-width: 991.98px) {
-    .custom-tabs {
-        max-width: 100%;
+    #main-container {
         margin-left: 0;
-        padding: 0 5px;
-        flex-wrap: wrap;
+        margin-top: 80px; /* Kurangi margin-top pada layar kecil */
+        padding: 15px;
     }
 
-    .custom-tabs .nav-link {
-        padding: 8px 15px;
-        font-size: 14px;
+    .sidebar-o #main-container {
+        margin-left: 0;
+    }
+
+    .ticket-table thead th,
+    .ticket-table tbody td {
+        padding: 5px 6px; /* Padding lebih kecil pada layar kecil */
+        font-size: 0.7rem; /* Ukuran font lebih kecil pada layar kecil */
+    }
+
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        padding: 3px 5px; /* Padding lebih kecil pada layar kecil */
+        font-size: 0.7rem; /* Ukuran font lebih kecil pada layar kecil */
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\PegawaiDashboardController;
 use App\Http\Controllers\OperatorDashboardContorller;
 use App\Http\Controllers\SuperadminDashboardController;
 use App\Http\Controllers\WargaDashboardController;
+use App\Models\Service;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,13 +20,26 @@ use App\Http\Controllers\WargaDashboardController;
 |
 */
 
+
+Route::get('/service/{id}', function ($id) {
+    $service = Service::with('unit')->find($id);
+
+    if ($service && $service->category_id == 2 && $service->allow_guest == 1 && $service->status == 'active') {
+        return response()->json([
+            'id' => $service->id,
+            'unit_id' => $service->unit_id,
+        ]);
+    }
+
+    return response()->json(['error' => 'Service not found or not accessible'], 404);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     // Endpoint untuk Operator Dashboard
     Route::get('/ticket-stats', [OperatorDashboardContorller::class, 'ticketStats']);
     Route::get('/ticket-performance', [OperatorDashboardContorller::class, 'ticketPerformance']);
     Route::get('/ticket-categories', [OperatorDashboardContorller::class, 'ticketCategories']);
     Route::get('/resolution-times', [OperatorDashboardContorller::class, 'resolutionTimes']);
-    // Route::get('/ticket-locations', [OperatorDashboardContorller::class, 'ticketLocations']);
     Route::get('/recent-tickets', [OperatorDashboardContorller::class, 'recentTickets']);
     Route::get('/units', [OperatorDashboardContorller::class, 'units']);
     Route::get('/service-stats', [OperatorDashboardContorller::class, 'serviceStats']);
