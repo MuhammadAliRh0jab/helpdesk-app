@@ -38,7 +38,24 @@
         <div class="content">
             <div class="block block-rounded">
                 <div class="block-content block-content-full overflow-x-auto">
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" name="search" id="searchInput" class="form-control" placeholder="Cari berdasarkan kode atau judul..." value="{{ request('search') }}">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <select name="per_page" id="perPageSelect" class="form-select w-auto d-inline-block" style="width: auto;">
+                                <option value="5" {{ request('per_page', 10) == 5 ? 'selected' : '' }}>5 per halaman</option>
+                                <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ request('per_page', 10) == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            </select>
+                        </div>
+                    </div>
+                    <table class="table table-bordered table-striped table-vcenter" id="ticketsTable">
                         <thead>
                             <tr>
                                 <th class="text-center" style="width: 80px;">#</th>
@@ -54,7 +71,7 @@
                                 <th class="d-none d-sm-table-cell">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="ticketsBody">
                             @forelse($tickets as $ticket)
                                 <tr class="text-center">
                                     <td class="p-2 text-dark text-center">{{ ($tickets->currentPage() - 1) * $tickets->perPage() + $loop->iteration }}</td>
@@ -123,7 +140,7 @@
                                             @if ($ticket->status == 0)
                                                 <form action="{{ route('tickets.transfer', $ticket) }}" method="POST" id="transferForm-{{ $ticket->id }}" class="transfer-form">
                                                     @csrf
-                                                    <select name="unit_id" id="unit_id-{{ $ticket->id }}" class="form-select mb-2" required>
+                                                    <select name="unit_id" id="unit_id-{{ $ticket->id }}" class="form-select mb-2 unit-select" required>
                                                         <option value="">Pilih Unit</option>
                                                         @foreach (\App\Models\Unit::all() as $unit)
                                                             @if ($unit->id != $ticket->unit_id)
@@ -131,7 +148,7 @@
                                                             @endif
                                                         @endforeach
                                                     </select>
-                                                    <select name="service_id" id="service_id-{{ $ticket->id }}" class="form-select mb-2" required>
+                                                    <select name="service_id" id="service_id-{{ $ticket->id }}" class="form-select mb-2 service-select" required>
                                                         <option value="">Pilih Layanan</option>
                                                     </select>
                                                     <button type="submit" class="btn btn-warning btn-sm">Alihkan</button>
@@ -321,6 +338,9 @@
                             @endforelse
                         </tbody>
                     </table>
+                    <div class="d-flex justify-content-center mt-4" id="paginationLinks">
+                        {{ $tickets->links() }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -383,57 +403,216 @@
     font-size: 0.75rem;
     font-weight: 600;
 }
+
+/* Ensure pagination style matches the image */
+.pagination .page-item .page-link {
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    margin: 0 2px;
+}
+
+.pagination .page-item.active .page-link {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.pagination .page-item:first-child .page-link {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.pagination .page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    @forelse($tickets as $ticket)
-        const customBtn{{ $ticket->id }} = document.getElementById('custom-button-{{ $ticket->id }}');
-        const fileInput{{ $ticket->id }} = document.getElementById('images-{{ $ticket->id }}');
-        const fileName{{ $ticket->id }} = document.getElementById('file-name-{{ $ticket->id }}');
+    const searchInput = document.getElementById('searchInput');
+    const perPageSelect = document.getElementById('perPageSelect');
+    const ticketsBody = document.getElementById('ticketsBody');
+    const paginationLinks = document.getElementById('paginationLinks');
+    let debounceTimeout;
 
-        if (customBtn{{ $ticket->id }} && fileInput{{ $ticket->id }} && fileName{{ $ticket->id }}) {
-            customBtn{{ $ticket->id }}.addEventListener('click', function() {
-                fileInput{{ $ticket->id }}.click();
-            });
+    function debounce(func, delay) {
+        return function(...args) {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
 
-            fileInput{{ $ticket->id }}.addEventListener('change', function() {
-                if (fileInput{{ $ticket->id }}.files.length > 0) {
-                    if (fileInput{{ $ticket->id }}.files.length === 1) {
-                        fileName{{ $ticket->id }}.textContent = fileInput{{ $ticket->id }}.files[0].name;
-                    } else {
-                        fileName{{ $ticket->id }}.textContent = fileInput{{ $ticket->id }}.files.length + ' file dipilih';
-                    }
-                } else {
-                    fileName{{ $ticket->id }}.textContent = 'Tidak ada file dipilih';
+    function loadTickets(page = 1) {
+        const search = searchInput.value;
+        const perPage = perPageSelect.value;
+        const statusFilter = '{{ request('status_filter') }}';
+
+        fetch(`/tickets?page=${page}&search=${encodeURIComponent(search)}&status_filter=${statusFilter}&per_page=${perPage}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update table body
+            ticketsBody.innerHTML = '';
+            if (data.tickets.data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="${{{ auth()->user()->role_id == 2 ? 10 : 8 }}}" class="p-2 text-dark text-center">
+                        Tidak ada aduan yang ditemukan.
+                    </td>
+                `;
+                ticketsBody.appendChild(row);
+            } else {
+                data.tickets.data.forEach((ticket, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'text-center';
+                    row.innerHTML = `
+                        <td class="p-2 text-dark text-center">${(data.tickets.current_page - 1) * data.tickets.per_page + index + 1}</td>
+                        <td class="p-2 text-dark">${new Date(ticket.created_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                        <td class="p-2 text-dark">${ticket.ticket_code}</td>
+                        <td class="p-2 text-dark">${ticket.title}</td>
+                        <td class="p-2 text-dark">
+                            ${ticket.status == 0 ? '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>' :
+                              ticket.status == 1 ? '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info">Ditugaskan</span>' :
+                              '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Selesai</span>'}
+                        </td>
+                        <td class="p-2 text-dark">${ticket.service ? ticket.service.svc_name : 'Tidak ditentukan'}</td>
+                        @if (auth()->user()->role_id == 2)
+                            <td class="p-2">
+                                \${ticket.status != 2 ? \`
+                                    \${data.pics.length > 0 ? \`
+                                        <form action="/tickets/assign/\${ticket.id}" method="POST" class="mb-2">
+                                            <input type="hidden" name="_token" value="\${document.querySelector('meta[name="csrf-token"]').content}">
+                                            <select name="pic_id" class="form-select mb-2">
+                                                <option value="">Pilih PIC</option>
+                                                \${data.pics.map(pic => \`<option value="\${pic.id}">\${pic.username} (\${pic.pic_desc})</option>\`).join('')}
+                                            </select>
+                                            <button type="submit" class="btn btn-success btn-sm" title="Tugaskan PIC"><i class="far fa-user"></i></button>
+                                        </form>
+                                        \${ticket.pics && ticket.pics.some(pic => pic.ticket_pic && pic.ticket_pic.pic_stats === 'active') ? \`
+                                            <ul class="list-group list-group-flush text-dark">
+                                                \${ticket.pics.filter(pic => pic.ticket_pic && pic.ticket_pic.pic_stats === 'active').map(pic => \`
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                                        <p style="font-weight: 600; font-size: 14px; color: #333; background: #f1f3f5; padding: 4px 8px; border-radius: 4px; display: inline-block; margin: 0;">\${pic.user.username}</p>
+                                                        <form action="/tickets/removePic/\${ticket.id}" method="POST" class="d-inline">
+                                                            <input type="hidden" name="_token" value="\${document.querySelector('meta[name="csrf-token"]').content}">
+                                                            <input type="hidden" name="pic_id" value="\${pic.ticket_pic.pic_id}">
+                                                            <button type="submit" class="btn btn-sm btn-danger" title="Hapus PIC">
+                                                                <i class="fa fa-fw fa-trash-can"></i>
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                \`).join('')}
+                                            </ul>
+                                        \` : '<span class="text-muted">Belum ada PIC ditugaskan.</span>'}
+                                    \` : '<span class="text-danger">Tidak ada PIC tersedia untuk unit ini.</span>'}
+                                \` : '<span class="text-muted">Tiket sudah resolved</span>'}
+                            </td>
+                            <td class="p-2">
+                                \${ticket.status == 0 ? \`
+                                    <form action="/tickets/transfer/\${ticket.id}" method="POST" id="transferForm-\${ticket.id}" class="transfer-form">
+                                        <input type="hidden" name="_token" value="\${document.querySelector('meta[name="csrf-token"]').content}">
+                                        <select name="unit_id" id="unit_id-\${ticket.id}" class="form-select mb-2 unit-select" required>
+                                            <option value="">Pilih Unit</option>
+                                            \${data.units.filter(unit => unit.id !== ticket.unit_id).map(unit => \`<option value="\${unit.id}">\${unit.unit_name}</option>\`).join('')}
+                                        </select>
+                                        <select name="service_id" id="service_id-\${ticket.id}" class="form-select mb-2 service-select" required>
+                                            <option value="">Pilih Layanan</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-warning btn-sm">Alihkan</button>
+                                    </form>
+                                \` : '<span class="text-muted">Tidak dapat dialihkan</span>'}
+                            </td>
+                        @endif
+                        <td class="action-button p-2 text-center">
+                            <div class="mb-2">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-\${ticket.id}" title="Detail">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#chatModal-\${ticket.id}" title="Pesan">
+                                    <i class="fas fa-comments"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    ticketsBody.appendChild(row);
+                });
+            }
+
+            // Update pagination links with the full HTML
+            paginationLinks.innerHTML = data.pagination;
+
+            // Reattach transfer form event listeners
+            attachTransferFormListeners();
+        })
+        .catch(error => console.error('Error loading tickets:', error));
+    }
+
+    function attachTransferFormListeners() {
+        document.querySelectorAll('.transfer-form .unit-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const form = this.closest('form');
+                const serviceSelect = form.querySelector('.service-select');
+                const unitId = this.value;
+
+                serviceSelect.innerHTML = '<option value="">Pilih Layanan</option>';
+
+                if (unitId) {
+                    fetch(`/services?unit_id=${unitId}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(services => {
+                        services.forEach(service => {
+                            const option = document.createElement('option');
+                            option.value = service.id;
+                            option.textContent = service.svc_name;
+                            serviceSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching services:', error));
                 }
             });
+        });
+    }
+
+    // Auto-update on search input
+    searchInput.addEventListener('input', debounce(function() {
+        loadTickets(1);
+    }, 500));
+
+    // Update on per-page change
+    perPageSelect.addEventListener('change', function() {
+        loadTickets(1);
+    });
+
+    // Handle pagination clicks
+    paginationLinks.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (e.target.tagName === 'A' && !e.target.classList.contains('disabled')) {
+            const page = e.target.getAttribute('data-page') || new URL(e.target.href).searchParams.get('page');
+            loadTickets(page);
         }
+    });
 
-        // Initialize map when modal is shown
-        const modal{{ $ticket->id }} = document.getElementById('detailModal-{{ $ticket->id }}');
-        if (modal{{ $ticket->id }}) {
-            modal{{ $ticket->id }}.addEventListener('shown.bs.modal', function () {
-                @if ($ticket->latitude && $ticket->longitude)
-                    const map = L.map('map-{{ $ticket->id }}').setView([{{ $ticket->latitude }}, {{ $ticket->longitude }}], 13);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    }).addTo(map);
-
-                    // Set the default icon path
-                    delete L.Icon.Default.prototype._getIconUrl;
-                    L.Icon.Default.mergeOptions({
-                        iconRetinaUrl: '{{ asset('assets/leaflet/images/marker-icon-2x.png') }}',
-                        iconUrl: '{{ asset('assets/leaflet/images/marker-icon.png') }}',
-                        shadowUrl: '{{ asset('assets/leaflet/images/marker-shadow.png') }}'
-                    });
-
-                    const marker = L.marker([{{ $ticket->latitude }}, {{ $ticket->longitude }}]).addTo(map);
-                @endif
-            });
-        }
-    @empty
-    @endforelse
+    // Initial attachment of transfer form listeners
+    attachTransferFormListeners();
 });
 </script>
 @endsection
