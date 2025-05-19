@@ -11,136 +11,283 @@
 @endsection
 
 @section('content')
-<div class="page-content-wrapper py-3">
-
-    <div class="container">
-        <div class="card bg-primary my-3 bg-img shadow" style="background-image: url('{{ asset('mobile/img/core-img/1.png') }}')">
-            <div class="card-body p-4">
-                <h2 class="text-white">Dashboard</h2>
-                <h5 class="my-2 text-white">Selamat Datang, {{ Auth::user()->name }}!</h5>
-                <small class="text-white">Helpdesk DISKOMINFOTIK Kota Blitar | Sistem Pengaduan Dinas Komunikasi, Informatika, dan Statistik Kota Blitar</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="card shadow mb-3">
-            <div class="card-body p-4">
-                <!-- Judul -->
-                <h5 class="card-title mb-3">Semua Laporan Saya</h5>
-
-                <hr>
-
-                <!-- Daftar Status -->
-                <div class="list-group">
-                    <!-- Semua Status -->
-                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between bg-danger text-white mb-2 rounded">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-ticket fs-1 me-3"></i> <!-- Ikon tiket untuk Semua -->
-                            <div>
-                                <h6 class="mb-0 text-white">Semua</h6>
-                            </div>
-                        </div>
-                        <span class="badge bg-white text-danger p-2 fs-6">{{ $ticketStats['completed'] + $ticketStats['pending'] + $ticketStats['assigned'] }}</span>
-                    </a>
-
-                    <!-- Belum Direspon Status -->
-                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between bg-warning text-white mb-2 rounded">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-chat fs-1 me-3"></i> <!-- Ikon chat untuk Belum Direspon -->
-                            <div>
-                                <h6 class="mb-0 text-white">Belum Direspon</h6>
-                            </div>
-                        </div>
-                        <span class="badge bg-white text-warning p-2 fs-6">{{ $ticketStats['pending'] }}</span>
-                    </a>
-
-                    <!-- Direspon Status -->
-                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between bg-primary text-white mb-2 rounded">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-check-circle fs-1 me-3"></i> <!-- Ikon centang untuk Direspon -->
-                            <div>
-                                <h6 class="mb-0 text-white">Direspon</h6>
-                            </div>
-                        </div>
-                        <span class="badge bg-white text-primary p-2 fs-6">{{ $ticketStats['assigned'] }}</span>
-                    </a>
-
-                    <!-- Selesai Status -->
-                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between bg-success text-white rounded">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-hand-thumbs-up fs-1 me-3"></i> <!-- Ikon jempol untuk Selesai -->
-                            <div>
-                                <h6 class="mb-0 text-white">Selesai</h6>
-                            </div>
-                        </div>
-                        <span class="badge bg-white text-success p-2 fs-6">{{ $ticketStats['completed'] }}</span>
-                    </a>
+    <div class="page-content-wrapper py-3">
+        <div class="container">
+            <div class="card bg-primary my-3 bg-img shadow"
+                style="background-image: url('{{ asset('mobile/img/core-img/1.png') }}')">
+                <div class="card-body p-4">
+                    <h2 class="text-white">Dashboard Warga</h2>
+                    <h5 class="my-2 text-white">Selamat Datang, {{ Auth::user()->name }}! 👋😊</h5>
+                    <small class="text-white">Helpdesk Kota Blitar | Sistem Pengaduan Kota Blitar</small>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="container">
-        <div class="card shadow mb-3">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h5 class="card-title m-0">Tiket Terbaru</h5>
-                    <a class="btn m-1 rounded-pill btn-primary" href="{{ route('tickets.index')}}">Lihat Semua</a>
+        <!-- Statistic Cards -->
+        <div class="container">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="card shadow h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0 text-muted">Jumlah Aduan</h6>
+                                <h4 class="fw-bold mb-0" id="total-tickets">0</h4>
+                            </div>
+                            <div class="bg-light rounded-circle p-3">
+                                <i class="fas fa-ticket-alt fs-3 text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <hr>
-                <div class="table-responsive mt-3">
-                    <table class="table table-bordered align-items-center align-middle text-center mb-0">
-                        <thead>
-                            <tr class="text-nowrap">
-                                <th>No Tiket</th>
-                                <th>Judul Aduan</th>
-                                <th>Unit</th>
-                                <th>Layanan</th>
-                                <th>Status</th>
-                                <th>Dibuat</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if ($latestTicket)
+                <div class="col-6">
+                    <div class="card shadow h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0 text-muted">Aduan Pending</h6>
+                                <h4 class="fw-bold mb-0" id="pending-tickets">0</h4>
+                            </div>
+                            <div class="bg-light rounded-circle p-3">
+                                <i class="fas fa-hourglass-start fs-3 text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card shadow h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0 text-muted">Aduan Ditugaskan</h6>
+                                <h4 class="fw-bold mb-0" id="assigned-tickets">0</h4>
+                            </div>
+                            <div class="bg-light rounded-circle p-3">
+                                <i class="fas fa-user-clock fs-3 text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card shadow h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0 text-muted">Aduan Selesai</h6>
+                                <h4 class="fw-bold mb-0" id="completed-tickets">0</h4>
+                            </div>
+                            <div class="bg-light rounded-circle p-3">
+                                <i class="fas fa-check-circle fs-3 text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="container mt-4">
+            <div class="row g-3">
+                <!-- Ticket Stats Chart -->
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title m-0">Statistik Aduan</h5>
+                                <div class="dropdown" id="ticket-stats-time-range">
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-calendar me-1"></i> Rentang
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="javascript:void(0)"
+                                                data-time-range="day">Hari</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)"
+                                                data-time-range="week">Minggu</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)"
+                                                data-time-range="month">Bulan</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)"
+                                                data-time-range="year">Tahun</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)" data-time-range="10year">10
+                                                Tahun</a></li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)"
+                                                id="ticket-stats-custom-range">Kustom</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <input type="text" id="ticket-stats-date-picker" class="d-none"
+                                placeholder="Pilih Rentang Tanggal">
+                            <canvas id="ticketStatsChart" style="width: 100%; height: 200px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Distribution Chart -->
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5 class="card-title text-center mb-4">Distribusi Status Aduan</h5>
+                            <div class="d-flex justify-content-center">
+                                <div style="position: relative; width: 100%; max-width: 200px; height: 200px;">
+                                    <canvas id="ticketDistributionChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="row text-center mt-3">
+                                <div class="col-4 px-1">
+                                    <div class="fs-6 fw-semibold text-uppercase text-muted mb-1">Pending</div>
+                                    <div class="fs-4 fw-bold text-warning" id="pending-percent">0%</div>
+                                </div>
+                                <div class="col-4 px-1">
+                                    <div class="fs-6 fw-semibold text-uppercase text-muted mb-1">Ditugaskan</div>
+                                    <div class="fs-4 fw-bold text-info" id="assigned-percent">0%</div>
+                                </div>
+                                <div class="col-4 px-1">
+                                    <div class="fs-6 fw-semibold text-uppercase text-muted mb-1">Selesai</div>
+                                    <div class="fs-4 fw-bold text-success" id="completed-percent">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticket List -->
+        <div class="container mt-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="card-title m-0">Tiket Terbaru</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-filter me-1"></i>
+                                Filter Status
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-status="semua">Tampilkan
+                                        Semua</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-status="belum">Pending</a>
+                                </li>
+                                <li><a class="dropdown-item" href="javascript:void(0)"
+                                        data-status="direspon">Direspon</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-status="selesai">Selesai</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle text-center mb-0"
+                            id="ticket-list-table">
+                            <thead>
                                 <tr class="text-nowrap">
-                                    <td>{{ $latestTicket->ticket_code }}</td>
-                                    <td>{{ $latestTicket->title }}</td>
-                                    <td>{{ $latestTicket->original_unit_id ? \App\Models\Unit::find($latestTicket->original_unit_id)->unit_name : ($latestTicket->unit->unit_name ?? 'Tidak ditentukan') }}</td>
-                                    <td>{{ $latestTicket->service->svc_name ?? 'Tidak ditentukan' }}</td>
-                                    <td>
-                                        @if($latestTicket->status == 0) Belum Direspon
-                                        @elseif($latestTicket->status == 1) Direspon
-                                        @else Selesai
-                                        @endif
-                                    </td>
-                                    <td>{{ $latestTicket->created_at->format('d-m-Y H:i') }}</td>
+                                    <th>No</th>
+                                    <th>Kode Tiket</th>
+                                    <th>Judul</th>
+                                    <th>Layanan</th>
+                                    <th>Status</th>
                                 </tr>
-                            @else
+                            </thead>
+                            <tbody>
                                 <tr>
-                                    <td colspan="6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="alert alert-info m-0">
-                                                    Anda belum memiliki tiket. Silahkan buka halaman tiket dan klik Buat Aduan untuk membuat tiket.
-                                                </div>
-                                            </div>
+                                    <td colspan="6" class="text-center">
+                                        <div class="alert alert-info m-0">
+                                            Memuat data aduan...
                                         </div>
                                     </td>
                                 </tr>
-                            @endif
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a class="btn btn-sm btn-outline-info" href="{{ route('tickets.index') }}">
+                            <i class="fa fa-eye me-1"></i> Lihat Semua
+                        </a>
+                        <a class="btn btn-sm btn-primary" href="{{ route('tickets.create') }}">
+                            <i class="fa fa-plus me-1"></i> Buat Aduan
+                        </a>
+                    </div>
                 </div>
-                <hr>
             </div>
         </div>
+
+        <!-- Modal Template -->
+        <template id="ticketDetailModalTemplate">
+            <div class="modal fade" id="detailModal-ID_PLACEHOLDER" tabindex="-1"
+                aria-labelledby="detailModalLabel-ID_PLACEHOLDER" data-bs-backdrop="static" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="detailModalLabel-ID_PLACEHOLDER">Detail Tiket: <span
+                                    id="modal-ticket-code-ID_PLACEHOLDER"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Waktu Dibuat:</strong> <span id="modal-created-at-ID_PLACEHOLDER"></span></p>
+                            <p><strong>Kode Tiket:</strong> <span id="modal-ticket-code-ID_PLACEHOLDER"></span></p>
+                            <p><strong>Judul:</strong> <span id="modal-title-ID_PLACEHOLDER"></span></p>
+                            <p><strong>Status:</strong>
+                                <span id="modal-status-ID_PLACEHOLDER"
+                                    class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill"></span>
+                            </p>
+                            <p><strong>Layanan:</strong> <span id="modal-svc-name-ID_PLACEHOLDER"></span></p>
+                            <p><strong>Deskripsi:</strong> <span id="modal-description-ID_PLACEHOLDER"></span></p>
+                            <p><strong>Unit Asal:</strong> <span id="modal-original-unit-ID_PLACEHOLDER"></span></p>
+                            <p><strong>Unit Saat Ini:</strong> <span id="modal-unit-name-ID_PLACEHOLDER"></span></p>
+                            <div class="mt-3">
+                                <strong>Lokasi Aduan:</strong>
+                                <div class="d-flex flex-column gap-2 mt-2" id="modal-location-ID_PLACEHOLDER"></div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#chatModal-ID_PLACEHOLDER" title="Pesan">
+                                    <i class="fas fa-comments"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Chat Modal Template -->
+        <template id="chatModalTemplate">
+            <div class="modal fade" id="chatModal-ID_PLACEHOLDER" tabindex="-1"
+                aria-labelledby="chatModalLabel-ID_PLACEHOLDER" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="chatModalLabel-ID_PLACEHOLDER">Pesan untuk Tiket: <span
+                                    id="chat-ticket-code-ID_PLACEHOLDER"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Chat functionality to be implemented.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
     </div>
+@endsection
 
-</div>
+@section('scripts')
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        canvas {
+            max-height: 200px !important;
+        }
+    </style>
 @endsection
 
 @section('footer')
-  @include('mobile.master.footer')
+    @include('mobile.master.footer')
 @endsection

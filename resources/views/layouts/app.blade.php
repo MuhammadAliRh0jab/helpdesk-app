@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
@@ -21,12 +22,15 @@
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets2/media/favicons/apple-touch-icon-180x180.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="{{ asset('assets2/media/favicons/apple-touch-icon-180x180.png') }}">
 
     <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('assets2/js/plugins/datatables-bs5/css/dataTables.bootstrap5.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets2/js/plugins/datatables-buttons-bs5/css/buttons.bootstrap5.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets2/js/plugins/datatables-responsive-bs5/css/responsive.bootstrap5.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('assets2/js/plugins/datatables-buttons-bs5/css/buttons.bootstrap5.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('assets2/js/plugins/datatables-responsive-bs5/css/responsive.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <!-- OneUI framework -->
     <link rel="stylesheet" id="css-main" href="{{ asset('assets2/css/oneui.min.css') }}">
@@ -35,12 +39,13 @@
     <!-- Yield Additional Styles -->
     @yield('styles')
 </head>
+
 <body class="app-default">
     @include('layouts.partials.sidebar-layout.header._navbar')
     <div>
         @yield('content')
     </div>
-    
+
     <!-- jQuery -->
     <script src="{{ asset('assets2/js/lib/jquery.min.js') }}"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -63,7 +68,7 @@
     <script src="{{ asset('assets2/js/plugins/datatables-buttons/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets2/js/plugins/datatables-buttons/buttons.html5.min.js') }}"></script>
     {{-- <script src="{{ asset('assets2/js/plugins/datatables/jquery.dataTables.min.js') }}"></script> --}}
-    
+
     <!-- Page JS Code -->
     <script src="{{ asset('assets2/js/pages/be_tables_datatables.min.js') }}"></script>
     <script src="{{ asset('assets2/js/chat.js') }}"></script>
@@ -78,16 +83,16 @@
 
     <!-- Sidebar Toggle Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
 
             if (sidebar && sidebarToggle) {
-                sidebarToggle.addEventListener('click', function () {
+                sidebarToggle.addEventListener('click', function() {
                     sidebar.classList.toggle('active');
                 });
 
-                document.addEventListener('click', function (event) {
+                document.addEventListener('click', function(event) {
                     const isClickInsideSidebar = sidebar.contains(event.target);
                     const isClickToggle = sidebarToggle.contains(event.target);
 
@@ -108,7 +113,7 @@
             margin-bottom: 5rem;
             background-color: #ebeef2;
         }
-        
+
         .flatpickr-calendar {
             z-index: 9999 !important;
         }
@@ -123,7 +128,8 @@
             border-bottom: 1px solid #e0e0e0;
         }
 
-        #recent-tickets-table td, #recent-tickets-table th {
+        #recent-tickets-table td,
+        #recent-tickets-table th {
             padding: 12px 16px;
             font-size: 14px;
         }
@@ -133,10 +139,12 @@
             .block-content {
                 padding: 10px;
             }
+
             .fs-3 {
                 font-size: 1.5rem;
             }
         }
     </style>
 </body>
+
 </html>

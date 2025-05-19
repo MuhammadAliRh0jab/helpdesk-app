@@ -3865,12 +3865,7 @@ a.affan-element-item:hover, a.affan-element-item:focus {
   max-width: 22rem;
 }
 .single-chat-item .user-message .message-content {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  display: block;
   margin-bottom: 0.25rem;
 }
 .single-chat-item .user-message .download-file-wrap {
@@ -3930,17 +3925,26 @@ a.affan-element-item:hover, a.affan-element-item:focus {
 }
 .single-chat-item .user-message .single-message {
   display: block;
+  margin-bottom: 0.5rem;
+}
+.single-chat-item .user-message .single-message:last-child {
+  margin-bottom: 0;
 }
 .single-chat-item .user-message .single-message p {
+  display: inline-block;
   padding: 8px 12px;
-  background-color: var(--white);
-  border-radius: 18px;
+  background-color: #e6e5eb;
+  border-radius: 10px;
+  color: black;
   font-size: 14px;
   margin-bottom: 0;
 }
 .single-chat-item .user-message .single-message img {
   border-radius: 12px;
   max-width: 120px;
+}
+.single-chat-item .user-message .single-message .gallery-img {
+  display: block;
 }
 .single-chat-item .user-message .single-message .typing {
   background-color: var(--white);
@@ -3988,6 +3992,23 @@ a.affan-element-item:hover, a.affan-element-item:focus {
   font-size: 10px;
   font-weight: 500;
   margin-left: 0.5rem;
+  color: black;
+}
+.single-chat-item .user-message .message-sender-name {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.single-chat-item .user-message .message-sender-name .sender-name {
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 0.5rem;
+  color: black;
 }
 .single-chat-item .user-message .message-time-status .sent-status {
   font-size: 10px;
@@ -4055,7 +4076,7 @@ a.affan-element-item:hover, a.affan-element-item:focus {
   display: flex;
   -webkit-box-align: center;
       -ms-flex-align: center;
-          align-items: center;
+          align-items: inducenter;
   padding: 0.25rem 0;
   font-size: 12px;
 }
@@ -4085,18 +4106,23 @@ a.affan-element-item:hover, a.affan-element-item:focus {
   max-width: 22rem;
 }
 .single-chat-item.outgoing .user-message .message-content {
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: reverse;
-      -ms-flex-direction: row-reverse;
-          flex-direction: row-reverse;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
   margin-bottom: 0.25rem;
 }
 .single-chat-item.outgoing .user-message .message-content:last-child {
   margin-bottom: 0;
 }
 .single-chat-item.outgoing .user-message .single-message p {
-  background-color: var(--primary-950);
+  display: inline-block; /* Changed to inline-block to fit text content */
+  background-color: #007aff;
   color: var(--white);
+  padding: 8px 12px; /* Maintained for bubble appearance */
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 0;
 }
 .single-chat-item.outgoing .user-message .message-time-status {
   -webkit-box-pack: end;
@@ -4106,12 +4132,7 @@ a.affan-element-item:hover, a.affan-element-item:focus {
 .single-chat-item.outgoing .dropdown-menu {
   background-color: var(--primary-950);
 }
-.single-chat-item.outgoing .dropdown-menu a {
-  color: var(--white);
-}
-.single-chat-item.outgoing .dropdown-menu a:hover, .single-chat-item.outgoing .dropdown-menu a:focus {
-  color: var(--warning-500);
-}
+
 
 .chat-footer {
   position: fixed;
@@ -4220,6 +4241,43 @@ a.affan-element-item:hover, a.affan-element-item:focus {
 }
 .chat-footer .dropdown-menu a:hover, .chat-footer .dropdown-menu a:focus {
   color: var(--primary-950);
+}
+
+.chat-bubble {
+    max-width: 80%;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 15px;
+    position: relative;
+}
+.chat-bubble.left {
+    background-color: #e9ecef; /* Abu-abu untuk operator/pegawai */
+    margin-left: 10px;
+    float: left;
+    clear: both;
+}
+.chat-bubble.right {
+    background-color: #d4edda; /* Hijau muda untuk pengadu */
+    margin-right: 10px;
+    float: right;
+    clear: both;
+}
+.chat-bubble .sender {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.chat-bubble .time {
+    font-size: 0.8em;
+}
+.chat-bubble .message {
+    margin: 5px 0;
+}
+.chat-bubble .uploads img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-top: 5px;
 }
 
 .video-calling-popup-wrap {
@@ -8512,6 +8570,12 @@ form .btn-lg {
   color: var(--warning-500);
   background-color: transparent;
 }
+[data-theme=dark] .single-chat-item .user-message .message-sender-name .sender-name{
+    color: var(--white);
+}
+[data-theme=dark] .single-chat-item .user-message .message-time-status .sent-time{
+    color: var(--white);
+}
 [data-theme=dark] .chat-user-list li:last-child {
   border-bottom: 0;
 }
@@ -8522,10 +8586,11 @@ form .btn-lg {
   color: var(--white);
 }
 [data-theme=dark] .single-chat-item .user-message .single-message p {
-  background-color: var(--dark-secondary);
+  background-color: #262629;
+  color: var(--white);
 }
 [data-theme=dark] .single-chat-item.outgoing .user-message .single-message p {
-  background-color: var(--primary-950);
+  background-color: #0a84ff;
   color: var(--white);
 }
 [data-theme=dark] .single-chat-item .user-message .download-file-wrap {
