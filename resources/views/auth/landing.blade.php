@@ -20,6 +20,7 @@
         html,
         body {
             font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
         }
 
         h1,
@@ -185,6 +186,47 @@
         .form-section.visible {
             display: block;
         }
+
+        @media (max-width: 1200px) {
+            html, body{
+                font-size: 14px;
+                /* overflow: hidden; */
+            }
+
+            .col-12 img{
+                max-width: 60%;
+                max-height: auto;
+            }
+
+            .col-12 h1{
+                font-size: 20px !important;
+            }
+            .col-12 p{
+                font-size: 12px !important;
+                padding: 30px 0 30px 0;
+            }
+
+            h2{
+                font-size: 20px !important;
+            }
+
+            h3{
+                font-size: 14px !important;
+                padding: 10px;
+            }
+            h4,h5{
+                font-size: 14px !important;
+            }
+            .card-account button{
+                width: 5cm !important;
+                height: 1cm !important;
+                font-size: 13px !important;
+            }
+            .col-md-4 img{
+                max-width: 50%;
+                max-height: auto;
+            }
+        }
     </style>
 </head>
 
@@ -197,7 +239,7 @@
                     class="img-fluid" style="width: 150px; height: auto;">
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-content" aria-controls="nav-content" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon text-light"></span>
             </button>
             <div class="collapse navbar-collapse" id="nav-content">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -370,11 +412,11 @@
         <div class="card-account text-center py-5 mb-5 text-dark">
             <h2 class="display-4 fw-bold my-3" data-aos="fade-down" data-aos-duration="3000">Buat Akun Sekarang</h2>
             <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8;" data-aos="fade-down" data-aos-duration="3000"></div>
-            <h3 class="h3 my-4" data-aos="zoom-in" data-aos-duration="3000">Buat akun dan sampaikan aduan Anda hari ini atau buat lapor aduan sebagai Tamu!</h3> <br><br>
-            <button class="btn btn-primary text-white fw-bold rounded-pill py-2 shadow" onclick="window.location.href='{{ route('register') }}'" data-aos="fade-up" data-aos-duration="3000" style="width: 8cm; height: 2cm; font-size: 20px; margin-right: 8rem;">
+            <h3 class="h3 my-4" data-aos="zoom-in" data-aos-duration="3000">Buat akun dan sampaikan aduan Anda hari ini atau buat lapor aduan sebagai Tamu!</h3> <br><br><br>
+            <button class="btn btn-primary text-white fw-bold rounded-pill py-2 shadow mb-3" onclick="window.location.href='{{ route('register') }}'" data-aos="fade-up" data-aos-duration="3000" style="width: 8cm; height: 2cm; font-size: 20px;">
                 Buat Akun
             </button>
-            <button class="btn btn-primary text-white fw-bold rounded-pill py-2 shadow" onclick="window.location.href='{{ route('guest') }}'" data-aos="fade-up" data-aos-duration="3000" style="width: 8cm; height: 2cm; font-size: 20px;">
+            <button class="btn btn-primary text-white fw-bold rounded-pill py-2 shadow  mb-3" onclick="window.location.href='{{ route('guest') }}'" data-aos="fade-up" data-aos-duration="3000" style="width: 8cm; height: 2cm; font-size: 20px;">
                 Lapor Sebagai Tamu
             </button>
         </div>

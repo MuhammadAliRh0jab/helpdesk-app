@@ -20,6 +20,8 @@
         html,
         body {
             font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+
         }
 
         h1,
@@ -140,6 +142,58 @@
             background-color: #dc3545;
             border-color: #dc3545;
         }
+
+        @media (max-width: 1200px) {
+
+            html,
+            body {
+                font-size: 14px;
+                /* overflow: hidden; */
+            }
+
+            .col-12 img {
+                max-width: 60%;
+                max-height: auto;
+            }
+
+            .col-12 h1 {
+                font-size: 20px !important;
+            }
+
+            .col-12 p {
+                font-size: 12px !important;
+                padding: 30px 0 30px 0;
+            }
+
+            h2 {
+                font-size: 20px !important;
+            }
+
+            h3 {
+                font-size: 14px !important;
+                padding: 10px;
+            }
+
+            h4,
+            h5 {
+                font-size: 14px !important;
+            }
+
+            .card-account button {
+                width: 5cm !important;
+                height: 1cm !important;
+                font-size: 13px !important;
+            }
+
+            .col-md-4 img {
+                max-width: 50%;
+                max-height: auto;
+            }
+
+            .d-flex button {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 
@@ -206,35 +260,35 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
                     @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
                     @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
-                            <ul class="mb-0 mt-2">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
                     <div class="card shadow border-0 rounded-lg" data-aos="fade-up" data-aos-duration="1000">
                         <h4 class="card-header bg-primary text-white py-3" id="form-title">
-    <i class="fas fa-edit me-2"></i>Form Aduan
-</h4>
+                            <i class="fas fa-edit me-2"></i>Form Aduan
+                        </h4>
                         <div class="card-body p-4">
                             <div class="service-list">
                                 <div class="mb-4">
@@ -258,14 +312,14 @@
                                             Unit:</span>
                                         <div class="unit-pills">
                                             @php
-                                                $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
+                                            $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
                                             @endphp
                                             @foreach($units as $unitName => $unitId)
-                                                <button onclick="scrollToUnit({{ $unitId }})"
-                                                    class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
-                                                    aria-label="Pilih unit {{ $unitName }}">
-                                                    {{ $unitName }}
-                                                </button>
+                                            <button onclick="scrollToUnit({{ $unitId }})"
+                                                class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
+                                                aria-label="Pilih unit {{ $unitName }}">
+                                                {{ $unitName }}
+                                            </button>
                                             @endforeach
                                         </div>
                                     </div>
@@ -274,51 +328,51 @@
                                 <!-- Daftar Unit dengan Layanan -->
                                 <div class="scrolling-units" id="service-list-content">
                                     @foreach($units as $unitName => $unitId)
-                                        <div id="unit-{{ $unitId }}" class="unit-section mb-4">
-                                            <div class="unit-header">
-                                                <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
-                                                    <i class="fas fa-building me-2 text-primary"></i>
-                                                    <span>{{ $unitName }}</span>
-                                                    <div class="ms-auto">
-                                                        <span class="badge bg-primary rounded-pill">
-                                                            {{ $services->where('unit_id', $unitId)->count() }} Layanan
-                                                        </span>
-                                                    </div>
-                                                </h4>
-                                            </div>
-                                            <div class="row row-cols-1 row-cols-md-3 g-3">
-                                                @foreach ($services->where('unit_id', $unitId) as $service)
-                                                    <div class="col service-item">
-                                                        <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
-                                                            <div class="card-body p-4">
-                                                                <button
-                                                                    onclick="selectService({{ $service->id ?? 0 }}, {{ $service->unit_id ?? 0 }})"
-                                                                    class="btn btn-link text-decoration-none p-0 w-100 text-start"
-                                                                    aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 me-3">
-                                                                            <div
-                                                                                class="bg-light text-primary rounded-circle p-3">
-                                                                                <i class="fas fa-concierge-bell fa-fw"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="flex-grow-1">
-                                                                            <h5 class="mb-1">{{ $service->svc_name }}</h5>
-                                                                            <div class="text-muted small">
-                                                                                {{ $service->unit->unit_name }}
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="flex-shrink-0 ms-2">
-                                                                            <i class="fas fa-chevron-right text-muted"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
+                                    <div id="unit-{{ $unitId }}" class="unit-section mb-4">
+                                        <div class="unit-header">
+                                            <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
+                                                <i class="fas fa-building me-2 text-primary"></i>
+                                                <span>{{ $unitName }}</span>
+                                                <div class="ms-auto">
+                                                    <span class="badge bg-primary rounded-pill">
+                                                        {{ $services->where('unit_id', $unitId)->count() }} Layanan
+                                                    </span>
+                                                </div>
+                                            </h4>
                                         </div>
+                                        <div class="row row-cols-1 row-cols-md-3 g-3">
+                                            @foreach ($services->where('unit_id', $unitId) as $service)
+                                            <div class="col service-item">
+                                                <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
+                                                    <div class="card-body p-4">
+                                                        <button
+                                                            onclick="selectService({{ $service->id ?? 0 }}, {{ $service->unit_id ?? 0 }})"
+                                                            class="btn btn-link text-decoration-none p-0 w-100 text-start"
+                                                            aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="flex-shrink-0 me-3">
+                                                                    <div
+                                                                        class="bg-light text-primary rounded-circle p-3">
+                                                                        <i class="fas fa-concierge-bell fa-fw"></i>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <h5 class="mb-1">{{ $service->svc_name }}</h5>
+                                                                    <div class="text-muted small">
+                                                                        {{ $service->unit->unit_name }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex-shrink-0 ms-2">
+                                                                    <i class="fas fa-chevron-right text-muted"></i>
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                     @endforeach
                                 </div>
                             </div>
@@ -338,7 +392,7 @@
                                                 <label for="guest_name"><i class="fas fa-user me-2"></i>Nama
                                                     Lengkap</label>
                                                 @error('guest_name')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -350,7 +404,7 @@
                                                 <label for="guest_email"><i
                                                         class="fas fa-envelope me-2"></i>Email</label>
                                                 @error('guest_email')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -361,7 +415,7 @@
                                             placeholder="Judul Aduan" value="{{ old('title') }}" required>
                                         <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
                                         @error('title')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -372,7 +426,7 @@
                                         <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi
                                             Masalah</label>
                                         @error('description')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -392,7 +446,7 @@
                                                     <label for="latitude"><i
                                                             class="fas fa-globe me-2"></i>Latitude</label>
                                                     @error('latitude')
-                                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -404,7 +458,7 @@
                                                     <label for="longitude"><i
                                                             class="fas fa-globe me-2"></i>Longitude</label>
                                                     @error('longitude')
-                                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -418,24 +472,24 @@
 
                                     <!-- Bagian Upload File dengan Pratinjau -->
                                     <div class="mb-4">
-    <label for="images" class="form-label fw-bold"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
-    <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light" id="dropzone">
-        <div class="d-flex flex-column align-items-center">
-            <i class="fas fa-cloud-upload-alt text-primary fa-3x mb-3"></i>
-            <p class="mb-2">Klik atau seret file ke sini</p>
-            <p class="text-muted small mb-0" id="fileNames">Tidak ada file dipilih</p>
-        </div>
-        <input type="file" name="images[]" id="images" multiple class="d-none" accept="image/*">
-    </div>
-    @error('images')
-        <div class="text-danger small mt-1">{{ $message }}</div>
-    @enderror
-    <!-- Area untuk pratinjau gambar -->
-    <div id="preview-container" class="row mt-3"></div>
-    <div class="form-text">
-        <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF (maks 2MB per file)
-    </div>
-</div>
+                                        <label for="images" class="form-label fw-bold"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
+                                        <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light" id="dropzone">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="fas fa-cloud-upload-alt text-primary fa-3x mb-3"></i>
+                                                <p class="mb-2">Klik atau seret file ke sini</p>
+                                                <p class="text-muted small mb-0" id="fileNames">Tidak ada file dipilih</p>
+                                            </div>
+                                            <input type="file" name="images[]" id="images" multiple class="d-none" accept="image/*">
+                                        </div>
+                                        @error('images')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <!-- Area untuk pratinjau gambar -->
+                                        <div id="preview-container" class="row mt-3"></div>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF (maks 2MB per file)
+                                        </div>
+                                    </div>
 
                                     <div class="d-flex justify-content-between gap-3">
                                         <button type="button" @click="$store.form.showServices = true"
@@ -518,42 +572,59 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="{{ asset('assets/js/cdn.js') }}"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var navbar = document.getElementById("header");
+            var logo = document.getElementById("nav-logo");
+
+            window.addEventListener("scroll", function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add("scrolled");
+                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-black.png') }}";
+                } else {
+                    navbar.classList.remove("scrolled");
+                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
+                }
+            });
+        })
+    </script>
     <script>
         // Global selectService function
         function selectService(serviceId, unitId) {
-    console.log('selectService called with serviceId:', serviceId, 'unitId:', unitId);
-    // Update hidden input fields
-    const serviceInput = document.querySelector('input[name="service_id"]');
-    const unitInput = document.querySelector('input[name="unit_id"]');
-    if (serviceInput && unitInput) {
-        serviceInput.value = serviceId;
-        unitInput.value = unitId;
-    } else {
-        console.error('Hidden input fields for service_id or unit_id not found');
-        return;
-    }
-    // Toggle visibility
-    const serviceList = document.querySelector('.service-list');
-    const formSection = document.querySelector('.form-section');
-    if (serviceList && formSection) {
-        serviceList.classList.add('hidden');
-        formSection.classList.add('visible');
-        formSection.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-        // Refresh AOS animations
-        if (typeof AOS !== 'undefined') {
-            AOS.refresh();
-        }
-    } else {
-        console.error('Service list or form section not found in DOM');
-    }
+            console.log('selectService called with serviceId:', serviceId, 'unitId:', unitId);
+            // Update hidden input fields
+            const serviceInput = document.querySelector('input[name="service_id"]');
+            const unitInput = document.querySelector('input[name="unit_id"]');
+            if (serviceInput && unitInput) {
+                serviceInput.value = serviceId;
+                unitInput.value = unitId;
+            } else {
+                console.error('Hidden input fields for service_id or unit_id not found');
+                return;
+            }
+            // Toggle visibility
+            const serviceList = document.querySelector('.service-list');
+            const formSection = document.querySelector('.form-section');
+            if (serviceList && formSection) {
+                serviceList.classList.add('hidden');
+                formSection.classList.add('visible');
+                formSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                // Refresh AOS animations
+                if (typeof AOS !== 'undefined') {
+                    AOS.refresh();
+                }
+            } else {
+                console.error('Service list or form section not found in DOM');
+            }
 
-    // Ambil nama layanan dari elemen yang dipilih
-    const serviceName = document.querySelector(`button[onclick*="selectService(${serviceId}, ${unitId})"]`).textContent.trim();
-    updateFormTitle(serviceName); // Panggil fungsi untuk mengubah judul form
-}
+            // Ambil nama layanan dari elemen yang dipilih
+            const serviceName = document.querySelector(`button[onclick*="selectService(${serviceId}, ${unitId})"]`).textContent.trim();
+            updateFormTitle(serviceName); // Panggil fungsi untuk mengubah judul form
+        }
 
         // Global scrollToUnit function (for unit pills)
         function scrollToUnit(unitId) {
@@ -645,9 +716,9 @@
                     this.selectedFiles = Array.from(files); // Simpan file yang dipilih
 
                     if (files.length > 0) {
-                        fileNamesElement.textContent = files.length === 1
-                            ? files[0].name
-                            : `${files.length} file dipilih`;
+                        fileNamesElement.textContent = files.length === 1 ?
+                            files[0].name :
+                            `${files.length} file dipilih`;
 
                         // Tampilkan pratinjau untuk setiap file
                         Array.from(files).forEach((file, index) => {
@@ -690,11 +761,11 @@
 
                     // Perbarui teks jumlah file
                     const fileNamesElement = document.getElementById('fileNames');
-                    fileNamesElement.textContent = this.selectedFiles.length === 0
-                        ? 'Tidak ada file dipilih'
-                        : this.selectedFiles.length === 1
-                            ? this.selectedFiles[0].name
-                            : `${this.selectedFiles.length} file dipilih`;
+                    fileNamesElement.textContent = this.selectedFiles.length === 0 ?
+                        'Tidak ada file dipilih' :
+                        this.selectedFiles.length === 1 ?
+                        this.selectedFiles[0].name :
+                        `${this.selectedFiles.length} file dipilih`;
 
                     // Perbarui pratinjau
                     const previewContainer = document.getElementById('preview-container');
@@ -727,7 +798,7 @@
         });
 
         // Map initialization and observer
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             let mapInstance = null;
 
             function initializeOrRefreshMap() {
@@ -758,7 +829,7 @@
                         draggable: true
                     }).addTo(mapInstance);
 
-                    marker.on('dragend', function (e) {
+                    marker.on('dragend', function(e) {
                         const position = marker.getLatLng();
                         document.getElementById('latitude').value = position.lat.toFixed(6);
                         document.getElementById('longitude').value = position.lng.toFixed(6);
@@ -771,8 +842,8 @@
                 }, 300);
             }
 
-            const observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
                     if (mutation.target.classList.contains('visible')) {
                         setTimeout(initializeOrRefreshMap, 250);
                     }
@@ -790,7 +861,7 @@
             // Initialize geolocation
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    function (position) {
+                    function(position) {
                         document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
                         document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
                         if (mapInstance) {
@@ -808,7 +879,7 @@
                             }
                         }
                     },
-                    function (error) {
+                    function(error) {
                         console.warn('Geolocation error:', error);
                     }
                 );
@@ -832,7 +903,9 @@
                 e.preventDefault();
                 dropzone.classList.remove('border-primary', 'bg-primary-subtle');
                 input.files = e.dataTransfer.files;
-                const event = new Event('change', { bubbles: true });
+                const event = new Event('change', {
+                    bubbles: true
+                });
                 input.dispatchEvent(event);
             });
         });
@@ -841,23 +914,23 @@
         AOS.init();
     </script>
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('images');
-    const dropzone = document.getElementById('dropzone');
-    const fileNamesElement = document.getElementById('fileNames');
-    const previewContainer = document.getElementById('preview-container');
-    let selectedFiles = [];
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('images');
+            const dropzone = document.getElementById('dropzone');
+            const fileNamesElement = document.getElementById('fileNames');
+            const previewContainer = document.getElementById('preview-container');
+            let selectedFiles = [];
 
-    function renderPreview() {
-        previewContainer.innerHTML = '';
+            function renderPreview() {
+                previewContainer.innerHTML = '';
 
-        selectedFiles.forEach((file, index) => {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const col = document.createElement('div');
-                    col.className = 'col-6 col-md-3 mb-3';
-                    col.innerHTML = `
+                selectedFiles.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const col = document.createElement('div');
+                            col.className = 'col-6 col-md-3 mb-3';
+                            col.innerHTML = `
                         <div class="position-relative">
                             <img src="${e.target.result}" 
                                  class="img-fluid rounded shadow-sm" 
@@ -871,89 +944,91 @@ document.addEventListener('DOMContentLoaded', () => {
                             </button>
                             <small class="d-block text-muted mt-1 text-center">${file.name}</small>
                         </div>`;
-                    previewContainer.appendChild(col);
-                };
-                reader.readAsDataURL(file);
+                            previewContainer.appendChild(col);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
             }
+
+            function updateFileNamesAndPreview(event) {
+                const files = event.target.files;
+                if (files.length > 0) {
+                    selectedFiles = [...selectedFiles, ...Array.from(files)];
+
+                    fileNamesElement.textContent = selectedFiles.length === 1 ?
+                        selectedFiles[0].name :
+                        `${selectedFiles.length} file dipilih`;
+
+                    renderPreview();
+                } else {
+                    fileNamesElement.textContent = 'Tidak ada file dipilih';
+                    previewContainer.innerHTML = '';
+                }
+            }
+
+            window.removeFile = function(index) {
+                selectedFiles.splice(index, 1);
+
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                input.files = dataTransfer.files;
+
+                fileNamesElement.textContent = selectedFiles.length === 0 ?
+                    'Tidak ada file dipilih' :
+                    selectedFiles.length === 1 ?
+                    selectedFiles[0].name :
+                    `${selectedFiles.length} file dipilih`;
+
+                renderPreview();
+            };
+
+            window.openModal = function(imageUrl) {
+                const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                document.getElementById('modalImage').src = imageUrl;
+                modal.show();
+            };
+
+            // Input file change event
+            input?.addEventListener('change', updateFileNamesAndPreview);
+
+            // Drag-and-drop functionality
+            dropzone?.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('border-primary', 'bg-primary-subtle');
+            });
+
+            dropzone?.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-primary', 'bg-primary-subtle');
+            });
+
+            dropzone?.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-primary', 'bg-primary-subtle');
+
+                const droppedFiles = Array.from(e.dataTransfer.files);
+                const dataTransfer = new DataTransfer();
+                [...selectedFiles, ...droppedFiles].forEach(file => dataTransfer.items.add(file));
+                input.files = dataTransfer.files;
+
+                const changeEvent = new Event('change', {
+                    bubbles: true
+                });
+                input.dispatchEvent(changeEvent);
+            });
+
+            dropzone?.addEventListener('click', () => input?.click());
+
+            // Function to update form title
+            window.updateFormTitle = function(serviceName) {
+                const formTitle = document.getElementById('form-title');
+                if (formTitle) {
+                    formTitle.textContent = `Form Aduan ${serviceName}`;
+                }
+            };
         });
-    }
-
-    function updateFileNamesAndPreview(event) {
-        const files = event.target.files;
-        if (files.length > 0) {
-            selectedFiles = [...selectedFiles, ...Array.from(files)];
-
-            fileNamesElement.textContent = selectedFiles.length === 1
-                ? selectedFiles[0].name
-                : `${selectedFiles.length} file dipilih`;
-
-            renderPreview();
-        } else {
-            fileNamesElement.textContent = 'Tidak ada file dipilih';
-            previewContainer.innerHTML = '';
-        }
-    }
-
-    window.removeFile = function(index) {
-        selectedFiles.splice(index, 1);
-
-        const dataTransfer = new DataTransfer();
-        selectedFiles.forEach(file => dataTransfer.items.add(file));
-        input.files = dataTransfer.files;
-
-        fileNamesElement.textContent = selectedFiles.length === 0
-            ? 'Tidak ada file dipilih'
-            : selectedFiles.length === 1
-                ? selectedFiles[0].name
-                : `${selectedFiles.length} file dipilih`;
-
-        renderPreview();
-    };
-
-    window.openModal = function(imageUrl) {
-        const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-        document.getElementById('modalImage').src = imageUrl;
-        modal.show();
-    };
-
-    // Input file change event
-    input?.addEventListener('change', updateFileNamesAndPreview);
-
-    // Drag-and-drop functionality
-    dropzone?.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('border-primary', 'bg-primary-subtle');
-    });
-
-    dropzone?.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('border-primary', 'bg-primary-subtle');
-    });
-
-    dropzone?.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('border-primary', 'bg-primary-subtle');
-
-        const droppedFiles = Array.from(e.dataTransfer.files);
-        const dataTransfer = new DataTransfer();
-        [...selectedFiles, ...droppedFiles].forEach(file => dataTransfer.items.add(file));
-        input.files = dataTransfer.files;
-
-        const changeEvent = new Event('change', { bubbles: true });
-        input.dispatchEvent(changeEvent);
-    });
-
-    dropzone?.addEventListener('click', () => input?.click());
-
-    // Function to update form title
-    window.updateFormTitle = function(serviceName) {
-        const formTitle = document.getElementById('form-title');
-        if (formTitle) {
-            formTitle.textContent = `Form Aduan ${serviceName}`;
-        }
-    };
-});
-</script>
+    </script>
 
 </body>
 
