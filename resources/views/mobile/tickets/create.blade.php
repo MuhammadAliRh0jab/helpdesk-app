@@ -42,6 +42,7 @@
                             latitude: null,
                             longitude: null,
                             mapInitialized: false,
+                            images: [], // Array to store Base64 images
                             scrollToUnit(unitId) {
                                 const unitElement = document.getElementById('unit-' + unitId);
                                 if (unitElement) {
@@ -61,7 +62,7 @@
                                 console.log('Initializing map with container dimensions:', mapElement.offsetWidth, mapElement.offsetHeight);
                                 try {
                                     this.map = L.map(mapElement, {
-                                        scrollWheelZoom: false // Nonaktifkan zoom dengan scroll wheel
+                                        scrollWheelZoom: false
                                     }).setView([this.latitude, this.longitude], 13);
                                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                         attribution: '© <a href=\'https://www.openstreetmap.org/copyright\'>OpenStreetMap</a> contributors'
@@ -78,7 +79,6 @@
                                     this.marker = L.marker([this.latitude, this.longitude], {
                                         icon: defaultIcon
                                     }).addTo(this.map);
-                                    // Tambahkan event klik pada peta untuk memindahkan marker
                                     this.map.on('click', (e) => {
                                         const { lat, lng } = e.latlng;
                                         this.latitude = lat;
@@ -86,7 +86,6 @@
                                         this.marker.setLatLng([lat, lng]);
                                         console.log('Marker moved to:', lat, lng);
                                     });
-                                    // Tambahkan event moveend untuk memastikan peta diperbarui setelah pan
                                     this.map.on('moveend', () => {
                                         this.map.invalidateSize();
                                         console.log('Map panned, invalidated size');
@@ -109,10 +108,18 @@
                                     AndroidBridge.getLocation('setLocation');
                                 } else {
                                     console.warn('AndroidBridge not available, using fallback coordinates');
-                                    this.latitude = -6.2088;
-                                    this.longitude = 106.8456;
+                                    this.latitude = -8.0983; // Blitar coordinates
+                                    this.longitude = 112.1651;
                                     this.initMap();
                                 }
+                            },
+                            addImage(base64Image) {
+                                this.images.push(base64Image);
+                                console.log('Image added, total images:', this.images.length);
+                            },
+                            removeImage(index) {
+                                this.images.splice(index, 1);
+                                console.log('Image removed, total images:', this.images.length);
                             }
                         }" x-init="$watch('showServices', (value) => { if (!value && !mapInitialized) getLocation(); })">
                             <!-- Daftar Tombol Layanan -->
@@ -302,9 +309,22 @@
                                     <div class="form-group mb-3">
                                         <label class="form-label text-dark" for="imageBase64Input">Unggah Gambar Pendukung
                                             (Opsional)</label>
-                                        <input type="hidden" name="images[]" id="imageBase64Input">
-                                        <img class="mb-1 img-thumbnail" id="imagePreview" src=""
-                                            alt="No image yet" style="display:none; max-width:30%;">
+                                        <input type="hidden" name="images[]" id="imageBase64Input"
+                                            x-bind:value="images">
+                                        <div class="d-flex flex-wrap gap-2 mb-2">
+                                            <template x-for="(image, index) in images" :key="index">
+                                                <div class="position-relative">
+                                                    <img :src="image" class="img-thumbnail"
+                                                        style="max-width: 150px; height: auto;"
+                                                        :alt="'Image preview ' + index">
+                                                    <button type="button" @click="removeImage(index)"
+                                                        class="btn btn-transparent btn-sm position-absolute"
+                                                        style="top: -0px; right: -0px;">
+                                                        <i class="fas fa-times text-white"></i>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
                                         <div>
                                             <button type="button" id="openCameraBtn"
                                                 class="btn btn-sm btn-primary me-2"><i class="fa fa-camera me-1"></i>Buka
@@ -312,7 +332,7 @@
                                             <button type="button" id="openGalleryBtn"
                                                 class="btn btn-sm btn-primary me-2"><i class="fa fa-image me-1"></i>Pilih
                                                 dari Galeri</button>
-                                            <input type="file" id="fileFallback" accept="image/*" hidden>
+                                            <input type="file" id="fileFallback" accept="image/*" multiple hidden>
                                         </div>
                                         <p id="errorMessage" class="text-red-500 text-sm mt-1"></p>
                                         <div class="form-text">
@@ -360,6 +380,27 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .image-preview-container .position-relative {
+            position: relative;
+        }
+
+        .image-preview-container img {
+            object-fit: cover;
+        }
+
+        .image-preview-container .btn-danger {
+            border-radius: 50%;
+            line-height: 1;
+        }
+    </style>
 @endsection
 
 @section('scripts')
@@ -368,6 +409,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="{{ asset('mobile/js/android-bridge.js') }}"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <script>
         $(document).ready(function() {
             let formDataToSubmit = null;
@@ -387,27 +429,30 @@
                     return;
                 }
 
-                var base64Image = $('#imageBase64Input').val();
-                if (base64Image) {
+                const instance = Alpine.$data(document.querySelector('[x-data]'));
+                const images = instance.images;
+
+                // Convert Base64 images to blobs
+                images.forEach((base64Image, index) => {
                     try {
-                        var byteString = atob(base64Image.split(',')[1]);
-                        var arrayBuffer = new ArrayBuffer(byteString.length);
-                        var uint8Array = new Uint8Array(arrayBuffer);
-                        for (var i = 0; i < byteString.length; i++) {
+                        const byteString = atob(base64Image.split(',')[1]);
+                        const arrayBuffer = new ArrayBuffer(byteString.length);
+                        const uint8Array = new Uint8Array(arrayBuffer);
+                        for (let i = 0; i < byteString.length; i++) {
                             uint8Array[i] = byteString.charCodeAt(i);
                         }
-                        var blob = new Blob([uint8Array], {
+                        const blob = new Blob([uint8Array], {
                             type: 'image/jpeg'
                         });
-                        formDataToSubmit.set('images[]', blob, 'photo.jpg');
-                        console.log('Image blob size:', blob.size / 1024, 'KB');
+                        formDataToSubmit.append('images[]', blob, `photo-${index}.jpg`);
+                        console.log(`Image ${index} blob size:`, blob.size / 1024, 'KB');
                     } catch (e) {
-                        console.log('Error converting Base64 to blob:', e);
-                        $('#errorMessage').text('Error converting image');
+                        console.error('Error converting Base64 to blob for image', index, ':', e);
+                        $('#errorMessage').text('Error converting image ' + index);
                         $('#confirmModal').modal('hide');
                         return;
                     }
-                }
+                });
 
                 $.ajax({
                     url: $('#ticketForm').attr('action'),
@@ -457,43 +502,35 @@
             });
 
             $('#fileFallback').on('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        window.showImagePreview(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
+                const files = this.files;
+                if (files.length > 0) {
+                    const instance = Alpine.$data(document.querySelector('[x-data]'));
+                    Array.from(files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            instance.addImage(e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                    this.value = ''; // Reset file input to allow re-selection
                 }
             });
 
             window.showImagePreview = function(base64Image) {
                 console.log('Showing image preview with base64 length:', base64Image.length);
-                var $preview = $('#imagePreview');
-                var $input = $('#imageBase64Input');
-                if ($preview.length && $input.length) {
-                    $preview.attr('src', base64Image);
-                    $preview.css('display', 'block');
-                    $input.val(base64Image);
-                } else {
-                    console.warn('Preview or input element not found');
-                    $('#errorMessage').text('Error: Preview element not found');
-                }
+                const instance = Alpine.$data(document.querySelector('[x-data]'));
+                instance.addImage(base64Image);
             };
 
             window.setLocation = function(latitude, longitude) {
                 console.log('Received location:', latitude, longitude);
-                Alpine.store('form', {
-                    latitude: latitude,
-                    longitude: longitude
-                });
                 const mapElement = document.getElementById('map');
                 if (mapElement) {
                     mapElement.style.display = 'block';
                 }
                 const instance = Alpine.$data(document.querySelector('[x-data]'));
-                instance.latitude = latitude;
-                instance.longitude = longitude;
+                instance.latitude = parseFloat(latitude);
+                instance.longitude = parseFloat(longitude);
                 if (!instance.mapInitialized) {
                     instance.initMap();
                 } else {

@@ -17,7 +17,7 @@ Route::get('/', function () {
     return view('theme::auth.landing');
 })->name('landing');
 Route::get('/laporsebagaitamu', function () {
-    return view('guest');
+    return view('theme::guest');
 })->name('guest');
 Route::get('/laporsebagaitamu', [TicketController::class, 'createGuest'])->name('guest');
 
@@ -49,7 +49,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tickets/{ticket}/remove-pic', [TicketController::class, 'removePic'])->middleware('role:2')->name('tickets.removePic');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->middleware('role:3')->name('tickets.update');
     Route::post('tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
-    
+
     // Rute untuk manajemen pengguna (Super_admin)
     Route::prefix('users')->middleware('role:1')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
@@ -75,18 +75,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/services/{service}/edit', [ServiceManagementController::class, 'edit'])->middleware('role:2')->name('services.edit');
     Route::put('/services/{service}', [ServiceManagementController::class, 'update'])->middleware('role:2')->name('services.update');
     Route::get('/services/{service}/qrcode', [ServiceManagementController::class, 'generateQrCode'])
-    ->middleware('role:2')
-    ->name('services.qrcode');
+        ->middleware('role:2')
+        ->name('services.qrcode');
     Route::get('/services/{service}/qrcode/download', [ServiceManagementController::class, 'downloadQrCode'])
         ->middleware('role:2')
         ->name('services.qrcode.download');
     Route::get('/services/{service}/qrcode/data', [ServiceManagementController::class, 'getQrCode'])
-    ->middleware('role:2')
-    ->name('services.qrcode.data');
+        ->middleware('role:2')
+        ->name('services.qrcode.data');
     Route::middleware(['auth', 'role:1'])->group(function () {
-    Route::get('/settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index')->middleware('role:1');
-    Route::patch('/settings/pengadu_message_limit', [App\Http\Controllers\SettingController::class, 'updateMessageLimit'])->name('settings.updateMessageLimit')->middleware('role:1');
-});
+        Route::get('/settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index')->middleware('role:1');
+        Route::patch('/settings/pengadu_message_limit', [App\Http\Controllers\SettingController::class, 'updateMessageLimit'])->name('settings.updateMessageLimit')->middleware('role:1');
+    });
     // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });
 

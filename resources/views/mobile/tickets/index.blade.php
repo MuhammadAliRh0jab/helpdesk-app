@@ -54,8 +54,6 @@
                                     </select>
                                 </div>
                             </div>
-
-
                         </form>
                         <hr>
                         <div class="table-responsive my-3">
@@ -207,9 +205,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modal-responses-body"
-                    style="max-height: 400px; overflow-y: auto; position: relative;">
-                    <img class="sticky-bottom" id="imagePreview" src="" alt="No image yet"
-                        style="display: none; max-width: 30%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                    style="max-height: 400px; overflow-y: auto; position: relative">
+                    <!-- Responses will be appended here -->
                 </div>
                 <div class="modal-footer" id="modal-responses-footer"></div>
             </div>
@@ -230,6 +227,41 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .image-preview-container {
+            position: sticky;
+            bottom: 0;
+            background: #ffffff00;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .image-preview-container .position-relative {
+            position: relative;
+        }
+
+        .image-preview-container img {
+            object-fit: cover;
+            max-width: 100px;
+            height: auto;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .image-preview-container .btn-danger {
+            border-radius: 50%;
+            padding: 2px 6px;
+            line-height: 1;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            z-index: 11;
+        }
+    </style>
 @endsection
 
 @section('footer')
@@ -237,24 +269,43 @@
 @endsection
 
 @section('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="{{ asset('mobile/js/android-bridge.js') }}"></script>
     <script>
         $(document).ready(function() {
-            let pendingImageBase64 = null;
-
             function toggleBodyScroll(enableScroll) {
-                if (enableScroll) {
-                    $('body').css('overflow', 'auto');
-                } else {
-                    $('body').css('overflow', 'hidden');
-                }
+                $('body').css('overflow', enableScroll ? 'auto' : 'hidden');
             }
 
             function updateTicketNumbers() {
-                const rows = $('#ticket-table tbody tr:not([style*="display: none"])');
-                rows.each(function(index) {
+                $('#ticket-table tbody tr:not([style*="display: none"])').each(function(index) {
                     $(this).find('.ticket-number').text(index + 1);
                 });
+            }
+
+            function countPengaduMessagesSinceLastPegawai(responses, currentUserId) {
+                console.log('Calculating pengadu messages. Responses:', responses);
+                let lastPegawaiResponseTime = null;
+                for (let i = responses.length - 1; i >= 0; i--) {
+                    if (responses[i].user && responses[i].user.role_id == 3) {
+                        lastPegawaiResponseTime = new Date(responses[i].created_at).getTime();
+                        console.log('Last PIC response found at:', responses[i].created_at);
+                        break;
+                    }
+                }
+                if (lastPegawaiResponseTime === null) {
+                    const count = responses.filter(response => response.user_id == currentUserId).length;
+                    console.log('No PIC response. Total pengadu messages:', count);
+                    return count;
+                }
+                const count = responses.filter(response =>
+                    response.user_id == currentUserId &&
+                    new Date(response.created_at).getTime() > lastPegawaiResponseTime
+                ).length;
+                console.log('Pengadu messages since last PIC:', count);
+                return count;
             }
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -313,22 +364,37 @@
 
             $('.show-ticket-responses').on('click', function() {
                 const ticket = $(this).data('ticket');
-                const $triggerButton = $(this);
                 const currentUserId = {{ auth()->user()->id }};
                 const currentUserRoleId = {{ auth()->user()->role_id }};
 
+                console.log('Ticket data:', ticket);
+                console.log('Current user ID:', currentUserId, 'Role ID:', currentUserRoleId);
+
                 $('#modal-responses-ticket-code').text(ticket.ticket_code);
                 const responsesContainer = $('#modal-responses-body');
+                const footerContainer = $('#modal-responses-footer');
                 responsesContainer.empty();
+                footerContainer.empty();
+
+                const pengaduMessagesSinceLastPegawai = ticket.responses && ticket.responses.length > 0 ?
+                    countPengaduMessagesSinceLastPegawai(ticket.responses, currentUserId) : 0;
+
+                console.log('Pengadu messages since last PIC:', pengaduMessagesSinceLastPegawai);
 
                 if (ticket.responses && ticket.responses.length > 0) {
-                    ticket.responses.forEach((response, index) => {
-                        const isLastResponse = index === ticket.responses.length - 1;
-                        const isSender = response.user.role_id == 4;
+                    // Sort responses by created_at (ascending)
+                    const sortedResponses = ticket.responses.slice().sort((a, b) =>
+                        new Date(a.created_at) - new Date(b.created_at));
+
+                    sortedResponses.forEach((response, index) => {
+                        const isSender = response.user && response.user.role_id == 4;
                         const chatClass = isSender ? 'single-chat-item outgoing' :
                             'single-chat-item';
-                        const sender = response.user.role_id == 2 ? 'Sistem (Operator)' :
-                            `${response.user.username} (${response.user.role_id == 4 ? 'Pengadu' : 'PIC'})`;
+                        const sender = response.user && response.user.role_id == 2 ?
+                            'Sistem (Operator)' :
+                            response.user ?
+                            `${response.user.username} (${response.user.role_id == 4 ? 'Pengadu' : 'PIC'})` :
+                            'Unknown';
                         const createdAt = new Date(response.created_at).toLocaleString('id-ID', {
                             day: '2-digit',
                             month: '2-digit',
@@ -372,86 +438,110 @@
                             </div>
                         `;
                         responsesContainer.append(responseHtml);
-
-                        if (isLastResponse && currentUserRoleId == 4 && ticket.user_id ==
-                            currentUserId && ticket.status != 2 && response.user_id !=
-                            currentUserId && response.user.role_id != 2) {
-                            const footerContainer = $('#modal-responses-footer');
-                            footerContainer.empty();
-                            footerContainer.append(`
-                                <form action="" method="POST" enctype="multipart/form-data" style="width: 100%;" id="replyForm">
-                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <textarea name="message" class="form-control mb-2" placeholder="Masukkan balasan Anda..." style="height: 50px;" required></textarea>
-                                    <div class="form-group mb-2">
-                                        <input type="hidden" name="images[]" id="imageBase64Input">
-                                        <div class="d-flex align-items-center justify-content-center">
-                                            <button type="button" id="openCameraBtn" class="btn btn-sm btn-outline-primary me-2">Buka Kamera</button>
-                                            <button type="button" id="openGalleryBtn" class="btn btn-sm btn-outline-primary me-2">Pilih dari Galeri</button>
-                                            <button type="submit" class="btn btn-sm btn-primary">Kirim Balasan</button>
-                                            <input type="file" id="fileFallback" accept="image/*" hidden>
-                                        </div>
-                                        <p id="errorMessage" class="text-danger text-sm mt-1"></p>
-                                    </div>
-                                </form>
-                            `);
-
-                            const replyUrl = "{{ route('tickets.reply', ':response_id') }}"
-                                .replace(':response_id', response.id);
-                            $('#replyForm').attr('action', replyUrl);
-
-                            if ($('#imagePreview').length === 0) {
-                                $('#modal-responses-body').append(
-                                    `<img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 30%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">`
-                                );
-                            }
-
-                            $('#openCameraBtn').off('click').on('click', function() {
-                                if (typeof AndroidBridge !== 'undefined') {
-                                    AndroidBridge.openCamera('showImagePreview');
-                                } else {
-                                    $('#fileFallback').click();
-                                }
-                            });
-
-                            $('#openGalleryBtn').off('click').on('click', function() {
-                                if (typeof AndroidBridge !== 'undefined') {
-                                    AndroidBridge.openPhotoPicker();
-                                } else {
-                                    $('#fileFallback').click();
-                                }
-                            });
-
-                            $('#fileFallback').on('change', function() {
-                                const file = this.files[0];
-                                if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = function(e) {
-                                        window.showImagePreview(e.target.result);
-                                    };
-                                    reader.readAsDataURL(file);
-                                }
-                            });
-
-                            if (pendingImageBase64) {
-                                window.showImagePreview(pendingImageBase64);
-                                pendingImageBase64 = null;
-                            }
-                        } else {
-                            const footerContainer = $('#modal-responses-footer');
-                            footerContainer.empty();
-                            footerContainer.append(
-                                '<div class="text-dark text-center w-100">Menunggu balasan PIC terkait</div>'
-                            );
-                        }
                     });
                 } else {
                     responsesContainer.append(
                         '<p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>'
                     );
-                    const footerContainer = $('#modal-responses-footer');
-                    footerContainer.empty();
+                }
+
+                // Add image preview container
+                responsesContainer.append(`
+                    <div class="image-preview-container" id="imagePreviewContainer" x-data="{
+                        images: [],
+                        addImage(base64Image) {
+                            this.images.push(base64Image);
+                            console.log('Image added, total images:', this.images.length);
+                        },
+                        removeImage(index) {
+                            this.images.splice(index, 1);
+                            console.log('Image removed, total images:', this.images.length);
+                        }
+                    }">
+                        <template x-for="(image, index) in images" :key="index">
+                            <div class="position-relative">
+                                <img :src="image" alt="Image preview" class="img-preview">
+                                <button type="button" @click="removeImage(index)" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                `);
+
+                console.log('Evaluating form display:', {
+                    currentUserRoleId,
+                    ticketUserId: ticket.user_id,
+                    currentUserId,
+                    ticketStatus: ticket.status,
+                    hasPicResponse: ticket.responses.some(response => response.user && response.user
+                        .role_id == 3),
+                    pengaduMessagesSinceLastPegawai
+                });
+
+                if (currentUserRoleId == 4 &&
+                    ticket.user_id == currentUserId &&
+                    ticket.status != 2 &&
+                    pengaduMessagesSinceLastPegawai < 10 &&
+                    ticket.responses.some(response => response.user && response.user.role_id == 3)) {
+                    footerContainer.append(`
+                        <form action="" method="POST" enctype="multipart/form-data" style="width: 100%;" id="replyForm">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <textarea name="message" class="form-control mb-2" placeholder="Masukkan balasan Anda..." style="min-height: 50px;" required></textarea>
+                            <div class="form-group mb-2">
+                                <input type="hidden" name="images[]" id="imageBase64Input" x-bind:value="JSON.stringify($refs.imagePreviewContainer.__x.$data.images)">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <button type="button" id="openCameraBtn" class="btn btn-sm btn-outline-primary me-2" aria-label="Buka Kamera">Buka Kamera</button>
+                                    <button type="button" id="openGalleryBtn" class="btn btn-sm btn-outline-primary me-2" aria-label="Pilih dari Galeri">Pilih dari Galeri</button>
+                                    <button type="submit" class="btn btn-sm btn-primary" aria-label="Kirim Balasan">Kirim Balasan</button>
+                                    <input type="file" id="fileFallback" accept="image/*" multiple hidden>
+                                </div>
+                                <p id="errorMessage" class="text-danger text-sm mt-1"></p>
+                            </div>
+                        </form>
+                    `);
+
+                    const replyUrl = "{{ route('tickets.reply', ':ticket_id') }}".replace(':ticket_id',
+                        ticket.id);
+                    $('#replyForm').attr('action', replyUrl);
+
+                    $('#openCameraBtn').off('click').on('click', function() {
+                        if (typeof AndroidBridge !== 'undefined') {
+                            AndroidBridge.openCamera('showImagePreview');
+                        } else {
+                            $('#fileFallback').click();
+                        }
+                    });
+
+                    $('#openGalleryBtn').off('click').on('click', function() {
+                        if (typeof AndroidBridge !== 'undefined') {
+                            AndroidBridge.openPhotoPicker('showImagePreview');
+                        } else {
+                            $('#fileFallback').click();
+                        }
+                    });
+
+                    $('#fileFallback').on('change', function() {
+                        const files = this.files;
+                        if (files.length > 0) {
+                            const instance = Alpine.$data(document.getElementById(
+                                'imagePreviewContainer'));
+                            Array.from(files).forEach(file => {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    instance.addImage(e.target.result);
+                                };
+                                reader.readAsDataURL(file);
+                            });
+                            this.value = ''; // Reset file input
+                        }
+                    });
+                } else {
+                    const message = pengaduMessagesSinceLastPegawai >= 10 ?
+                        'Anda telah mencapai batas 10 balasan. Tunggu respons PIC untuk melanjutkan.' :
+                        'Menunggu balasan PIC terkait';
                     footerContainer.append(
-                        '<div class="text-dark text-center w-100">Menunggu balasan PIC terkait</div>'
+                        `<div class="text-dark text-center w-100" role="alert">${message}</div>`
                     );
                 }
 
@@ -460,6 +550,8 @@
                     window.Android.toggleSwipeRefresh(false);
                 }
                 $('#ticketResponsesModal').modal('show');
+                // Scroll to bottom
+                responsesContainer.scrollTop(responsesContainer[0].scrollHeight);
             });
 
             $('#ticketDetailModal').on('hidden.bs.offcanvas', function() {
@@ -479,8 +571,11 @@
 
             $('#ticketResponsesModal').on('hidden.bs.modal', function() {
                 toggleBodyScroll(true);
-                $('#imagePreview').css('display', 'none');
-                pendingImageBase64 = null;
+                const previewContainer = $('#imagePreviewContainer');
+                if (previewContainer.length) {
+                    const instance = Alpine.$data(previewContainer[0]);
+                    instance.images = []; // Clear images
+                }
                 if (typeof window.Android !== 'undefined') {
                     window.Android.toggleSwipeRefresh(true);
                 }
@@ -500,19 +595,23 @@
 
             $('#ticketResponsesModal').on('shown.bs.modal', function() {
                 $(this).find('.btn-close').focus();
-                if (pendingImageBase64) {
-                    window.showImagePreview(pendingImageBase64);
-                    pendingImageBase64 = null;
-                }
+                const responsesContainer = $('#modal-responses-body');
+                responsesContainer.scrollTop(responsesContainer[0].scrollHeight);
             });
 
             $(document).on('submit', '#replyForm', function(e) {
                 e.preventDefault();
                 const form = $(this);
                 const formData = new FormData(this);
+                const ticketId = form.attr('action').match(/\/tickets\/(\d+)\/reply/)[1];
+                const responsesContainer = $('#modal-responses-body');
+                const errorMessage = $('#errorMessage');
+                const previewContainer = $('#imagePreviewContainer');
+                const instance = Alpine.$data(previewContainer[0]);
+                const images = instance.images;
 
-                const base64Image = $('#imageBase64Input').val();
-                if (base64Image) {
+                // Convert Base64 images to blobs
+                images.forEach((base64Image, index) => {
                     try {
                         const byteString = atob(base64Image.split(',')[1]);
                         const arrayBuffer = new ArrayBuffer(byteString.length);
@@ -523,12 +622,12 @@
                         const blob = new Blob([uint8Array], {
                             type: 'image/jpeg'
                         });
-                        formData.set('images[]', blob, 'photo.jpg');
+                        formData.append('images[]', blob, `photo-${index}.jpg`);
                     } catch (e) {
-                        $('#errorMessage').text('Error converting image');
+                        errorMessage.text('Error converting image ' + index);
                         return;
                     }
-                }
+                });
 
                 $.ajax({
                     url: form.attr('action'),
@@ -537,47 +636,130 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        $('#ticketResponsesModal').modal('hide');
-                        location.reload();
+                        // Clear the form
+                        form.find('textarea[name="message"]').val('');
+                        instance.images = [];
+                        errorMessage.text('');
+
+                        // Get current user
+                        const currentUser = @json(auth()->user() ?? null);
+                        if (!currentUser) {
+                            errorMessage.text('User not authenticated. Please log in.');
+                            return;
+                        }
+
+                        // Append new response
+                        const createdAt = new Date().toLocaleString('id-ID', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        let responseHtml = `
+                            <div class="single-chat-item outgoing">
+                                <div class="user-message">
+                                    <div class="message-sender-name">
+                                        <div class="sender-name">${currentUser.username} (Pengadu)</div>
+                                    </div>
+                                    <div class="message-content">
+                                        <div class="single-message">
+                                            <p>${formData.get('message') || 'Tidak ada pesan'}</p>
+                                        </div>
+                        `;
+
+                        if (images.length > 0) {
+                            images.forEach((base64Image, index) => {
+                                responseHtml += `
+                                    <div class="single-message">
+                                        <div class="gallery-img">
+                                            <a href="${base64Image}">
+                                                <img src="${base64Image}" alt="Uploaded image ${index}">
+                                            </a>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        }
+
+                        responseHtml += `
+                                    </div>
+                                    <div class="message-time-status">
+                                        <div class="sent-time">${createdAt}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        responsesContainer.append(responseHtml);
+                        responsesContainer.scrollTop(responsesContainer[0].scrollHeight);
+
+                        // Update ticket data
+                        const ticketButton = $(
+                            `.show-ticket-responses[data-ticket*='"id":${ticketId}']`);
+                        if (ticketButton.length) {
+                            const ticketData = JSON.parse(ticketButton.attr('data-ticket'));
+                            ticketData.responses.push({
+                                user: currentUser,
+                                user_id: currentUser.id,
+                                message: formData.get('message'),
+                                created_at: new Date().toISOString(),
+                                uploads: images.map((img, index) => ({
+                                    filename_path: `temp/photo-${index}.jpg`,
+                                    filename_ori: `photo-${index}.jpg`
+                                }))
+                            });
+                            ticketButton.attr('data-ticket', JSON.stringify(ticketData));
+
+                            // Check message limit
+                            const pengaduMessagesSinceLastPegawai =
+                                countPengaduMessagesSinceLastPegawai(ticketData.responses,
+                                    currentUser.id);
+                            if (pengaduMessagesSinceLastPegawai >= 10) {
+                                $('#modal-responses-footer').html(
+                                    '<div class="text-dark text-center w-100" role="alert">Anda telah mencapai batas 10 balasan. Tunggu respons PIC untuk melanjutkan.</div>'
+                                );
+                            }
+                        }
+
+                        // Update ticket status
+                        const ticketRow = $(
+                            `#ticket-table tr[data-status][data-ticket*='"id":${ticketId}']`
+                        );
+                        if (ticketRow.length && response.ticket && response.ticket.status !==
+                            undefined) {
+                            const statusBadge = ticketRow.find('td:nth-child(5) .badge');
+                            if (response.ticket.status == 0) {
+                                statusBadge.removeClass('bg-info bg-success').addClass(
+                                    'bg-warning').text('Pending');
+                            } else if (response.ticket.status == 1) {
+                                statusBadge.removeClass('bg-warning bg-success').addClass(
+                                    'bg-info').text('Ditugaskan');
+                            } else {
+                                statusBadge.removeClass('bg-warning bg-info').addClass(
+                                    'bg-success').text('Selesai');
+                            }
+                        }
                     },
                     error: function(xhr) {
                         const errors = xhr.responseJSON.errors || {};
-                        let errorMessage = 'Error: ';
+                        let errorMessageText = 'Error: ';
                         for (let field in errors) {
-                            errorMessage += errors[field][0] + ' ';
+                            errorMessageText += errors[field][0] + ' ';
                         }
-                        $('#errorMessage').text(errorMessage || 'Unknown error occurred');
+                        errorMessage.text(errorMessageText || 'Unknown error occurred');
                     }
                 });
             });
 
             window.showImagePreview = function(base64Image) {
-                let $preview = $('#imagePreview');
-                const $modal = $('#ticketResponsesModal');
-                const $input = $('#imageBase64Input');
-
-                if ($preview.length === 0) {
-                    $('#modal-responses-body').append(
-                        `<img class="sticky-bottom" id="imagePreview" src="" alt="No image yet" style="display: none; max-width: 30%; border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">`
-                    );
-                    $preview = $('#imagePreview');
-                }
-
-                if ($preview.length && $modal.is(':visible') && $input.length) {
-                    $preview.attr('src', base64Image);
-                    $preview.css('display', 'block');
-                    $input.val(base64Image);
+                console.log('Showing image preview with base64 length:', base64Image.length);
+                const previewContainer = $('#imagePreviewContainer');
+                if (previewContainer.length) {
+                    const instance = Alpine.$data(previewContainer[0]);
+                    instance.addImage(base64Image);
                 } else {
-                    pendingImageBase64 = base64Image;
-                    setTimeout(() => {
-                        $preview = $('#imagePreview');
-                        if ($preview.length && $modal.is(':visible') && $input.length) {
-                            $preview.attr('src', base64Image);
-                            $preview.css('display', 'block');
-                            $input.val(base64Image);
-                            pendingImageBase64 = null;
-                        }
-                    }, 500);
+                    console.warn('Image preview container not found');
+                    $('#errorMessage').text('Error: Preview container not found');
                 }
             };
 

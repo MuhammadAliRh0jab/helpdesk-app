@@ -275,6 +275,10 @@
     </div>
 @endsection
 
+@section('scripts')
+    <script src="{{ asset('mobile/js/warga-dashboard.js') }}"></script>
+@endsection
+
 @section('footer')
     @include('mobile.master.footer')
 @endsection

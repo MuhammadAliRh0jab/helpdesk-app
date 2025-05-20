@@ -69,7 +69,6 @@
     <script src="{{ asset('mobile/js/pswmeter.js') }}"></script>
     <script src="{{ asset('mobile/js/active.js') }}"></script>
     <script src="{{ asset('mobile/js/pwa.js') }}"></script>
-    <script src="{{ asset('mobile/js/warga-dashboard.js') }}"></script>
 </body>
 
 </html>
