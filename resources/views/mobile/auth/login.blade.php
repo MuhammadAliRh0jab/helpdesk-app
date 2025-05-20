@@ -1,5 +1,7 @@
 @extends('mobile.master.app')
 
+@section('title', 'Login')
+
 @section('content')
     <div class="login-back-button">
         <a href="{{ route('landing') }}">

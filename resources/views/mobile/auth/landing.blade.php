@@ -148,10 +148,9 @@
 
                                 <!-- Quick Jump Menu -->
                                 <div class="mb-3" x-show="search === ''">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <span class="text-muted me-2"><i class="fas fa-filter me-1"></i> Pilih
-                                            Unit:</span>
-                                        <div class="unit-pills">
+                                    <div class="d-flex flex-column align-items-center mb-2">
+                                        <span class="mb-2">Pilih Unit:</span>
+                                        <div class="unit-pills text-center">
                                             @php
                                                 $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
                                             @endphp
@@ -191,7 +190,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="flex-grow-1">
-                                                                    <h5 class="mb-1">{{ $service->svc_name }}</h5>
+                                                                    <h5 class="m-0">{{ $service->svc_name }}</h5>
                                                                 </div>
                                                                 <div class="flex-shrink-0 ms-2">
                                                                     <i class="fas fa-chevron-right text-muted"></i>
@@ -209,15 +208,15 @@
                                         @foreach ($units as $unitName => $unitId)
                                             <div id="unit-{{ $unitId }}" class="unit-section mb-3">
                                                 <div class="unit-header">
-                                                    <h4 class="mb-2 pb-2 border-bottom d-flex align-items-center">
+                                                    <h6 class="mb-2 border-bottom d-flex align-items-center">
                                                         <i class="fas fa-building me-2 text-primary"></i>
                                                         <span>{{ $unitName }}</span>
                                                         <div class="ms-auto">
-                                                            <span class="badge bg-primary rounded-pill">
+                                                            <span class="badge bg-primary p-2">
                                                                 {{ $services->where('unit_id', $unitId)->count() }} Layanan
                                                             </span>
                                                         </div>
-                                                    </h4>
+                                                    </h6>
                                                 </div>
                                                 @foreach ($services->where('unit_id', $unitId) as $service)
                                                     <div class="service-item mb-2">
@@ -235,8 +234,8 @@
                                                                             </div>
                                                                         </div>
                                                                         <div class="flex-grow-1">
-                                                                            <h5 class="mb-1">{{ $service->svc_name }}
-                                                                            </h5>
+                                                                            <h6 class="mb-1">{{ $service->svc_name }}
+                                                                            </h6>
                                                                             <div class="text-muted small">
                                                                                 {{ $service->unit->unit_name }}</div>
                                                                         </div>
@@ -338,8 +337,8 @@
                         </p>
                     </div>
                 </div>
-                <button type="button" @click="showForm = false" class="btn btn-outline-secondary w-100 mt-3">Kembali ke
-                    Beranda</button>
+                <button type="button" @click="showForm = false" class="btn btn-outline-secondary w-100 mt-3">
+                    <i class="bi bi-arrow-left me-2"></i>Kembali ke Beranda</button>
             </div>
         </div>
     </div>
