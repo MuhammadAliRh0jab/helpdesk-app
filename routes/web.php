@@ -18,11 +18,7 @@ Route::get('/', function () {
 
 Route::get('/', [TicketController::class, 'createGuest'])->name('landing');
 Route::post('/tickets/guest', [TicketController::class, 'storeGuest'])->name('tickets.store.guest');
-Route::get('/test-log', function () {
-    \Log::info('Test log at ' . now());
-    return 'Log tested';
-});
-// Routes untuk guest (belum login)
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);

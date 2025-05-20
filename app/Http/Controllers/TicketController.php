@@ -24,15 +24,13 @@ class TicketController extends Controller
         $this->middleware('auth')->except(['createGuest', 'storeGuest', 'createForService']);
     }
     
-    public function index(Request $request)
+public function index(Request $request)
 {
     $user = auth()->user();
     $search = $request->input('search');
     $statusFilter = $request->input('status_filter');
     $perPage = $request->input('per_page', 10);
-    $tab = $request->input('tab', 'manage'); // Default to 'manage' tab for operators
 
-    // Base query for tickets
     $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit', 'pics.user']);
 
     if ($search) {
@@ -46,29 +44,18 @@ class TicketController extends Controller
         $query->where('status', $statusFilter);
     }
 
-    // Role-based filtering
     if ($user->role_id == 4) {
         $query->where('user_id', $user->id);
     } elseif ($user->role_id == 3) {
-        $isPicActive = \App\Models\Pic::where('user_id', $user->id)
-            ->where('pic_stats', 'active')
-            ->exists();
-        if ($isPicActive) {
-            $query->whereHas('pics', function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                      ->where('ticket_pic.pic_stats', 'active');
-            });
-        } else {
-            $query->where('user_id', $user->id);
-        }
+        $query->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->orWhereHas('pics', function ($query) use ($user) {
+                  $query->where('user_id', $user->id)
+                        ->where('ticket_pic.pic_stats', 'active');
+              });
+        });
     } elseif ($user->role_id == 2) {
-        if ($tab === 'manage') {
-            // Pengelola Tiket: Tickets in the operator's unit
-            $query->where('unit_id', $user->unit_id);
-        } else {
-            // Pembuat Tiket: Tickets created by the operator
-            $query->where('user_id', $user->id);
-        }
+        $query->where('unit_id', $user->unit_id);
     }
 
     $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
@@ -76,7 +63,7 @@ class TicketController extends Controller
     if ($request->ajax()) {
         return response()->json([
             'tickets' => $tickets,
-            'pics' => $user->role_id == 2 && $tab === 'manage' ? User::where('role_id', 3)
+            'pics' => $user->role_id == 2 ? User::where('role_id', 3)
                 ->where('unit_id', $user->unit_id)
                 ->with(['pics' => function ($query) {
                     $query->where('pic_stats', 'active');
@@ -91,11 +78,11 @@ class TicketController extends Controller
                     ];
                 }) : collect(),
             'units' => \App\Models\Unit::all(),
-            'pagination' => $tickets->links('pagination::bootstrap-5')->render(),
+            'pagination' => $tickets->links('pagination::bootstrap-5')->toHtml(),
         ]);
     }
 
-    $pics = $user->role_id == 2 && $tab === 'manage' ? User::where('role_id', 3)
+    $pics = $user->role_id == 2 && $user->unit_id ? User::where('role_id', 3)
         ->where('unit_id', $user->unit_id)
         ->with(['pics' => function ($query) {
             $query->where('pic_stats', 'active');
@@ -116,11 +103,8 @@ class TicketController extends Controller
     }
     $services = $servicesQuery->with('unit')->get();
 
-    return view('tickets.index', compact('tickets', 'pics', 'services', 'tab'));
+    return view('tickets.index', compact('tickets', 'pics', 'services'));
 }
-
-    
-
     
 
     public function assigned()
@@ -373,6 +357,7 @@ class TicketController extends Controller
 
         return redirect()->back()->with('success', 'PIC baru berhasil ditugaskan ke tiket.');
     }
+
 
    
 
