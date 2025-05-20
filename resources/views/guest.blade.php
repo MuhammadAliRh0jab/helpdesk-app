@@ -8,9 +8,11 @@
     <title>Helpdesk Pemerintah Kota Blitar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    {{--
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"> --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/aos/aos.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
     <style>
         .gradient {
@@ -120,6 +122,26 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 15px;
         }
+
+        /* Styling untuk pratinjau gambar */
+        #preview-container img {
+            transition: all 0.3s ease;
+        }
+
+        #preview-container img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #preview-container .btn-danger {
+            padding: 2px 8px;
+            line-height: 1;
+        }
+
+        #preview-container .btn-danger:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
     </style>
 </head>
 
@@ -174,7 +196,7 @@
         </div>
     </section>
 
-    <!-- Section Lapor Tanpa Login yang disesuaikan -->
+    <!-- Section Lapor Tanpa Login -->
     <section class="bg-white py-5" id="lapor-tanpa-login">
         <div class="container py-4">
             <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="3000">Lapor
@@ -212,9 +234,9 @@
                     @endif
 
                     <div class="card shadow border-0 rounded-lg" data-aos="fade-up" data-aos-duration="1000">
-                        <div class="card-header bg-primary text-white py-3">
-                            <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Form Pengaduan</h4>
-                        </div>
+                        <h4 class="card-header bg-primary text-white py-3" id="form-title">
+                            <i class="fas fa-edit me-2"></i>Form Pengaduan
+                        </h4>
                         <div class="card-body p-4">
                             <div class="service-list">
                                 <div class="mb-4">
@@ -285,7 +307,8 @@
                                                                         <div class="flex-grow-1">
                                                                             <h5 class="mb-1">{{ $service->svc_name }}</h5>
                                                                             <div class="text-muted small">
-                                                                                {{ $service->unit->unit_name }}</div>
+                                                                                {{ $service->unit->unit_name }}
+                                                                            </div>
                                                                         </div>
                                                                         <div class="flex-shrink-0 ms-2">
                                                                             <i class="fas fa-chevron-right text-muted"></i>
@@ -355,7 +378,7 @@
                                         @enderror
                                     </div>
 
-                                    <!-- Bagian Peta Baru -->
+                                    <!-- Bagian Peta -->
                                     <div class="mb-4">
                                         <label for="location" class="form-label fw-bold"><i
                                                 class="fas fa-map-marker-alt me-2"></i>Lokasi Aduan (Opsional)</label>
@@ -395,12 +418,14 @@
                                         </div>
                                     </div>
 
+                                    <!-- Bagian Upload File dengan Pratinjau -->
+
                                     <div class="mb-4">
                                         <label for="images" class="form-label fw-bold"><i
                                                 class="fas fa-images me-2"></i>Unggah Gambar Pendukung
                                             (Opsional)</label>
                                         <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light"
-                                            onclick="document.getElementById('images').click()">
+                                            id="dropzone">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="fas fa-cloud-upload-alt text-primary fa-3x mb-3"></i>
                                                 <p class="mb-2">Klik atau seret file ke sini</p>
@@ -408,39 +433,57 @@
                                                 </p>
                                             </div>
                                             <input type="file" name="images[]" id="images" multiple class="d-none"
-                                                @change="updateFileNames(event)" accept="image/*">
+                                                accept="image/*">
                                         </div>
                                         @error('images')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
+                                        <!-- Area untuk pratinjau gambar -->
+                                        <div id="preview-container" class="row mt-3"></div>
                                         <div class="form-text">
                                             <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF
                                             (maks 2MB per file)
                                         </div>
+                                        <div class="modal fade" id="imageModal" tabindex="-1"
+                                            aria-labelledby="imageModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-body text-center">
+                                                        <img id="modalImage" src="" alt="Gambar Preview"
+                                                            class="img-fluid">
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Tutup</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-
-                                    <div class="d-flex justify-content-between gap-3">
-                                        <button type="button" @click="$store.form.showServices = true"
-                                            class="btn btn-outline-secondary btn-lg px-4"
-                                            aria-label="Kembali ke daftar layanan">
-                                            <i class="fas fa-arrow-left me-2"></i>Kembali
-                                        </button>
-                                        <button type="submit" class="btn btn-primary btn-lg px-5">
-                                            <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
-                                        </button>
-                                    </div>
-                                </form>
                             </div>
+
+                            <div class="d-flex justify-content-between gap-3">
+                                <button type="button" @click="$store.form.showServices = true"
+                                    class="btn btn-outline-secondary btn-lg px-4"
+                                    aria-label="Kembali ke daftar layanan">
+                                    <i class="fas fa-arrow-left me-2"></i>Kembali
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
+                                </button>
+                            </div>
+                            </form>
                         </div>
-                        <div class="card-footer bg-light text-center py-3">
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Laporan Anda akan diverifikasi oleh tim kami
-                                sebelum diproses lebih lanjut
-                            </p>
-                        </div>
+                    </div>
+                    <div class="card-footer bg-light text-center py-3">
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Laporan Anda akan diverifikasi oleh tim kami
+                            sebelum diproses lebih lanjut
+                        </p>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 
@@ -497,18 +540,18 @@
         </div>
     </footer>
 
-    {{--
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-        crossorigin="anonymous"></script> --}}
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- ... konten HTML lainnya ... -->
+
+
+    <!-- Bootstrap JS (penting untuk modal) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('assets/aos/aos.js') }}"></script>
     <script src="{{ asset('assets/js/cdn.js') }}"></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
     <script>
         // Global selectService function
         function selectService(serviceId, unitId) {
             console.log('selectService called with serviceId:', serviceId, 'unitId:', unitId);
-
             // Update hidden input fields
             const serviceInput = document.querySelector('input[name="service_id"]');
             const unitInput = document.querySelector('input[name="unit_id"]');
@@ -519,7 +562,6 @@
                 console.error('Hidden input fields for service_id or unit_id not found');
                 return;
             }
-
             // Toggle visibility
             const serviceList = document.querySelector('.service-list');
             const formSection = document.querySelector('.form-section');
@@ -537,6 +579,10 @@
             } else {
                 console.error('Service list or form section not found in DOM');
             }
+
+            // Ambil nama layanan dari elemen yang dipilih
+            const serviceName = document.querySelector(`button[onclick*="selectService(${serviceId}, ${unitId})"]`).textContent.trim();
+            updateFormTitle(serviceName); // Panggil fungsi untuk mengubah judul form
         }
 
         // Global scrollToUnit function (for unit pills)
@@ -553,12 +599,13 @@
             }
         }
 
-        // Keep Alpine.js for map and form handling
+        // Alpine.js untuk map dan upload file
         document.addEventListener('alpine:init', () => {
             Alpine.data('mapForm', () => ({
                 latitude: null,
                 longitude: null,
                 mapInitialized: false,
+                selectedFiles: [], // Array untuk menyimpan file yang dipilih
 
                 initMap() {
                     if (navigator.geolocation) {
@@ -620,16 +667,91 @@
                     }, 300);
                 },
 
-                updateFileNames(event) {
+                updateFileNamesAndPreview(event) {
                     const files = event.target.files;
                     const fileNamesElement = document.getElementById('fileNames');
+                    const previewContainer = document.getElementById('preview-container');
+                    previewContainer.innerHTML = ''; // Bersihkan pratinjau sebelumnya
+                    this.selectedFiles = Array.from(files); // Simpan file yang dipilih
+
                     if (files.length > 0) {
                         fileNamesElement.textContent = files.length === 1
                             ? files[0].name
                             : `${files.length} file dipilih`;
+
+                        // Tampilkan pratinjau untuk setiap file
+                        Array.from(files).forEach((file, index) => {
+                            if (file.type.startsWith('image/')) {
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                    const col = document.createElement('div');
+                                    col.className = 'col-6 col-md-3 mb-3';
+                                    col.innerHTML = `
+                                        <div class="position-relative">
+                                            <img src="${e.target.result}" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;">
+                                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                                    style="transform: translate(50%, -50%);"
+                                                    onclick="Alpine.store('mapForm').removeFile(${index})"
+                                                    aria-label="Hapus gambar ${file.name}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <small class="d-block text-muted mt-1 text-center">${file.name}</small>
+                                        </div>
+                                    `;
+                                    previewContainer.appendChild(col);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        });
                     } else {
                         fileNamesElement.textContent = 'Tidak ada file dipilih';
                     }
+                },
+
+                removeFile(index) {
+                    // Hapus file dari array selectedFiles
+                    this.selectedFiles.splice(index, 1);
+
+                    // Perbarui input file
+                    const input = document.getElementById('images');
+                    const dataTransfer = new DataTransfer();
+                    this.selectedFiles.forEach(file => dataTransfer.items.add(file));
+                    input.files = dataTransfer.files;
+
+                    // Perbarui teks jumlah file
+                    const fileNamesElement = document.getElementById('fileNames');
+                    fileNamesElement.textContent = this.selectedFiles.length === 0
+                        ? 'Tidak ada file dipilih'
+                        : this.selectedFiles.length === 1
+                            ? this.selectedFiles[0].name
+                            : `${this.selectedFiles.length} file dipilih`;
+
+                    // Perbarui pratinjau
+                    const previewContainer = document.getElementById('preview-container');
+                    previewContainer.innerHTML = '';
+                    this.selectedFiles.forEach((file, newIndex) => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                const col = document.createElement('div');
+                                col.className = 'col-6 col-md-3 mb-3';
+                                col.innerHTML = `
+                                    <div class="position-relative">
+                                        <img src="${e.target.result}" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;">
+                                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                                style="transform: translate(50%, -50%);"
+                                                onclick="Alpine.store('mapForm').removeFile(${newIndex})"
+                                                aria-label="Hapus gambar ${file.name}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <small class="d-block text-muted mt-1 text-center">${file.name}</small>
+                                    </div>
+                                `;
+                                previewContainer.appendChild(col);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
                 }
             }));
         });
@@ -721,11 +843,161 @@
                     }
                 );
             }
+
+            // Drag-and-drop untuk upload file
+            const dropzone = document.querySelector('.dropzone-container');
+            const input = document.getElementById('images');
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('border-primary', 'bg-primary-subtle');
+            });
+
+            dropzone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-primary', 'bg-primary-subtle');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-primary', 'bg-primary-subtle');
+                input.files = e.dataTransfer.files;
+                const event = new Event('change', { bubbles: true });
+                input.dispatchEvent(event);
+            });
         });
 
         // AOS initialization
         AOS.init();
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('images');
+            const dropzone = document.getElementById('dropzone');
+            const fileNamesElement = document.getElementById('fileNames');
+            const previewContainer = document.getElementById('preview-container');
+            let selectedFiles = [];
+
+            function renderPreview() {
+                previewContainer.innerHTML = '';
+
+                selectedFiles.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const col = document.createElement('div');
+                            col.className = 'col-6 col-md-3 mb-3';
+                            col.innerHTML = `
+                        <div class="position-relative">
+                            <img src="${e.target.result}" 
+                                 class="img-fluid rounded shadow-sm" 
+                                 style="max-height: 150px; object-fit: cover;"
+                                 onclick="openModal('${e.target.result}')">
+                            <button type="button" 
+                                    class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                    style="transform: translate(50%, -50%); z-index: 10;"
+                                    onclick="removeFile(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <small class="d-block text-muted mt-1 text-center">${file.name}</small>
+                        </div>`;
+                            previewContainer.appendChild(col);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            function updateFileNamesAndPreview(event) {
+                const files = event.target.files;
+                if (files.length > 0) {
+                    selectedFiles = [...selectedFiles, ...Array.from(files)];
+
+                    fileNamesElement.textContent = selectedFiles.length === 1
+                        ? selectedFiles[0].name
+                        : `${selectedFiles.length} file dipilih`;
+
+                    renderPreview();
+                } else {
+                    fileNamesElement.textContent = 'Tidak ada file dipilih';
+                    previewContainer.innerHTML = '';
+                }
+            }
+
+            window.removeFile = function (index) {
+                selectedFiles.splice(index, 1);
+
+                // Update input.files dengan DataTransfer
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                input.files = dataTransfer.files;
+
+                fileNamesElement.textContent = selectedFiles.length === 0
+                    ? 'Tidak ada file dipilih'
+                    : selectedFiles.length === 1
+                        ? selectedFiles[0].name
+                        : `${selectedFiles.length} file dipilih`;
+
+                renderPreview();
+            };
+            window.openModal = function (imageUrl) {
+                const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                document.getElementById('modalImage').src = imageUrl;
+                modal.show();
+            };
+
+            // Input file change event
+            input?.addEventListener('change', updateFileNamesAndPreview);
+
+            // Drag-and-drop functionality
+            dropzone?.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('border-primary', 'bg-primary-subtle');
+            });
+
+            dropzone?.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-primary', 'bg-primary-subtle');
+            });
+
+            dropzone?.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('border-primary', 'bg-primary-subtle');
+
+                const droppedFiles = Array.from(e.dataTransfer.files);
+                const dataTransfer = new DataTransfer();
+                [...selectedFiles, ...droppedFiles].forEach(file => dataTransfer.items.add(file));
+                input.files = dataTransfer.files;
+
+                const changeEvent = new Event('change', { bubbles: true });
+                input.dispatchEvent(changeEvent);
+            });
+
+            dropzone?.addEventListener('click', () => input?.click());
+
+            // Fungsi ubah judul form
+            window.updateFormTitle = function (serviceName) {
+                const formTitle = document.getElementById('form-title');
+                if (formTitle) {
+                    formTitle.textContent = `Form Aduan ${serviceName}`;
+                }
+            };
+        });
+    </script>
+
+    <!-- Modal untuk preview full-size -->
+    {{-- <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body text-center p-0">
+                    <img id="modalImage" src="" class="img-fluid" alt="Preview Gambar">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div> --}}
 </body>
 
 </html>
