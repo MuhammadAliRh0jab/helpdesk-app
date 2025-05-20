@@ -58,7 +58,7 @@
     {{-- <script src="{{ asset('assets2/js/setTheme.js') }}"></script> --}}
 
     <!-- DataTables Plugins -->
-    <script src="{{ asset('assets2/js/plugins/datatables/dataTables.min.js') }}"></script>
+    {{-- <script src="{{ asset('assets2/js/plugins/datatables/dataTables.min.js') }}"></script>
     <script src="{{ asset('assets2/js/plugins/datatables-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets2/js/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets2/js/plugins/datatables-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
@@ -68,7 +68,7 @@
     <script src="{{ asset('assets2/js/plugins/datatables-buttons-pdfmake/pdfmake.min.js') }}"></script>
     <script src="{{ asset('assets2/js/plugins/datatables-buttons-pdfmake/vfs_fonts.js') }}"></script>
     <script src="{{ asset('assets2/js/plugins/datatables-buttons/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('assets2/js/plugins/datatables-buttons/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('assets2/js/plugins/datatables-buttons/buttons.html5.min.js') }}"></script> --}}
 
     {{-- <script src="{{ asset('assets2/js/plugins/datatables/jquery.dataTables.min.js') }}"></script> --}}
 
