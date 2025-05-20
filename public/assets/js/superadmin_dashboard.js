@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setupTicketPerformanceChart();
         setupTicketCategoryChart();
         setupResolutionTimeChart();
+        setupUnitDistributionChart();
     }
 
     // 1. Ticket Distribution Chart (Static, not updated by time range)
@@ -752,5 +753,73 @@ function loadRecentTickets() {
     document.querySelectorAll('.btn-block-option[data-action="state_toggle"]')?.forEach(button => {
         button.addEventListener('click', () => refreshDashboard());
     });
+
+    //jumlah aduan per unit
+    function setupUnitDistributionChart() {
+        const tableBody = document.querySelector('#unitDistributionChart tbody');
+        const tableContainer = document.querySelector('#unitDistributionChart').parentElement;
+        const currentUnitName = document.getElementById('current-unit-name');
+    
+        if (!tableBody || !tableContainer) {
+            console.error('Table element for unitDistributionChart not found.');
+            return;
+        }
+    
+        // Ambil data dari API
+        axios.get('/api/unit-distribution')
+            .then(response => {
+                const { labels, counts } = response.data || { labels: [], counts: [] };
+    
+                // Jika tidak ada data, tampilkan placeholder
+                if (labels.length === 0 || counts.length === 0) {
+                    tableContainer.style.display = 'none'; // Sembunyikan tabel
+                    const existingPlaceholder = tableContainer.querySelector('div');
+                    if (existingPlaceholder) existingPlaceholder.remove();
+                    const placeholder = document.createElement('div');
+                    placeholder.innerText = 'Tidak ada data untuk ditampilkan.';
+                    placeholder.style.textAlign = 'center';
+                    placeholder.style.padding = '20px';
+                    tableContainer.appendChild(placeholder);
+                    if (currentUnitName) currentUnitName.textContent = 'Tidak ada data unit.';
+                    return;
+                }
+    
+                // Tampilkan tabel jika ada data
+                tableContainer.style.display = 'block';
+                const existingPlaceholder = tableContainer.querySelector('div');
+                if (existingPlaceholder) existingPlaceholder.remove();
+    
+                // Kosongkan isi tbody sebelum mengisi data baru
+                tableBody.innerHTML = '';
+    
+                // Isi tabel dengan data
+                labels.forEach((label, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${label}</td>
+                        <td>${counts[index]}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+    
+                // Update nama unit saat ini
+                if (currentUnitName && labels.length > 0) {
+                    currentUnitName.textContent = `Total Unit: ${labels.length}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading unit distribution:', error.response?.data || error.message);
+                tableContainer.style.display = 'none'; // Sembunyikan tabel pada error
+                const existingPlaceholder = tableContainer.querySelector('div');
+                if (existingPlaceholder) existingPlaceholder.remove();
+                const placeholder = document.createElement('div');
+                placeholder.innerText = 'Gagal memuat data.';
+                placeholder.style.textAlign = 'center';
+                placeholder.style.padding = '20px';
+                tableContainer.appendChild(placeholder);
+                if (currentUnitName) currentUnitName.textContent = 'Gagal memuat data.';
+            });
+    }
     
 });

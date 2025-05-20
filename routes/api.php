@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/service-stats', [OperatorDashboardContorller::class, 'serviceStats']);
     Route::get('/service-distribution', [OperatorDashboardContorller::class, 'serviceDistribution']);
     Route::get('/ticket-performance', [OperatorDashboardContorller::class, 'ticketPerformance']);
+    
 
     // Route::get('/pegawai-recent-tickets', [PegawaiDashboardController::class, 'getRecentTickets']);
     // Route::get('/pegawai-ticket-stats', [PegawaiDashboardController::class, 'getTicketStats']);
@@ -72,4 +73,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/warga/tickets/{id}', [WargaDashboardController::class, 'getTicketDetail']);
     Route::get('/warga/static-stats', [WargaDashboardController::class, 'getStaticStats']);
     Route::get('/top-ticket-categories', [SuperadminDashboardController::class, 'topTicketCategories']);
+    Route::get('/unit-distribution', [SuperadminDashboardController::class, 'unitDistribution']);
 });

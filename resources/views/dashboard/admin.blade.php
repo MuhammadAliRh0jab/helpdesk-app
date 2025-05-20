@@ -122,6 +122,41 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-xl-12 col-xxl-12 d-flex flex-column">
+          <div class="block block-rounded flex-grow-1 d-flex flex-column">
+            <div class="block-header block-header-default">
+              <h3 class="block-title">Distribusi Pengaduan per Unit</h3>
+              <div class="block-options">
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                  <i class="si si-refresh"></i>
+                </button>
+              </div>
+            </div>
+            <div class="block-content block-content-full flex-grow-1 d-flex align-items-center justify-content-center">
+              <div style="width: 100%; max-height: 300px; overflow-y: auto;">
+                <table id="unitDistributionChart" class="table table-striped table-bordered">
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Nama Dinas/Unit</th>
+                      <th>Jumlah Pengaduan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Data akan diisi oleh JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- <div class="block-content block-content-full flex-grow-1 d-flex align-items-center justify-content-center">
+              <div style="position: relative; width: 100%; height: 230px;">
+                <canvas id="unitDistributionChart"></canvas>
+              </div>
+            </div> -->
+          </div>
+        </div>
+      </div>
 
       <div class="row">
         <div class="col-xl-8 col-xxl-8 d-flex flex-column">
@@ -298,12 +333,12 @@
 <!-- Dashboard JavaScript -->
 <script>
   // Pass PHP data to JavaScript
-  window.currentOperatorUnitId = {{Auth::user() -> unit_id ?? 'null'}};
+  window.currentOperatorUnitId = "{{ Auth::user()->unit_id ?? 'null' }}";
+
   window.initialTicketStats = {
-    completed: {{$ticketStats['completed'] ?? 0}},
-    pending: {{$ticketStats['pending'] ?? 0}},
-    assigned: {{$ticketStats['assigned'] ?? 0}}
+      completed: {{ $ticketStats['completed'] ?? 0 }},
+      pending: {{ $ticketStats['pending'] ?? 0 }},
+      assigned: {{ $ticketStats['assigned'] ?? 0 }}
   };
-  
 </script>
 @endsection

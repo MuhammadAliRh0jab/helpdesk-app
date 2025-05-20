@@ -423,4 +423,29 @@ class SuperadminDashboardController extends Controller
         ]);
     }
 
+    public function unitDistribution(Request $request)
+    {
+        $unitId = $request->query('unit_id');
+
+        // Query untuk mengambil semua unit, termasuk yang tidak memiliki pengaduan
+        $query = DB::table('units')
+            ->leftJoin('tickets', 'units.id', '=', 'tickets.unit_id')
+            ->whereNull('tickets.deleted_at')
+            ->select('units.unit_name', DB::raw('COALESCE(COUNT(tickets.id), 0) as count'))
+            ->groupBy('units.unit_name')
+            ->orderBy('count', 'desc');
+
+        // Jika ada filter unit_id (opsional)
+        if ($unitId) {
+            $query->where('units.id', $unitId);
+        }
+
+        $unitDistribution = $query->get();
+
+        return response()->json([
+            'labels' => $unitDistribution->pluck('unit_name')->all(),
+            'counts' => $unitDistribution->pluck('count')->all()
+        ]);
+    }
+
 }
