@@ -916,14 +916,25 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const input = document.getElementById('images');
+            var navbar = document.getElementById("header");
+            var logo = document.getElementById("nav-logo");
             const dropzone = document.getElementById('dropzone');
             const fileNamesElement = document.getElementById('fileNames');
             const previewContainer = document.getElementById('preview-container');
             let selectedFiles = [];
 
+            window.addEventListener("scroll", function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add("scrolled");
+                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-black.png') }}";
+                } else {
+                    navbar.classList.remove("scrolled");
+                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
+                }
+            });
+
             function renderPreview() {
                 previewContainer.innerHTML = '';
-
                 selectedFiles.forEach((file, index) => {
                     if (file.type.startsWith('image/')) {
                         const reader = new FileReader();
