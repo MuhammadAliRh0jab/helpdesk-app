@@ -30,9 +30,9 @@
             </div>
             <div class="card-body p-4">
                 <div x-data="{
-                    showServices: true,
-                    selectedService: null,
-                    selectedUnit: null,
+                    showServices: @if(isset($service)) false @else true @endif,
+                    selectedService: @if(isset($service)) {{ $service->id }} @else null @endif,
+                    selectedUnit: @if(isset($service)) {{ $service->unit_id }} @else null @endif,
                     search: '',
                     fileNames: 'Tidak ada file dipilih',
                     latitude: null,
@@ -55,7 +55,7 @@
                     },
 
                     initMap() {
-                        console.log('initMap called');
+                        console.log('initMap called, showServices:', this.showServices);
                         if (navigator.geolocation) {
                             navigator.geolocation.getCurrentPosition(
                                 (position) => {
@@ -110,8 +110,24 @@
 
                         console.log('Map initialized successfully');
                         this.mapInitialized = true;
+                    },
+
+                    selectService(serviceId, unitId) {
+                        this.selectedService = serviceId;
+                        this.selectedUnit = unitId;
+                        this.showServices = false;
+                        if (!this.mapInitialized) this.initMap();
                     }
-                }" x-init="$watch('showServices', (value) => { if (!value && !mapInitialized) initMap(); })">
+                }" x-init="() => {
+                    console.log('x-init executed, initial showServices:', showServices);
+                    if (!showServices && !mapInitialized) {
+                        initMap();
+                    }
+                    $watch('showServices', (value) => { 
+                        console.log('showServices changed to:', value);
+                        if (!value && !mapInitialized) initMap(); 
+                    });
+                }">
                     <!-- Daftar Tombol Layanan -->
                     <div x-show="showServices" x-transition>
                         <div class="mb-4">
@@ -159,7 +175,7 @@
                                                 <div class="card-body p-4">
                                                     <div class="unit-badge mb-2">{{ $service->unit->unit_name }}</div>
                                                     <button
-                                                        @click="showServices = false; selectedService = {{ $service->id }}; selectedUnit = {{ $service->unit_id }}"
+                                                        @click="selectService({{ $service->id }}, {{ $service->unit_id }})"
                                                         class="btn btn-link text-decoration-none p-0 w-100 text-start">
                                                         <div class="d-flex align-items-center">
                                                             <div class="flex-shrink-0 me-3">
@@ -204,7 +220,7 @@
                                                     <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
                                                         <div class="card-body p-4">
                                                             <button
-                                                                @click="showServices = false; selectedService = {{ $service->id }}; selectedUnit = {{ $service->unit_id }}"
+                                                                @click="selectService({{ $service->id }}, {{ $service->unit_id }})"
                                                                 class="btn btn-link text-decoration-none p-0 w-100 text-start">
                                                                 <div class="d-flex align-items-center">
                                                                     <div class="flex-shrink-0 me-3">
@@ -336,6 +352,7 @@
 @endsection
 
 @section('scripts')
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             console.log('DOM content loaded');
@@ -347,6 +364,7 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         .hover-shadow {
             transition: all 0.3s ease;
@@ -410,7 +428,7 @@
         .unit-pills {
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
+            align-items-center;
         }
         .scrolling-units {
             max-height: 100%;

@@ -11,15 +11,18 @@ use App\Http\Controllers\ServiceManagementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PegawaiDashboardController;
 use App\Http\Controllers\WargaDashboardController;
+use App\Http\Controllers\SettingController;
 
 Route::get('/', function () {
     return view('theme::auth.landing');
 })->name('landing');
+Route::get('/laporsebagaitamu', function () {
+    return view('guest');
+})->name('guest');
+Route::get('/laporsebagaitamu', [TicketController::class, 'createGuest'])->name('guest');
 
-Route::get('/', [TicketController::class, 'createGuest'])->name('landing');
 Route::post('/tickets/guest', [TicketController::class, 'storeGuest'])->name('tickets.store.guest');
 
-// Routes untuk guest (belum login)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
@@ -80,6 +83,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/services/{service}/qrcode/data', [ServiceManagementController::class, 'getQrCode'])
     ->middleware('role:2')
     ->name('services.qrcode.data');
+    Route::middleware(['auth', 'role:1'])->group(function () {
+    Route::get('/settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index')->middleware('role:1');
+    Route::patch('/settings/pengadu_message_limit', [App\Http\Controllers\SettingController::class, 'updateMessageLimit'])->name('settings.updateMessageLimit')->middleware('role:1');
+});
     // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });
 

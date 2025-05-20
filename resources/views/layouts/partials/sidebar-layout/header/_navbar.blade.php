@@ -15,38 +15,7 @@
     <!-- OneUI framework -->
     <link rel="stylesheet" id="css-main" href="{{asset('assets2/css/oneui.min.css')}}">
     <script src="{{asset('assets2/js/setTheme.js/')}}"></script>
-    <style>
-        .nav-main-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            border-radius: 8px;
-            color: #4B5563;
-            text-decoration: none;
-            transition: background-color 0.3s, color 0.3s;
-        }
 
-        .nav-main-link:hover {
-            background-color: #487FFF;
-            color: white !important;
-        }
-
-        .nav-main-link:hover .nav-main-link-icon,
-        .nav-main-link:hover .nav-main-link-name {
-            color: white !important;
-        }
-
-        .nav-main-link.active {
-            background-color: #487FFF;
-            color: white !important;
-            font-weight: 600;
-        }
-
-        .nav-main-link.active .nav-main-link-icon,
-        .nav-main-link.active .nav-main-link-name {
-            color: white !important;
-        }
-    </style>
 </head>
 
 <body>
@@ -58,7 +27,7 @@
                         <i class="fa fa-circle-notch text-primary"></i>
                     </span>
                     <span class="smini-hide">
-                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="55">
+                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="50">
                     </span>
                 </a>
                 <div class="d-flex align-items-center gap-1">
@@ -72,7 +41,7 @@
 
             <!-- Sidebar Scrolling -->
             <div class="js-sidebar-scroll">
-                <div class="content-side" style="margin-left: 10px;">
+                <div class="content-side">
                     <ul class="nav-main">
                         @if (auth()->user()->role_id == 2) {{-- Operator --}}
                         <li class="nav-main-item mb-2">
@@ -149,6 +118,12 @@
                                 Kelola Pengguna
                             </a>
                         </li>
+                        <li class="nav-main-item mb-2">
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('settings.index') }}">
+                                <i class="nav-main-link-icon si si-users me-2"></i>
+                                Settings
+                            </a>
+                        </li>
                         @else {{-- Warga --}}
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark {{ request()->routeIs('dashboard.warga') ? 'active' : '' }}" href="{{ route('dashboard.warga') }}">
@@ -177,7 +152,7 @@
         </nav>
 
         <!-- Header -->
-        <header id="page-header" style="background-color: #ebeef2; position: fixed; top: 0;">
+        <header id="page-header">
             <div class="content-header">
                 <div class="d-flex align-items-center">
                     <!-- Toggle Sidebar -->
@@ -261,6 +236,45 @@
             min-height: 1rem;
         }
 
+        #page-header {
+            background-color: #ebeef2 !important;
+            position: fixed;
+        }
+
+        #sidebar {
+            box-shadow: 1px 0 8px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .nav-main-link {
+            display: flex;
+            align-items: center;
+            color: #4B5563;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-main-link:hover {
+            background-color: #487FFF;
+            color: white !important;
+        }
+
+        .nav-main-link:hover .nav-main-link-icon,
+        .nav-main-link:hover .nav-main-link-name {
+            color: white !important;
+        }
+
+        .nav-main-link.active {
+            background-color: #487FFF;
+            color: white !important;
+            font-weight: 600;
+        }
+
+        .nav-main-link.active .nav-main-link-icon,
+        .nav-main-link.active .nav-main-link-name {
+            color: white !important;
+        }
+
+
         .nav-main-link:hover {
             background-color: #0287ff !important;
             color: rgb(255, 255, 255) !important;
@@ -285,6 +299,9 @@
             color: #ffffff !important;
             border-radius: 5px;
             position: relative;
+            padding: 10px 20px !important;
+            max-width: 90%;
+            margin: 0 auto;
         }
     </style>
     <script src="{{asset('assets2/js/oneui.app.min.js')}}"></script>

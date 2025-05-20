@@ -10,24 +10,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial data from backend (fallback if undefined)
     const initialTicketStats = window.initialTicketStats || { completed: 0, pending: 0, assigned: 0 };
 
-    // Function to update Statistics Cards
-    function updateStatisticsCards(stats) {
-        const total = (stats.completed || 0) + (stats.pending || 0) + (stats.assigned || 0);
-        const totalTicketsElement = document.getElementById('total-tickets');
-        const pendingTicketsElement = document.getElementById('pending-tickets');
-        const assignedTicketsElement = document.getElementById('assigned-tickets');
-        const completedTicketsElement = document.getElementById('completed-tickets');
+    // Calculate total and percentages with fallback for initial display
+    const total = (initialTicketStats.completed || 0) + (initialTicketStats.pending || 0) + (initialTicketStats.assigned || 0);
+    const percentageCompleted = total > 0 ? ((initialTicketStats.completed / total) * 100).toFixed(1) : 0;
+    const percentagePending = total > 0 ? ((initialTicketStats.pending / total) * 100).toFixed(1) : 0;
+    const percentageAssigned = total > 0 ? ((initialTicketStats.assigned / total) * 100).toFixed(1) : 0;
 
-        if (totalTicketsElement) totalTicketsElement.textContent = total;
-        if (pendingTicketsElement) pendingTicketsElement.textContent = stats.pending || 0;
-        if (assignedTicketsElement) assignedTicketsElement.textContent = stats.assigned || 0;
-        if (completedTicketsElement) completedTicketsElement.textContent = stats.completed || 0;
-
-        // Update percentage displays
-        const percentageCompleted = total > 0 ? ((stats.completed / total) * 100).toFixed(1) : 0;
-        const percentagePending = total > 0 ? ((stats.pending / total) * 100).toFixed(1) : 0;
-        const percentageAssigned = total > 0 ? ((stats.assigned / total) * 100).toFixed(1) : 0;
-
+    // Update percentage displays with stricter error handling
+    try {
         const pendingPercentElement = document.getElementById('pending-percent');
         const assignedPercentElement = document.getElementById('assigned-percent');
         const completedPercentElement = document.getElementById('completed-percent');
@@ -35,13 +25,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (pendingPercentElement) pendingPercentElement.textContent = `${percentagePending}%`;
         if (assignedPercentElement) assignedPercentElement.textContent = `${percentageAssigned}%`;
         if (completedPercentElement) completedPercentElement.textContent = `${percentageCompleted}%`;
+    } catch (err) {
+        console.error('Error updating percentage displays:', err.message);
     }
 
-    // Initial update of Statistics Cards with initialTicketStats
-    updateStatisticsCards(initialTicketStats);
-
     // Setup initial charts, map, and data
+    // Initialize Ticket Distribution Chart with initial stats (won't be updated by time range)
     setupTicketDistributionChart(initialTicketStats);
+    // Other charts that can be updated
     setupCharts();
     setupServiceDistributionChart();
     loadRecentTickets();
@@ -56,117 +47,126 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 1. Ticket Distribution Chart (Static, not updated by time range)
-    function setupTicketDistributionChart(stats) {
-        const ctx = document.getElementById('ticketDistributionChart')?.getContext('2d');
-        if (!ctx) {
-            console.error('Canvas element for ticketDistributionChart not found.');
-            return;
-        }
-
-        axios.get('/api/ticket-stats', { params: { unit_id: selectedUnitId || null } })
-            .then(response => {
-                const { completed = 0, pending = 0, assigned = 0 } = response.data || {};
-                const total = completed + pending + assigned;
-
-                // Update Statistics Cards with fetched data
-                updateStatisticsCards({ completed, pending, assigned });
-
-                // Create percentages for chart tooltip only
-                const getPercent = (val) => total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
-
-                if (window.ticketDistChart) window.ticketDistChart.destroy();
-
-                window.ticketDistChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Selesai', 'Pending', 'Ditugaskan'],
-                        datasets: [{
-                            label: 'Jumlah Tiket',
-                            data: [completed, pending, assigned],
-                            backgroundColor: ['#1CB178', '#F9C74F', '#4361EE'],
-                            borderWidth: 0,
-                            cutout: '60%'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'bottom',
-                                labels: {
-                                    boxWidth: 14,
-                                    boxHeight: 14,
-                                    padding: 16,
-                                    usePointStyle: true
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        let label = context.label || '';
-                                        let value = context.raw || 0;
-                                        let percent = getPercent(value);
-                                        return `${label}: ${value} (${percent}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error loading ticket stats:', error.response?.data || error.message);
-                // Fallback to zeros if API call fails
-                const completed = 0;
-                const pending = 0;
-                const assigned = 0;
-                updateStatisticsCards({ completed, pending, assigned });
-
-                if (window.ticketDistChart) window.ticketDistChart.destroy();
-
-                window.ticketDistChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Selesai', 'Pending', 'Ditugaskan'],
-                        datasets: [{
-                            label: 'Jumlah Tiket',
-                            data: [completed, pending, assigned],
-                            backgroundColor: ['#1CB178', '#F9C74F', '#4361EE'],
-                            borderWidth: 0,
-                            cutout: '60%'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'bottom',
-                                labels: {
-                                    boxWidth: 14,
-                                    boxHeight: 14,
-                                    padding: 16,
-                                    usePointStyle: true
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        let label = context.label || '';
-                                        let value = context.raw || 0;
-                                        let percent = '0.0';
-                                        return `${label}: ${value} (${percent}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            });
+function setupTicketDistributionChart() {
+    const ctx = document.getElementById('ticketDistributionChart')?.getContext('2d');
+    if (!ctx) {
+        console.error('Canvas element for ticketDistributionChart not found.');
+        return;
     }
+
+    // Fetch ticket stats from TicketController
+    axios.get('/api/ticket-stats', { params: { unit_id: window.currentOperatorUnitId || null } })
+        .then(response => {
+            const { completed = 0, pending = 0, assigned = 0 } = response.data || {};
+            const total = completed + pending + assigned;
+
+            // Update the ticket counts in the HTML
+            // document.getElementById('total-tickets').textContent = total;
+            // document.getElementById('pending-tickets').textContent = pending;
+            // document.getElementById('assigned-tickets').textContent = assigned;
+            // document.getElementById('completed-tickets').textContent = completed;
+
+            // Create percentages for chart tooltip only
+            const getPercent = (val) => total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
+
+            if (window.ticketDistChart) window.ticketDistChart.destroy();
+
+            window.ticketDistChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Selesai', 'Pending', 'Ditugaskan'],
+                    datasets: [{
+                        label: 'Jumlah Tiket',
+                        data: [completed, pending, assigned],
+                        backgroundColor: ['#1CB178', '#F9C74F', '#4361EE'],
+                        borderWidth: 0,
+                        cutout: '60%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 14,
+                                boxHeight: 14,
+                                padding: 16,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.label || '';
+                                    let value = context.raw || 0;
+                                    let percent = getPercent(value);
+                                    return `${label}: ${value} (${percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading ticket stats:', error.response?.data || error.message);
+            // Fallback to zeros if API call fails
+            const completed = 0;
+            const pending = 0;
+            const assigned = 0;
+            const total = 0;
+
+            document.getElementById('total-tickets').textContent = total;
+            document.getElementById('pending-tickets').textContent = pending;
+            document.getElementById('assigned-tickets').textContent = assigned;
+            document.getElementById('completed-tickets').textContent = completed;
+
+            if (window.ticketDistChart) window.ticketDistChart.destroy();
+
+            window.ticketDistChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Selesai', 'Pending', 'Ditugaskan'],
+                    datasets: [{
+                        label: 'Jumlah Tiket',
+                        data: [completed, pending, assigned],
+                        backgroundColor: ['#1CB178', '#F9C74F', '#4361EE'],
+                        borderWidth: 0,
+                        cutout: '60%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 14,
+                                boxHeight: 14,
+                                padding: 16,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.label || '';
+                                    let value = context.raw || 0;
+                                    let percent = '0.0';
+                                    return `${label}: ${value} (${percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+}
 
     // 2. Ticket Performance Chart
     function setupTicketPerformanceChart() {
@@ -180,7 +180,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const params = { unit_id: selectedUnitId };
+        const params = {};
+
         if (startDate && endDate) {
             params.custom_start = startDate;
             params.custom_end = endDate;
@@ -188,26 +189,29 @@ document.addEventListener('DOMContentLoaded', function () {
             const timeRange = document.querySelector('.dropdown-item.active[data-time-range]')?.getAttribute('data-time-range') || 'week';
             params.time_range = timeRange;
         }
-        console.log('API call parameters:', params);
+        console.log('API call parameters:', params); // Debugging
 
         axios.get('/api/ticket-performance', { params })
             .then(response => {
-                console.log('API response:', response.data);
+                console.log('API response:', response.data); // Debugging
                 const { labels, created, completed, pending, assigned } = response.data || { labels: [], created: [], completed: [], pending: 0, assigned: 0 };
 
+                // Validate data before rendering
                 if (!Array.isArray(labels) || !Array.isArray(created) || !Array.isArray(completed)) {
                     console.error('Invalid data format:', { labels, created, completed });
                     return;
                 }
 
+                // Ensure data lengths match
                 if (labels.length !== created.length || labels.length !== completed.length) {
                     console.error('Data length mismatch:', { labelsLength: labels.length, createdLength: created.length, completedLength: completed.length });
                     return;
                 }
 
+                // If no data, display a placeholder message
                 if (labels.length === 0) {
                     console.warn('No data available for the selected time range.');
-                    ctx.canvas.style.display = 'none';
+                    ctx.canvas.style.display = 'none'; // Hide canvas
                     const placeholder = document.createElement('div');
                     placeholder.innerText = 'Tidak ada data untuk ditampilkan.';
                     placeholder.style.textAlign = 'center';
@@ -215,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ctx.canvas.parentNode.appendChild(placeholder);
                     return;
                 } else {
-                    ctx.canvas.style.display = 'block';
+                    ctx.canvas.style.display = 'block'; // Show canvas
                     const existingPlaceholder = ctx.canvas.parentNode.querySelector('div');
                     if (existingPlaceholder) {
                         existingPlaceholder.remove();
@@ -288,10 +292,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                 });
+
+                // Update stats elements (excluding distribution stats)
+                const totalTicketsElement = document.getElementById('total-tickets');
+                const pendingTicketsElement = document.getElementById('pending-tickets');
+                const assignedTicketsElement = document.getElementById('assigned-tickets');
+                const completedTicketsElement = document.getElementById('completed-tickets');
+
+                if (totalTicketsElement) totalTicketsElement.textContent = (completed || 0) + (pending || 0) + (assigned || 0);
+                if (pendingTicketsElement) pendingTicketsElement.textContent = pending || 0;
+                if (assignedTicketsElement) assignedTicketsElement.textContent = assigned || 0;
+                if (completedTicketsElement) completedTicketsElement.textContent = completed || 0;
             })
             .catch(error => {
                 console.error('Error loading ticket performance:', error.response?.data || error.message);
-                ctx.canvas.style.display = 'none';
+                ctx.canvas.style.display = 'none'; // Hide canvas on error
                 const placeholder = document.createElement('div');
                 placeholder.innerText = 'Terjadi kesalahan saat memuat data.';
                 placeholder.style.textAlign = 'center';
@@ -300,14 +315,14 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // 3. Ticket Category Chart
+    // 3. Ticket Category Chart (Perbandingan Role Pengadu)
     function setupTicketCategoryChart() {
         const ctx = document.getElementById('ticketCategoryChart')?.getContext('2d');
         if (!ctx) {
             console.error('Canvas element for ticketCategoryChart not found.');
             return;
         }
-        axios.get('/api/ticket-categories', { params: { unit_id: selectedUnitId } })
+        axios.get('/api/ticket-categories', { params: {  } })
             .then(response => {
                 const { labels, counts } = response.data;
                 if (window.categoryChart) {
@@ -356,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        axios.get('/api/resolution-times', { params: { unit_id: selectedUnitId } })
+        axios.get('/api/resolution-times', { params: { } })
             .then(response => {
                 const { services, avgResolutionDays } = response.data || { services: [], avgResolutionDays: [] };
 
@@ -511,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (nextButton) nextButton.disabled = currentServiceIndex === servicesData.length - 1;
         }
 
-        axios.get('/api/service-stats', { params: { unit_id: selectedUnitId } })
+        axios.get('/api/service-stats', { params: { } })
             .then(response => {
                 servicesData = response.data || [];
                 currentServiceIndex = 0;
@@ -541,40 +556,40 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // 7. Load Recent Tickets
-    function loadRecentTickets() {
-        const tableBody = document.getElementById('recent-tickets-table');
-        if (!tableBody) {
-            console.error('Table element for recent-tickets-table not found.');
-            return;
-        }
-        axios.get('/api/recent-tickets', { params: { unit_id: selectedUnitId } })
-            .then(response => {
-                const tickets = response.data || [];
-                tableBody.innerHTML = '';
-                if (tickets.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Tidak ada tiket terbaru.</td></tr>';
-                    return;
-                }
-                tickets.forEach(ticket => {
-                    const statusBadge = getStatusBadge(ticket.status || 'unknown');
-                    const row = `
-                        <tr>
-                            <td class="text-ellipsis">${ticket.code || 'N/A'}</td>
-                            <td class="text-ellipsis">${ticket.title || 'No Title'}</td>
-                            <td class="text-ellipsis">${ticket.created_at ? new Date(ticket.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}</td>
-                            <td class="text-ellipsis">${ticket.unit_name || 'N/A'}</td>
-                            <td class="text-center">${statusBadge}</td>
-                        </tr>
-                    `;
-                    tableBody.insertAdjacentHTML('beforeend', row);
-                });
-            })
-            .catch(error => {
-                console.error('Error loading recent tickets:', error.response?.data || error.message);
-                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Gagal memuat tiket.</td></tr>';
-            });
+   // 7. Load Recent Tickets
+function loadRecentTickets() {
+    const tableBody = document.getElementById('recent-tickets-table');
+    if (!tableBody) {
+        console.error('Table element for recent-tickets-table not found.');
+        return;
     }
+    axios.get('/api/recent-tickets', { params: { unit_id: selectedUnitId } })
+        .then(response => {
+            const tickets = response.data || [];
+            tableBody.innerHTML = '';
+            if (tickets.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Tidak ada tiket terbaru.</td></tr>';
+                return;
+            }
+            tickets.forEach(ticket => {
+                const statusBadge = getStatusBadge(ticket.status || 'unknown');
+                const row = `
+                    <tr>
+                        <td class="text-ellipsis">${ticket.code || 'N/A'}</td>
+                        <td class="text-ellipsis">${ticket.title || 'No Title'}</td>
+                        <td class="text-ellipsis">${ticket.created_at ? new Date(ticket.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}</td>
+                        <td class="text-ellipsis">${ticket.unit_name || 'N/A'}</td>
+                        <td class="text-center">${statusBadge}</td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading recent tickets:', error.response?.data || error.message);
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Gagal memuat tiket.</td></tr>';
+        });
+}
 
     // Helper function to get status badge
     function getStatusBadge(status) {
@@ -615,16 +630,28 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (selectedUnitNameElement) {
                             selectedUnitNameElement.textContent = selectedUnitId ? this.textContent : 'Semua Unit';
                         }
-
-                        // Update Ticket Distribution Chart and Statistics Cards
-                        axios.get('/api/ticket-stats', { params: { unit_id: selectedUnitId } })
+                        // Update Ticket Distribution Chart with initial stats for the selected unit
+                        axios.get('/api/stats', { params: { unit_id: selectedUnitId } })
                             .then(response => {
                                 const ticketStats = response.data || { completed: 0, pending: 0, assigned: 0 };
                                 setupTicketDistributionChart(ticketStats);
+
+                                // Update percentage displays
+                                const total = (ticketStats.completed || 0) + (ticketStats.pending || 0) + (ticketStats.assigned || 0);
+                                const percentageCompleted = total > 0 ? ((ticketStats.completed / total) * 100).toFixed(1) : 0;
+                                const percentagePending = total > 0 ? ((ticketStats.pending / total) * 100).toFixed(1) : 0;
+                                const percentageAssigned = total > 0 ? ((ticketStats.assigned / total) * 100).toFixed(1) : 0;
+
+                                const pendingPercentElement = document.getElementById('pending-percent');
+                                const assignedPercentElement = document.getElementById('assigned-percent');
+                                const completedPercentElement = document.getElementById('completed-percent');
+
+                                if (pendingPercentElement) pendingPercentElement.textContent = `${percentagePending}%`;
+                                if (assignedPercentElement) assignedPercentElement.textContent = `${percentageAssigned}%`;
+                                if (completedPercentElement) completedPercentElement.textContent = `${percentageCompleted}%`;
                             })
                             .catch(error => {
                                 console.error('Error loading ticket stats for unit:', error.response?.data || error.message);
-                                setupTicketDistributionChart({ completed: 0, pending: 0, assigned: 0 });
                             });
 
                         refreshDashboard();
@@ -636,27 +663,45 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // 9. Refresh Dashboard Data (Excluding Ticket Distribution and Statistics Cards)
+    // 9. Refresh Dashboard Data (Excluding Ticket Distribution)
     function refreshDashboard() {
-        setupCharts();
-        setupServiceDistributionChart();
-        loadRecentTickets();
-        setupPerServiceChart();
+        const timeRange = document.querySelector('.dropdown-item.active[data-time-range]')?.getAttribute('data-time-range') || 'week';
+        axios.get('/api/ticket-performance', {
+            params: { unit_id: selectedUnitId, time_range: timeRange }
+        })
+            .then(response => {
+                setupCharts();
+                setupServiceDistributionChart();
+                loadRecentTickets();
+                setupPerServiceChart();
+            })
+            .catch(error => {
+                console.error('Error refreshing dashboard:', error.response?.data || error.message);
+            });
     }
 
     function refreshDashboardWithCustomRange(startDate, endDate) {
-        setupCharts();
-        setupServiceDistributionChart();
-        loadRecentTickets();
-        setupPerServiceChart();
-        setupTicketPerformanceChartWithCustomRange(startDate, endDate);
+        axios.get('/api/ticket-performance', {
+            params: { unit_id: selectedUnitId, custom_start: startDate, custom_end: endDate }
+        })
+            .then(response => {
+                setupCharts();
+                setupServiceDistributionChart();
+                loadRecentTickets();
+                setupPerServiceChart();
+                setupTicketPerformanceChartWithCustomRange(startDate, endDate);
+            })
+            .catch(error => {
+                console.error('Error refreshing dashboard with custom range:', error.response?.data || error.message);
+            });
     }
+
 
     // Event listeners for time range selection
     document.querySelectorAll('.dropdown-item[data-time-range]')?.forEach(item => {
-        console.log('Dropdown item found:', item.getAttribute('data-time-range'));
+        console.log('Dropdown item found:', item.getAttribute('data-time-range')); // Debugging
         item.addEventListener('click', function() {
-            console.log('Dropdown item clicked:', this.getAttribute('data-time-range'));
+            console.log('Dropdown item clicked:', this.getAttribute('data-time-range')); // Debugging
             document.querySelectorAll('.dropdown-item[data-time-range]').forEach(i => i.classList.remove('active'));
             this.classList.add('active');
             if (window.customDatePicker) {
@@ -666,7 +711,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Initialize Flatpickr for custom range
+    // Inisialisasi Flatpickr untuk rentang kustom
     const customDatePickerElement = document.getElementById('custom-date-picker');
     if (!customDatePickerElement) {
         console.error('Element #custom-date-picker not found in DOM.');
@@ -675,8 +720,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const customDatePicker = flatpickr('#custom-date-picker', {
             mode: 'range',
             dateFormat: 'Y-m-d',
-            defaultDate: [new Date(), new Date()],
-            maxDate: new Date(),
+            defaultDate: [new Date(), new Date()], // Set default to today for better UX
+            maxDate: new Date(), // Prevent future dates since today is May 15, 2025
             onClose: function(selectedDates, dateStr, instance) {
                 console.log('Flatpickr onClose triggered:', selectedDates);
                 if (selectedDates.length === 2) {
@@ -684,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const endDate = selectedDates[1].toISOString().split('T')[0];
                     console.log('Custom range selected:', startDate, endDate);
                     document.querySelectorAll('.dropdown-item[data-time-range]').forEach(i => i.classList.remove('active'));
-                    document.getElementById('custom-range')?.classList.add('414active');
+                    document.getElementById('custom-range')?.classList.add('active');
                     refreshDashboardWithCustomRange(startDate, endDate);
                 } else {
                     console.warn('Please select a valid date range.');
@@ -707,4 +752,5 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.btn-block-option[data-action="state_toggle"]')?.forEach(button => {
         button.addEventListener('click', () => refreshDashboard());
     });
+    
 });

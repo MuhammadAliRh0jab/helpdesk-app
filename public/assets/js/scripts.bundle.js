@@ -8058,7 +8058,7 @@ var KTThemeMode = function () {
             return document.documentElement.getAttribute("data-bs-theme");
         } else if ( localStorage.getItem("data-bs-theme") !== null ) {
 			return localStorage.getItem("data-bs-theme");
-		} else if ( getMenuMode() === "system" ) {
+		} else if ( getMenuMode() === "light" ) {
 			return getSystemMode();
 		}
 
@@ -8069,7 +8069,7 @@ var KTThemeMode = function () {
 		var currentMode = getMode();
 
 		// Reset mode if system mode was changed
-		if ( menuMode === 'system') {
+		if ( menuMode === 'light') {
 			if ( getSystemMode() !==  mode ) {
 				mode = getSystemMode();
 			}
@@ -8124,7 +8124,7 @@ var KTThemeMode = function () {
 	}
 
 	var getSystemMode = function() {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light";
+        return window.matchMedia('(prefers-color-scheme: light)').matches ? "dark" : "light";
     }
 
 	var initMode = function() {

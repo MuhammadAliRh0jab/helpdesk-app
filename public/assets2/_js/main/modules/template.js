@@ -49,7 +49,7 @@ export default class Template {
     this._lFooter = document.getElementById("page-footer");
 
     // Helper variables
-    this._darkMode = options?.darkMode || "system";
+    this._darkMode = options?.darkMode || "off";
     this._lSidebarScroll = false;
     this._lSideOverlayScroll = false;
 
@@ -207,8 +207,8 @@ export default class Template {
 
     // Get dark mode toggle buttons
     let btnLight = document.querySelector('[data-dark-mode="off"]');
-    let btnDark = document.querySelector('[data-dark-mode="on"]');
-    let btnSystem = document.querySelector('[data-dark-mode="system"]');
+    let btnDark = document.querySelector('[data-dark-mode="off"]');
+    let btnSystem = document.querySelector('[data-dark-mode="off"]');
 
     // Get dark mode icon
     let darkModeIcon = document.querySelector("[data-dark-mode-icon]");
@@ -217,11 +217,11 @@ export default class Template {
     if (["on", "off", "system"].includes(mode)) {
       if (mode === "on") {
         self._lHtml.classList.add("dark");
-        self._darkMode = "on";
+        self._darkMode = "off";
 
         // Save dark mode preference
         if (rememberDarkMode) {
-          localStorage.setItem("oneuiDarkMode", "on");
+          localStorage.setItem("oneuiDarkMode", "off");
         }
 
         // Set active buttons
@@ -268,11 +268,11 @@ export default class Template {
           }
         }
 
-        self._darkMode = "system";
+        self._darkMode = "off";
 
         // Save dark mode preference
         if (rememberDarkMode) {
-          localStorage.setItem("oneuiDarkMode", "system");
+          localStorage.setItem("oneuiDarkMode", "off");
         }
 
         // Set active buttons
@@ -294,11 +294,11 @@ export default class Template {
 
       // Set Dark Mode Preference
       if (darkMode === "on") {
-        self._uiHandleDarkMode("on");
+        self._uiHandleDarkMode("off");
       } else if (darkMode === "off") {
         self._uiHandleDarkMode("off");
       } else if (darkMode === "system") {
-        self._uiHandleDarkMode("system");
+        self._uiHandleDarkMode("off");
       }
 
       // If dark mode preference is changed on system, update it accordingly if dark mode is set to "system"
@@ -306,7 +306,7 @@ export default class Template {
         .matchMedia("(prefers-color-scheme: dark)")
         .addEventListener("change", () => {
           if (self._darkMode === "system") {
-            self._uiHandleDarkMode("system");
+            self._uiHandleDarkMode("off");
           }
         });
     }
@@ -579,13 +579,13 @@ export default class Template {
         }
       },
       dark_mode_on: () => {
-        this._uiHandleDarkMode("on");
+        this._uiHandleDarkMode("off");
       },
       dark_mode_off: () => {
         this._uiHandleDarkMode("off");
       },
       dark_mode_system: () => {
-        this._uiHandleDarkMode("system");
+        this._uiHandleDarkMode("off");
       },
       content_layout_toggle: () => {
         if (self._lPage.classList.contains("main-content-boxed")) {

@@ -17,35 +17,8 @@
         <div class="content">
             <!-- Statistics Cards -->
             <div class="row items-push">
-                <div class="col-sm-6 col-xl-2">
-                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
-                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                            <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="resolved-as-handler-tickets">0</dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Diselesaikan (Pelaksana)</dd>
-                            </dl>
-                            <div class="item item-rounded-lg bg-body-light">
-                                <i class="fas fa-check-circle fs-3 text-success"></i>
-                            </div>
-                        </div>
-                        <div class="bg-body-light rounded-bottom"></div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xl-2">
-                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
-                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                            <dl class="mb-0">
-                                <dt class="fs-3 fw-bold" id="to-be-completed-as-handler-tickets">0</dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Harus Diselesaikan (Pelaksana)</dd>
-                            </dl>
-                            <div class="item item-rounded-lg bg-body-light">
-                                <i class="fas fa-user-clock fs-3 text-info"></i>
-                            </div>
-                        </div>
-                        <div class="bg-body-light rounded-bottom"></div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xl-2">
+
+                <div class="col-sm-6 col-xl-4">
                     <div class="block block-rounded d-flex flex-column h-100 mb-0">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
@@ -59,7 +32,7 @@
                         <div class="bg-body-light rounded-bottom"></div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-2">
+                <div class="col-sm-6 col-xl-4">
                     <div class="block block-rounded d-flex flex-column h-100 mb-0">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
@@ -73,7 +46,7 @@
                         <div class="bg-body-light rounded-bottom"></div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-2">
+                <div class="col-sm-6 col-xl-4">
                     <div class="block block-rounded d-flex flex-column h-100 mb-0">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
@@ -82,6 +55,34 @@
                             </dl>
                             <div class="item item-rounded-lg bg-body-light">
                                 <i class="fas fa-check-double fs-3 text-success"></i>
+                            </div>
+                        </div>
+                        <div class="bg-body-light rounded-bottom"></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-6">
+                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="fs-3 fw-bold" id="to-be-completed-as-handler-tickets">0</dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Harus Diselesaikan (Pelaksana)</dd>
+                            </dl>
+                            <div class="item item-rounded-lg bg-body-light">
+                                <i class="fas fa-user-clock fs-3 text-info"></i>
+                            </div>
+                        </div>
+                        <div class="bg-body-light rounded-bottom"></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-6">
+                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="fs-3 fw-bold" id="resolved-as-handler-tickets">0</dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Diselesaikan (Pelaksana)</dd>
+                            </dl>
+                            <div class="item item-rounded-lg bg-body-light">
+                                <i class="fas fa-check-circle fs-3 text-success"></i>
                             </div>
                         </div>
                         <div class="bg-body-light rounded-bottom"></div>
@@ -349,43 +350,52 @@
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
+
     .block-header {
         background: #f8f9fa;
         border-bottom: 1px solid #e9ecef;
         border-radius: 8px 8px 0 0;
         padding: 1rem 1.5rem;
     }
+
     .block-title {
         color: #343a40;
         font-weight: 600;
         font-size: 1.1rem;
     }
+
     .block-content {
         padding: 1.5rem;
         background: #fff;
     }
+
     .block-content.bg-body-light {
         background: #f8f9fa;
         border-radius: 0 0 8px 8px;
     }
+
     .btn-alt-primary {
         background-color: #4361EE;
         color: #fff;
         border: none;
         transition: background-color 0.3s ease;
     }
+
     .btn-alt-primary:hover {
         background-color: #3347b0;
     }
+
     .btn-alt-secondary {
         background-color: #6c757d;
         color: #fff;
         border: none;
         transition: background-color 0.3s ease;
     }
+
     .btn-alt-secondary:hover {
         background-color: #5a6268;
     }
+
     canvas {
         max-height: 300px !important;
     }
@@ -393,7 +403,8 @@
     /* Specific styling for Resolution by Service Chart */
     #resolutionByServiceChart {
         width: 100% !important;
-        height: 240px !important; /* Match the inline style in the template */
+        height: 240px !important;
+        /* Match the inline style in the template */
     }
 
     /* Responsive adjustments */
@@ -401,9 +412,11 @@
         .block-content {
             padding: 1rem;
         }
+
         .block-title {
             font-size: 1rem;
         }
+
         #resolutionByServiceChart {
             height: 200px !important;
         }
@@ -413,9 +426,11 @@
         .block-content {
             padding: 0.75rem;
         }
+
         .block-title {
             font-size: 0.9rem;
         }
+
         #resolutionByServiceChart {
             height: 180px !important;
         }
@@ -424,9 +439,10 @@
 @endsection
 
 @section('scripts')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="{{ asset('assets/js/pegawai_dashboard.js') }}"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="{{ asset('assets/js/pegawai_dashboard.js') }}"></script>
 </body>
+
 </html>
 @endsection
