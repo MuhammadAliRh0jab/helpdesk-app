@@ -15,48 +15,7 @@
     <!-- OneUI framework -->
     <link rel="stylesheet" id="css-main" href="{{asset('assets2/css/oneui.min.css')}}">
     <script src="{{asset('assets2/js/setTheme.js/')}}"></script>
-    <style>
-        .nav-main-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            /* border-radius: 8px; */
-            color: #4B5563;
-            text-decoration: none;
-            transition: background-color 0.3s, color 0.3s;
-        }
 
-        .nav-main-link:hover {
-            background-color: #487FFF;
-            color: white !important;
-        }
-
-        .nav-main-link:hover .nav-main-link-icon,
-        .nav-main-link:hover .nav-main-link-name {
-            color: white !important;
-        }
-
-        .nav-main-link.active {
-            background-color: #487FFF;
-            color: white !important;
-            font-weight: 600;
-        }
-
-        .nav-main-link.active .nav-main-link-icon,
-        .nav-main-link.active .nav-main-link-name {
-            color: white !important;
-        }
-
-        #page-header {
-            background-color: #ebeef2 !important;
-            position: fixed;
-        }
-
-        #sidebar {
-            box-shadow: 1px 0 8px rgba(0, 0, 0, 0.15) !important;
-            padding-right: 10px;
-        }
-    </style>
 </head>
 
 <body>
@@ -82,7 +41,7 @@
 
             <!-- Sidebar Scrolling -->
             <div class="js-sidebar-scroll">
-                <div class="content-side" style="margin-left: 10px;">
+                <div class="content-side">
                     <ul class="nav-main">
                         @if (auth()->user()->role_id == 2) {{-- Operator --}}
                         <li class="nav-main-item mb-2">
@@ -277,6 +236,45 @@
             min-height: 1rem;
         }
 
+        #page-header {
+            background-color: #ebeef2 !important;
+            position: fixed;
+        }
+
+        #sidebar {
+            box-shadow: 1px 0 8px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .nav-main-link {
+            display: flex;
+            align-items: center;
+            color: #4B5563;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-main-link:hover {
+            background-color: #487FFF;
+            color: white !important;
+        }
+
+        .nav-main-link:hover .nav-main-link-icon,
+        .nav-main-link:hover .nav-main-link-name {
+            color: white !important;
+        }
+
+        .nav-main-link.active {
+            background-color: #487FFF;
+            color: white !important;
+            font-weight: 600;
+        }
+
+        .nav-main-link.active .nav-main-link-icon,
+        .nav-main-link.active .nav-main-link-name {
+            color: white !important;
+        }
+
+
         .nav-main-link:hover {
             background-color: #0287ff !important;
             color: rgb(255, 255, 255) !important;
@@ -301,6 +299,9 @@
             color: #ffffff !important;
             border-radius: 5px;
             position: relative;
+            padding: 10px 20px !important;
+            max-width: 90%;
+            margin: 0 auto;
         }
     </style>
     <script src="{{asset('assets2/js/oneui.app.min.js')}}"></script>
