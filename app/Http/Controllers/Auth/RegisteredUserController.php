@@ -22,7 +22,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        return view('theme::auth.register');
     }
 
     /**
@@ -38,7 +38,7 @@ class RegisteredUserController extends Controller
                 'phone' => 'nullable|string|max:255',
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
                 'role_id' => 'required|in:4',
-            ]);            
+            ]);
 
             $user = User::create([
                 'name' => $request->name,
@@ -55,11 +55,9 @@ class RegisteredUserController extends Controller
 
             session()->flash('success', 'Registrasi berhasil! Anda akan diarahkan ke halaman login.');
             return redirect()->route('register');
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             session()->flash('error', 'Registrasi gagal. Silakan periksa kembali data Anda.');
             return redirect()->route('register')->withErrors($e)->withInput();
-
         } catch (QueryException $e) {
             Log::error('SQL Error during registration', [
                 'message' => $e->getMessage(),
@@ -71,7 +69,6 @@ class RegisteredUserController extends Controller
 
             session()->flash('error', 'Registrasi gagal karena kesalahan database.');
             return redirect()->route('register')->withInput();
-
         } catch (\Exception $e) {
             Log::error('Unexpected error during registration', [
                 'message' => $e->getMessage(),
