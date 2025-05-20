@@ -33,13 +33,13 @@ class RegisteredUserController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'username' => 'required|string|max:255|unique:' . User::class,
-                'email' => 'nullable|email|max:255|unique:' . User::class,
+                'username' => 'required|string|max:255|unique:users,username',
+'email' => 'nullable|email|max:255|unique:users,email',
                 'phone' => 'nullable|string|max:255',
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
                 'role_id' => 'required|in:4',
             ]);
-
+            // dd($request->all());
             $user = User::create([
                 'name' => $request->name,
                 'username' => $request->username,
@@ -62,7 +62,7 @@ class RegisteredUserController extends Controller
             Log::error('SQL Error during registration', [
                 'message' => $e->getMessage(),
                 'sql' => $e->getSql(),
-                'bindings' => $e->getBindings(),
+                'bindings' => json_encode($e->getBindings()),
                 'exception' => $e,
                 'request_data' => $request->except(['password', 'password_confirmation']),
             ]);

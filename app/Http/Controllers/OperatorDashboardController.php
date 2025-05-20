@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class OperatorDashboardContorller extends Controller
+class OperatorDashboardController extends Controller
 {
     public function ticketStats(Request $request)
 {

@@ -62,6 +62,7 @@
                                 <th>Tanggal Dibuat</th>
                                 <th class="d-none d-sm-table-cell">Kode Tiket</th>
                                 <th class="d-none d-sm-table-cell">Judul</th>
+                                <th class="d-none d-sm-table-cell">Pengadu</th>
                                 <th class="d-none d-sm-table-cell">Status</th>
                                 <th class="d-none d-sm-table-cell">Layanan</th>
                                 @if (auth()->user()->role_id == 2)
@@ -78,6 +79,14 @@
                                     <td class="p-2 text-dark">{{ $ticket->created_at->timezone('Asia/Jakarta')->format('j F Y, H:i') }}</td>
                                     <td class="p-2 text-dark">{{ $ticket->ticket_code }}</td>
                                     <td class="p-2 text-dark">{{ $ticket->title }}</td>
+                                    <td class="p-2 text-dark">
+                                        @if ($ticket->user_id)
+                                            {{ $ticket->user->username ?? 'Unknown' }}
+                                        @else
+                                            {{ $ticket->guest_name ?? 'Guest' }} (Guest)
+                                            <span class="fs-xs fw-semibold d-inline-block py-1 px-2 rounded-pill bg-secondary-light text-secondary ms-1">Guest</span>
+                                        @endif
+                                    </td>
                                     <td class="p-2 text-dark">
                                         @if($ticket->status == 0)
                                             <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>
@@ -193,6 +202,13 @@
                                                     <p><strong>Waktu Dibuat:</strong> {{ $ticket->created_at->timezone('Asia/Jakarta')->format('j F Y, H:i') }}</p>
                                                     <p><strong>Kode Tiket:</strong> {{ $ticket->ticket_code }}</p>
                                                     <p><strong>Judul:</strong> {{ $ticket->title }}</p>
+                                                    <p><strong>Pengadu:</strong>
+                                                        @if ($ticket->user_id)
+                                                            {{ $ticket->user->username ?? 'Unknown' }}
+                                                        @else
+                                                            {{ $ticket->guest_name ?? 'Guest' }} (Guest)
+                                                        @endif
+                                                    </p>
                                                     <p><strong>Status:</strong>
                                                         @if($ticket->status == 0)
                                                             <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>
@@ -253,20 +269,20 @@
                                                                 <div class="message-info d-flex align-items-center gap-2 mb-1">
                                                                     @if (!$isSender)
                                                                         <div class="avatar" style="width: 28px; height: 28px; border-radius: 50%; background-color: #1e3a8a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600;">
-                                                                            {{ substr($response->user->username, 0, 1) }}
+                                                                            {{ substr($response->user->username ?? 'Unknown', 0, 1) }}
                                                                         </div>
                                                                     @endif
                                                                     <span class="message-sender" style="font-weight: 600; font-size: 0.85rem; color: #374151;">
                                                                         @if ($response->user->role_id == 2)
                                                                             Sistem (Operator)
                                                                         @else
-                                                                            {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
+                                                                            {{ $response->user->username ?? 'Unknown' }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
                                                                         @endif
                                                                     </span>
                                                                 </div>
                                                                 @if ($response->ticket_id_quote)
                                                                     <div class="message-quote" style="font-style: italic; {{ $isSender ? 'color: rgba(255, 255, 255, 0.8);' : 'color: #6b7280;' }} font-size: 0.8rem; margin-bottom: 6px; padding-left: 8px; border-left: 2px solid {{ $isSender ? 'rgba(255, 255, 255, 0.5)' : '#d1d5db' }};">
-                                                                        "{{ $response->quotedResponse->message }}"
+                                                                        "{{ $response->quotedResponse->message ?? 'Quoted message not found' }}"
                                                                     </div>
                                                                 @endif
                                                                 <div class="message-box {{ $isSender ? 'sent' : 'received' }}" style="max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 0.5rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
@@ -311,9 +327,11 @@
                                                                 ->where('created_at', '>', $lastPegawaiResponse->created_at)
                                                                 ->count();
                                                         }
+                                                        $messageLimit = \App\Models\Setting::where('key', 'pengadu_message_limit')->value('value') ?? 10;
+                                                        $canReply = auth()->user()->role_id == 4 && ($ticket->user_id == auth()->user()->id || $ticket->guest_email == auth()->user()->email) && $ticket->status != 2 && $pengaduMessagesSinceLastPegawai < $messageLimit;
                                                     @endphp
 
-                                                    @if (auth()->user()->role_id == 4 && $ticket->user_id == auth()->user()->id && $ticket->status != 2 && $pengaduMessagesSinceLastPegawai < 10)
+                                                    @if ($canReply)
                                                         <div class="reply-container" style="background-color: white; border-top: 1px solid #e5e7eb; padding: 1rem;">
                                                             <form id="reply-form-{{ $ticket->id }}" action="{{ route('tickets.reply', $ticket->id) }}" method="POST" enctype="multipart/form-data" class="reply-form">
                                                                 @csrf
@@ -356,6 +374,18 @@
         </div>
     </main>
 </div>
+
+<!-- Pass user data to JavaScript -->
+<script>
+    window.app = {
+        user: {
+            id: {{ auth()->user()->id }},
+            email: "{{ auth()->user()->email }}",
+            role_id: {{ auth()->user()->role_id }}
+        },
+        messageLimit: {{ \App\Models\Setting::where('key', 'pengadu_message_limit')->value('value') ?? 10 }}
+    };
+</script>
 
 <style>
 /* Custom styling untuk chat modal */
@@ -412,6 +442,15 @@
     color: white;
     font-size: 0.75rem;
     font-weight: 600;
+}
+
+/* Styling untuk guest ticket badge */
+.bg-secondary-light {
+    background-color: #e5e7eb;
+}
+
+.text-secondary {
+    color: #6b7280;
 }
 
 /* Ensure pagination style matches the image */
@@ -482,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.tickets.data.length === 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td colspan="${{{ auth()->user()->role_id == 2 ? 10 : 8 }}}" class="p-2 text-dark text-center">
+                    <td colspan="${window.app.role_id == 2 ? 10 : 8}" class="p-2 text-dark text-center">
                         Tidak ada aduan yang ditemukan.
                     </td>
                 `;
@@ -497,12 +536,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td class="p-2 text-dark">${ticket.ticket_code}</td>
                         <td class="p-2 text-dark">${ticket.title}</td>
                         <td class="p-2 text-dark">
+                            ${ticket.user_id ? 
+                                (ticket.user ? ticket.user.username : 'Unknown') :
+                                (ticket.guest_name ? ticket.guest_name : 'Guest') + ' <span class="fs-xs fw-semibold d-inline-block py-1 px-2 rounded-pill bg-secondary-light text-secondary ms-1">Guest</span>'
+                            }
+                        </td>
+                        <td class="p-2 text-dark">
                             ${ticket.status == 0 ? '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>' :
                               ticket.status == 1 ? '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info">Ditugaskan</span>' :
                               '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Selesai</span>'}
                         </td>
                         <td class="p-2 text-dark">${ticket.service ? ticket.service.svc_name : 'Tidak ditentukan'}</td>
-                        @if (auth()->user()->role_id == 2)
+                        ${window.app.role_id == 2 ? `
                             <td class="p-2">
                                 ${ticket.status != 2 ? `
                                     ${data.pics.length > 0 ? `
@@ -548,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </form>
                                 ` : '<span class="text-muted">Tidak dapat dialihkan</span>'}
                             </td>
-                        @endif
+                        ` : ''}
                         <td class="action-button p-2 text-center">
                             <div class="mb-2">
                                 <button type="button" class="btn btn-primary btn-sm detail-btn" data-bs-toggle="modal" data-bs-target="#detailModal-${ticket.id}" title="Detail">
@@ -563,12 +608,133 @@ document.addEventListener('DOMContentLoaded', function() {
                         </td>
                     `;
                     ticketsBody.appendChild(row);
+
+                    // Dynamically append modals for each ticket
+                    const modalContainer = document.createElement('div');
+                    modalContainer.innerHTML = `
+                        <!-- Modal Detail -->
+                        <div class="modal fade bg-dark" id="detailModal-${ticket.id}" tabindex="-1" aria-labelledby="detailModalLabel-${ticket.id}" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="detailModalLabel-${ticket.id}">Detail Tiket: ${ticket.ticket_code}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Waktu Dibuat:</strong> ${new Date(ticket.created_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                                        <p><strong>Kode Tiket:</strong> ${ticket.ticket_code}</p>
+                                        <p><strong>Judul:</strong> ${ticket.title}</p>
+                                        <p><strong>Pengadu:</strong> ${ticket.user_id ? (ticket.user ? ticket.user.username : 'Unknown') : (ticket.guest_name ? ticket.guest_name : 'Guest') + ' (Guest)'}</p>
+                                        <p><strong>Status:</strong>
+                                            ${ticket.status == 0 ? '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>' :
+                                              ticket.status == 1 ? '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info">Ditugaskan</span>' :
+                                              '<span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Selesai</span>'}
+                                        </p>
+                                        <p><strong>Layanan:</strong> ${ticket.service ? ticket.service.svc_name : 'Tidak ditentukan'}</p>
+                                        <p><strong>Deskripsi:</strong> ${ticket.description}</p>
+                                        <p><strong>Unit Asal:</strong> ${ticket.original_unit_id ? data.units.find(unit => unit.id == ticket.original_unit_id)?.unit_name : (ticket.unit ? ticket.unit.unit_name : 'Tidak ditentukan')}</p>
+                                        <p><strong>Unit Saat Ini:</strong> ${ticket.unit ? ticket.unit.unit_name : 'Tidak ditentukan'}</p>
+                                        <div class="mt-3">
+                                            <strong>Lokasi Aduan:</strong>
+                                            ${ticket.latitude && ticket.longitude ? `
+                                                <div class="d-flex flex-column gap-2 mt-2">
+                                                    <div class="d-flex gap-3">
+                                                        <p class="mb-0"><strong>Latitude:</strong> ${ticket.latitude}</p>
+                                                        <p class="mb-0"><strong>Longitude:</strong> ${ticket.longitude}</p>
+                                                    </div>
+                                                    <div id="map-${ticket.id}" style="height: 200px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                                                </div>
+                                            ` : '<p class="text-muted">Lokasi tidak tersedia.</p>'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal untuk Percakapan -->
+                        <div class="modal fade" id="chatModal-${ticket.id}" tabindex="-1" aria-labelledby="chatModalLabel-${ticket.id}" data-bs-backdrop="static" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                                    <div class="modal-header d-flex justify-content-between align-items-center py-3 px-4" style="background-color: #ffffff; border-bottom: 1px solid #e5e7eb;">
+                                        <h5 class="modal-title d-flex align-items-center gap-2 m-0" id="chatModalLabel-${ticket.id}">
+                                            <i class="fas fa-ticket-alt" style="color: #2563eb;"></i>
+                                            <span style="font-weight: 600; font-size: 1rem; color: #1f2937;">${ticket.ticket_code}</span>
+                                            ${ticket.status == 0 ? '<span class="badge bg-warning text-dark" style="font-size: 0.75rem; border-radius: 12px; padding: 0.25rem 0.75rem;">Pending</span>' :
+                                              ticket.status == 1 ? '<span class="badge bg-info text-white" style="font-size: 0.75rem; border-radius: 12px; padding: 0.25rem 0.75rem;">Ditugaskan</span>' :
+                                              '<span class="badge bg-success text-white" style="font-size: 0.75rem; border-radius: 12px; padding: 0.25rem 0.75rem;">Selesai</span>'}
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body p-0" style="display: flex; flex-direction: column; max-height: 70vh;">
+                                        <div class="chat-container" id="chat-container-${ticket.id}" style="flex: 1; overflow-y: auto; padding: 1.25rem; background-color: #f9fafb;">
+                                            ${ticket.responses && ticket.responses.length > 0 ? ticket.responses.map(response => `
+                                                <div class="message-wrapper mb-3" style="display: flex; flex-direction: column; align-items: ${response.user_id == window.app.user.id ? 'flex-end' : 'flex-start'};">
+                                                    <div class="message-info d-flex align-items-center gap-2 mb-1">
+                                                        ${response.user_id != window.app.user.id ? `
+                                                            <div class="avatar" style="width: 28px; height: 28px; border-radius: 50%; background-color: #1e3a8a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600;">
+                                                                ${response.user ? response.user.username.charAt(0) : 'U'}
+                                                            </div>
+                                                        ` : ''}
+                                                        <span class="message-sender" style="font-weight: 600; font-size: 0.85rem; color: #374151;">
+                                                            ${response.user && response.user.role_id == 2 ? 'Sistem (Operator)' :
+                                                              response.user ? `${response.user.username} (${response.user.role_id == 4 ? 'Pengadu' : 'PIC'})` : 'Unknown'}
+                                                        </span>
+                                                    </div>
+                                                    ${response.ticket_id_quote ? `
+                                                        <div class="message-quote" style="font-style: italic; ${response.user_id == window.app.user.id ? 'color: rgba(255, 255, 255, 0.8);' : 'color: #6b7280;'} font-size: 0.8rem; margin-bottom: 6px; padding-left: 8px; border-left: 2px solid ${response.user_id == window.app.user.id ? 'rgba(255, 255, 255, 0.5)' : '#d1d5db'};">
+                                                            "${response.quotedResponse ? response.quotedResponse.message : 'Quoted message not found'}"
+                                                        </div>
+                                                    ` : ''}
+                                                    <div class="message-box ${response.user_id == window.app.user.id ? 'sent' : 'received'}" style="max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 0.5rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                                                        ${response.uploads && response.uploads.length > 0 ? response.uploads.map(upload => `
+                                                            <div class="message-attachment mb-2">
+                                                                <a href="/storage/${upload.filename_path}" target="_blank">
+                                                                    <img src="/storage/${upload.filename_path}" alt="${upload.filename_ori}" style="width: 128px; height: 128px; object-fit: cover; border-radius: 8px; ${response.user_id != window.app.user.id ? 'border: 1px solid #e5e7eb;' : ''}">
+                                                                </a>
+                                                            </div>
+                                                        `).join('') : ''}
+                                                        <p class="mb-0" style="line-height: 1.5; font-size: 0.9rem;">${response.message}</p>
+                                                        <span class="message-time" style="font-size: 0.7rem; ${response.user_id == window.app.user.id ? 'color: rgba(255, 255, 255, 0.85);' : 'color: #6b7280;'} display: block; text-align: right; margin-top: 4px;">
+                                                            ${new Date(response.created_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            `).join('') : '<p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>'}
+                                        </div>
+                                        ${ticket.can_reply ? `
+                                            <div class="reply-container" style="background-color: white; border-top: 1px solid #e5e7eb; padding: 1rem;">
+                                                <form id="reply-form-${ticket.id}" action="/tickets/reply/${ticket.id}" method="POST" enctype="multipart/form-data" class="reply-form">
+                                                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                                                    <div class="reply-input-row d-flex gap-2 mb-2">
+                                                        <textarea class="form-control" name="message" placeholder="Ketik pesan Anda di sini..." required style="border-radius: 24px; border-color: #d1d5db; padding: 12px 16px; font-size: 0.9rem; resize: none;"></textarea>
+                                                        <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;">
+                                                            <i class="fas fa-paper-plane"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="attachment-row d-flex align-items-center gap-2">
+                                                        <button class="btn btn-outline-primary" type="button" id="custom-button-${ticket.id}" style="border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                                                            <i class="fas fa-paperclip"></i>
+                                                            <span>Lampirkan File</span>
+                                                        </button>
+                                                        <span id="file-name-${ticket.id}" class="text-muted" style="font-size: 0.85rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tidak ada file dipilih</span>
+                                                        <input type="file" name="images[]" id="images-${ticket.id}" multiple class="form-control d-none">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modalContainer);
                 });
             }
 
             paginationLinks.innerHTML = data.pagination;
             attachTransferFormListeners();
             attachPaginationListeners();
+            attachReplyFormListeners();
 
             // Reattach modal event listeners
             document.querySelectorAll('.detail-btn').forEach(btn => {
@@ -585,7 +751,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error loading tickets:', error);
-            ticketsBody.innerHTML = `<tr><td colspan="${{{ auth()->user()->role_id == 2 ? 10 : 8 }}}" class="p-2 text-dark text-center">Terjadi kesalahan saat memuat data tiket. Silakan coba lagi.</td></tr>`;
+            ticketsBody.innerHTML = `<tr><td colspan="${window.app.role_id == 2 ? 10 : 8}" class="p-2 text-dark text-center">Terjadi kesalahan saat memuat data tiket. Silakan coba lagi.</td></tr>`;
             paginationLinks.innerHTML = '';
         });
     }
@@ -634,6 +800,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function attachReplyFormListeners() {
+        document.querySelectorAll('.reply-form').forEach(form => {
+            const ticketId = form.id.replace('reply-form-', '');
+            const fileInput = document.getElementById(`images-${ticketId}`);
+            const fileNameDisplay = document.getElementById(`file-name-${ticketId}`);
+            const customButton = document.getElementById(`custom-button-${ticketId}`);
+
+            customButton.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    const fileNames = Array.from(fileInput.files).map(file => file.name).join(', ');
+                    fileNameDisplay.textContent = fileNames;
+                } else {
+                    fileNameDisplay.textContent = 'Tidak ada file dipilih';
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Reply submitted successfully:', data);
+                        loadTickets(data.tickets.current_page);
+                    } else {
+                        console.error('Error submitting reply:', data.message);
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting reply:', error);
+                    alert('Terjadi kesalahan saat mengirim pesan.');
+                });
+            });
+        });
+    }
+
     searchInput.addEventListener('input', debounce(function() {
         loadTickets(1);
     }, 500));
@@ -644,6 +859,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     attachPaginationListeners();
     attachTransferFormListeners();
+    attachReplyFormListeners();
 });
 </script>
 @endsection

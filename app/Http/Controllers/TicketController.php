@@ -24,93 +24,181 @@ class TicketController extends Controller
         $this->middleware('auth')->except(['createGuest', 'storeGuest', 'createForService']);
     }
 
+    // public function index(Request $request)
+    // {
+    //     $user = auth()->user();
+    //     $search = $request->input('search');
+    //     $statusFilter = $request->input('status_filter');
+    //     $perPage = $request->input('per_page', 10);
+
+    //     $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit', 'pics.user']);
+
+    //     if ($search) {
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('ticket_code', 'like', "%$search%")
+    //                 ->orWhere('title', 'like', "%$search%");
+    //         });
+    //     }
+
+    //     if ($statusFilter !== null && $statusFilter !== '') {
+    //         $query->where('status', $statusFilter);
+    //     }
+
+    //     if ($user->role_id == 4) {
+    //         $query->where('user_id', $user->id);
+    //     } elseif ($user->role_id == 3) {
+    //         $query->where(function ($q) use ($user) {
+    //             $q->where('user_id', $user->id)
+    //                 ->orWhereHas('pics', function ($query) use ($user) {
+    //                     $query->where('user_id', $user->id)
+    //                         ->where('ticket_pic.pic_stats', 'active');
+    //                 });
+    //         });
+    //     } elseif ($user->role_id == 2) {
+    //         $query->where('unit_id', $user->unit_id);
+    //     }
+
+    //     $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+    //     if ($request->ajax()) {
+    //         return response()->json([
+    //             'tickets' => $tickets,
+    //             'pics' => $user->role_id == 2 ? User::where('role_id', 3)
+    //                 ->where('unit_id', $user->unit_id)
+    //                 ->with([
+    //                     'pics' => function ($query) {
+    //                         $query->where('pic_stats', 'active');
+    //                     }
+    //                 ])
+    //                 ->get()
+    //                 ->map(function ($user) {
+    //                     return (object) [
+    //                         'id' => $user->id,
+    //                         'username' => $user->username,
+    //                         'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
+    //                         'is_active' => $user->pics->isNotEmpty(),
+    //                     ];
+    //                 }) : collect(),
+    //             'units' => \App\Models\Unit::all(),
+    //             'pagination' => $tickets->links('pagination::bootstrap-5')->toHtml(),
+    //         ]);
+    //     }
+
+    //     $pics = $user->role_id == 2 && $user->unit_id ? User::where('role_id', 3)
+    //         ->where('unit_id', $user->unit_id)
+    //         ->with([
+    //             'pics' => function ($query) {
+    //                 $query->where('pic_stats', 'active');
+    //             }
+    //         ])
+    //         ->get()
+    //         ->map(function ($user) {
+    //             return (object) [
+    //                 'id' => $user->id,
+    //                 'username' => $user->username,
+    //                 'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
+    //                 'is_active' => $user->pics->isNotEmpty(),
+    //             ];
+    //         }) : collect();
+
+    //     $servicesQuery = Service::where('status', 'active');
+    //     if ($user->role_id == 4) {
+    //         $servicesQuery->where('category_id', 2);
+    //     }
+    //     $services = $servicesQuery->with('unit')->get();
+
+    //     return view('theme::tickets.index', compact('tickets', 'pics', 'services'));
+    // }
+
+
     public function index(Request $request)
-    {
-        $user = auth()->user();
-        $search = $request->input('search');
-        $statusFilter = $request->input('status_filter');
-        $perPage = $request->input('per_page', 10);
+{
+    $user = auth()->user();
+    $search = $request->input('search');
+    $statusFilter = $request->input('status_filter');
+    $perPage = $request->input('per_page', 10);
 
-        $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit', 'pics.user']);
+    $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit', 'pics.user']);
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('ticket_code', 'like', "%$search%")
-                    ->orWhere('title', 'like', "%$search%");
-            });
-        }
-
-        if ($statusFilter !== null && $statusFilter !== '') {
-            $query->where('status', $statusFilter);
-        }
-
-        if ($user->role_id == 4) {
-            $query->where('user_id', $user->id);
-        } elseif ($user->role_id == 3) {
-            $query->where(function ($q) use ($user) {
-                $q->where('user_id', $user->id)
-                    ->orWhereHas('pics', function ($query) use ($user) {
-                        $query->where('user_id', $user->id)
-                            ->where('ticket_pic.pic_stats', 'active');
-                    });
-            });
-        } elseif ($user->role_id == 2) {
-            $query->where('unit_id', $user->unit_id);
-        }
-
-        $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
-
-        if ($request->ajax()) {
-            return response()->json([
-                'tickets' => $tickets,
-                'pics' => $user->role_id == 2 ? User::where('role_id', 3)
-                    ->where('unit_id', $user->unit_id)
-                    ->with([
-                        'pics' => function ($query) {
-                            $query->where('pic_stats', 'active');
-                        }
-                    ])
-                    ->get()
-                    ->map(function ($user) {
-                        return (object) [
-                            'id' => $user->id,
-                            'username' => $user->username,
-                            'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
-                            'is_active' => $user->pics->isNotEmpty(),
-                        ];
-                    }) : collect(),
-                'units' => \App\Models\Unit::all(),
-                'pagination' => $tickets->links('pagination::bootstrap-5')->toHtml(),
-            ]);
-        }
-
-        $pics = $user->role_id == 2 && $user->unit_id ? User::where('role_id', 3)
-            ->where('unit_id', $user->unit_id)
-            ->with([
-                'pics' => function ($query) {
-                    $query->where('pic_stats', 'active');
-                }
-            ])
-            ->get()
-            ->map(function ($user) {
-                return (object) [
-                    'id' => $user->id,
-                    'username' => $user->username,
-                    'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
-                    'is_active' => $user->pics->isNotEmpty(),
-                ];
-            }) : collect();
-
-        $servicesQuery = Service::where('status', 'active');
-        if ($user->role_id == 4) {
-            $servicesQuery->where('category_id', 2);
-        }
-        $services = $servicesQuery->with('unit')->get();
-
-        return view('theme::tickets.index', compact('tickets', 'pics', 'services'));
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('ticket_code', 'like', "%$search%")
+                ->orWhere('title', 'like', "%$search%");
+        });
     }
 
+    if ($statusFilter !== null && $statusFilter !== '') {
+        $query->where('status', $statusFilter);
+    }
 
+    if ($user->role_id == 4) {
+        $query->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->orWhere('guest_email', $user->email);
+        });
+    } elseif ($user->role_id == 3) {
+        $query->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+                ->orWhereHas('pics', function ($query) use ($user) {
+                    $query->where('user_id', $user->id)
+                        ->where('ticket_pic.pic_stats', 'active');
+                });
+        });
+    } elseif ($user->role_id == 2) {
+        $query->where('unit_id', $user->unit_id);
+    }
+
+    $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+    if ($request->ajax()) {
+        return response()->json([
+            'tickets' => $tickets,
+            'pics' => $user->role_id == 2 ? User::where('role_id', 3)
+                ->where('unit_id', $user->unit_id)
+                ->with([
+                    'pics' => function ($query) {
+                        $query->where('pic_stats', 'active');
+                    }
+                ])
+                ->get()
+                ->map(function ($user) {
+                    return (object) [
+                        'id' => $user->id,
+                        'username' => $user->username,
+                        'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
+                        'is_active' => $user->pics->isNotEmpty(),
+                    ];
+                }) : collect(),
+            'units' => \App\Models\Unit::all(),
+            'pagination' => $tickets->links('pagination::bootstrap-5')->toHtml(),
+        ]);
+    }
+
+    $pics = $user->role_id == 2 && $user->unit_id ? User::where('role_id', 3)
+        ->where('unit_id', $user->unit_id)
+        ->with([
+            'pics' => function ($query) {
+                $query->where('pic_stats', 'active');
+            }
+        ])
+        ->get()
+        ->map(function ($user) {
+            return (object) [
+                'id' => $user->id,
+                'username' => $user->username,
+                'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
+                'is_active' => $user->pics->isNotEmpty(),
+            ];
+        }) : collect();
+
+    $servicesQuery = Service::where('status', 'active');
+    if ($user->role_id == 4) {
+        $servicesQuery->where('category_id', 2);
+    }
+    $services = $servicesQuery->with('unit')->get();
+
+    return view('theme::tickets.index', compact('tickets', 'pics', 'services'));
+}
     public function assigned()
     {
         $user = auth()->user();

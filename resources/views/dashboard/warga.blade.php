@@ -91,6 +91,7 @@
                                 <div class="dropdown d-inline-block" id="ticket-stats-time-range">
                                     <button type="button" class="btn-block-option dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class="fa fa-fw fa-calendar"></i>
+                                        <span id="ticket-stats-time-label">Minggu</span>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <a class="dropdown-item" href="javascript:void(0)" data-time-range="day">Hari</a>
@@ -179,13 +180,14 @@
                                     <th>Layanan</th>
                                     <th>Judul</th>
                                     <th>Deskripsi</th>
+                                    <th>Pengadu</th>
                                     <th style="text-align: center;">Status</th>
                                     <th style="text-align: center;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="ticket-list-table">
                                 <tr>
-                                    <td colspan="7" class="text-center">
+                                    <td colspan="8" class="text-center">
                                         <div class="alert alert-info m-0">
                                             Memuat data aduan...
                                         </div>
@@ -194,17 +196,18 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="block-content block-content-full bg-body-light">
-                        <div class="d-flex justify-content-between">
-                            <a class="btn btn-sm btn-alt-secondary" href="{{ route('tickets.index') }}">
-                                <i class="fa fa-eye opacity-50 me-1"></i> Lihat Semua
-                            </a>
-                        </div>
+                    <div class="d-flex justify-content-center mt-4" id="paginationLinks"></div>
+                </div>
+                <div class="block-content block-content-full bg-body-light">
+                    <div class="d-flex justify-content-between">
+                        <a class="btn btn-sm btn-alt-secondary" href="{{ route('tickets.index') }}">
+                            <i class="fa fa-eye opacity-50 me-1"></i> Lihat Semua
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Modal Template (Will be cloned by JS) -->
+            <!-- Modal Template -->
             <template id="ticketDetailModalTemplate">
                 <div class="modal fade bg-dark" id="detailModal-ID_PLACEHOLDER" tabindex="-1" aria-labelledby="detailModalLabel-ID_PLACEHOLDER" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
                     <div class="modal-dialog modal-lg">
@@ -222,7 +225,6 @@
                                 </p>
                                 <p><strong>Layanan:</strong> <span id="modal-svc-name-ID_PLACEHOLDER"></span></p>
                                 <p><strong>Deskripsi:</strong> <span id="modal-description-ID_PLACEHOLDER"></span></p>
-                                <p><strong>Unit Asal:</strong> <span id="modal-original-unit-ID_PLACEHOLDER"></span></p>
                                 <p><strong>Unit Saat Ini:</strong> <span id="modal-unit-name-ID_PLACEHOLDER"></span></p>
                                 <div class="mt-3">
                                     <strong>Lokasi Aduan:</strong>
@@ -230,7 +232,7 @@
                                 </div>
                                 <div class="mt-3">
                                     <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#chatModal-ID_PLACEHOLDER" title="Pesan">
-                                        <i class="fas fa-comments"></i>
+                                        <i class="fas fa-comments"></i> Pesan
                                     </button>
                                 </div>
                             </div>
@@ -239,20 +241,41 @@
                 </div>
             </template>
 
-            <!-- Chat Modal Template (Placeholder) -->
+            <!-- Chat Modal Template -->
             <template id="chatModalTemplate">
-                <div class="modal fade" id="chatModal-ID_PLACEHOLDER" tabindex="-1" aria-labelledby="chatModalLabel-ID_PLACEHOLDER" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="chatModalLabel-ID_PLACEHOLDER">Pesan untuk Tiket: <span id="chat-ticket-code-ID_PLACEHOLDER"></span></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal fade" id="chatModal-ID_PLACEHOLDER" tabindex="-1" aria-labelledby="chatModalLabel-ID_PLACEHOLDER" data-bs-backdrop="static" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                            <div class="modal-header d-flex justify-content-between align-items-center py-3 px-4" style="background-color: #ffffff; border-bottom: 1px solid #e5e7eb;">
+                                <h5 class="modal-title d-flex align-items-center gap-2 m-0" id="chatModalLabel-ID_PLACEHOLDER">
+                                    <i class="fas fa-ticket-alt" style="color: #2563eb;"></i>
+                                    <span style="font-weight: 600; font-size: 1rem; color: #1f2937;">Tiket ID_PLACEHOLDER</span>
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                <p>Chat functionality to be implemented.</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            <div class="modal-body p-0" style="display: flex; flex-direction: column; max-height: 70vh;">
+                                <div class="chat-container" id="chat-container-ID_PLACEHOLDER" style="flex: 1; overflow-y: auto; padding: 1.25rem; background-color: #f9fafb;">
+                                    <p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>
+                                </div>
+                                <div class="reply-container" style="background-color: white; border-top: 1px solid #e5e7eb; padding: 1rem;">
+                                    <form id="reply-form-ID_PLACEHOLDER" action="/tickets/reply/ID_PLACEHOLDER" method="POST" enctype="multipart/form-data" class="reply-form">
+                                        @csrf
+                                        <div class="reply-input-row d-flex gap-2 mb-2">
+                                            <textarea class="form-control" name="message" placeholder="Ketik pesan Anda di sini..." required style="border-radius: 24px; border-color: #d1d5db; padding: 12px 16px; font-size: 0.9rem; resize: none;"></textarea>
+                                            <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                        <div class="attachment-row d-flex align-items-center gap-2">
+                                            <button class="btn btn-outline-primary" type="button" id="custom-button-ID_PLACEHOLDER" style="border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                                                <i class="fas fa-paperclip"></i>
+                                                <span>Lampirkan File</span>
+                                            </button>
+                                            <span id="file-name-ID_PLACEHOLDER" class="text-muted" style="font-size: 0.85rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tidak ada file dipilih</span>
+                                            <input type="file" name="images[]" id="images-ID_PLACEHOLDER" multiple class="form-control d-none">
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -325,6 +348,28 @@
     .text-warning { color: #856404; }
     .text-info { color: #0c5460; }
     .text-success { color: #155724; }
+    .bg-secondary-light {
+        background-color: #e5e7eb;
+    }
+    .text-secondary {
+        color: #6b7280;
+    }
+    .pagination .page-item .page-link {
+        color: #007bff;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        margin: 0 2px;
+    }
+    .pagination .page-item.active .page-link {
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .block-content {
@@ -348,6 +393,5 @@
 @section('scripts')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    {{-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> --}}
     <script src="{{ asset('assets/js/warga_dashboard.js') }}"></script>
 @endsection
