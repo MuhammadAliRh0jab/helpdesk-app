@@ -290,7 +290,7 @@
                             <i class="fas fa-edit me-2"></i>Form Aduan
                         </h4>
                         <div class="card-body p-4">
-                            <div class="service-list">
+                            <div class="service-list {{ isset($service) ? 'hidden' : '' }}">
                                 <div class="mb-4">
                                     <div class="input-group input-group-lg shadow-sm">
                                         <span class="input-group-text bg-white border-end-0">
@@ -377,7 +377,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-section" x-show="!$store.form.showServices" x-transition>
+                            <div class="form-section {{ isset($service) ? 'visible' : '' }}" x-show="!$store.form.showServices" x-transition>
                                 <form action="{{ route('tickets.store.guest') }}" method="POST"
                                     enctype="multipart/form-data" x-data="mapForm" x-init="initMap">
                                     @csrf
@@ -572,7 +572,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="{{ asset('assets/js/cdn.js') }}"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             var navbar = document.getElementById("header");
