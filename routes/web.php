@@ -15,8 +15,11 @@ use App\Http\Controllers\WargaDashboardController;
 Route::get('/', function () {
     return view('theme::auth.landing');
 })->name('landing');
+Route::get('/laporsebagaitamu', function () {
+    return view('guest');
+})->name('guest');
+Route::get('/laporsebagaitamu', [TicketController::class, 'createGuest'])->name('guest');
 
-Route::get('/', [TicketController::class, 'createGuest'])->name('landing');
 Route::post('/tickets/guest', [TicketController::class, 'storeGuest'])->name('tickets.store.guest');
 
 Route::middleware('guest')->group(function () {

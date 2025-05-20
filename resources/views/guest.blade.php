@@ -70,12 +70,6 @@
             background-color: #f8f9fa;
         }
 
-        .card:hover {
-            transform: scale(1.05) !important;
-            border-color: #1572e8;
-            z-index: 10;
-        }
-
         .row {
             overflow: visible;
         }
@@ -89,102 +83,6 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
         }
 
-        .transition-300 {
-            transition: all 0.3s ease;
-        }
-
-        .dropzone-container {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .dropzone-container:hover {
-            background-color: #f8f9fa;
-            border-color: var(--bs-primary) !important;
-        }
-
-        .service-item .card {
-            transition: all 0.2s ease;
-        }
-
-        .service-item .card:hover {
-            border-color: var(--bs-primary);
-        }
-
-        .unit-section {
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #fff;
-            margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
-        }
-
-        .unit-header {
-            position: sticky;
-            top: -1px;
-            background-color: #fff;
-            z-index: 10;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .unit-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #495057;
-            margin-bottom: 8px;
-        }
-
-        .unit-pills {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .scrolling-units {
-            max-height: 500px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .scrolling-units::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .scrolling-units::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .scrolling-units::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
-        }
-
-        .scrolling-units::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-
-        .service-list {
-            display: block;
-        }
-
-        .form-section {
-            display: none;
-        }
-
-        .service-list.hidden {
-            display: none;
-        }
-
-        .form-section.visible {
-            display: block;
-        }
     </style>
 </head>
 
@@ -202,19 +100,7 @@
             <div class="collapse navbar-collapse" id="nav-content">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link text-black" href="#beranda">Beranda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-black" href="#tentang">Tentang Helpdesk</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-black" href="#mengapa">Mengapa Helpdesk</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-black" href="#cara-melapor">Cara Melapor</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-black" href="#lapor-sebagai-tamu">Lapor Sebagai Tamu</a>
+                        <a class="nav-link text-black" href="/">Kembali ke Halaman Utama</a>
                     </li>
                 </ul>
                 <button class="btn btn-primary text-white fw-bold rounded-pill ms-3 mt-3 mt-lg-0 px-4 py-2 shadow" onclick="window.location.href='{{ route('login') }}'">
@@ -223,18 +109,7 @@
             </div>
         </div>
     </nav>
-
-    <!-- Section lainnya tetap sama -->
     <section id="beranda" class="pt-5">
-        <div class="container px-3 py-5" style="margin-top: 90px;">
-            <div class="row align-items-center">
-                <div class="col-12 text-center py-10">
-                    <p class="text-uppercase tracking-widest" data-aos="fade-down" data-aos-duration="3000">Selamat Datang di Website Layanan Aduan & Informasi</p><br>
-                    <h1 class="display-4 fw-bold my-4" data-aos="zoom-in" data-aos-duration="3000">HELPDESK PEMERINTAH KOTA BLITAR</h1><br>
-                    <p data-aos="fade-up" data-aos-duration="3000">Laporkan masalah Anda dengan cepat, dapatkan solusi tepat, dan akses layanan publik dengan mudah.</p><br>
-                </div>
-            </div>
-        </div>
         <div class="position-relative">
             <svg viewBox="0 0 1428 174" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -251,132 +126,206 @@
         </div>
     </section>
 
-    <!-- Section lainnya tetap sama -->
-    <section class="bg-white border-bottom py-5" id="tentang">
-        <div class="container px-4" style="margin-top: 70px;">
-            <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="1000">Tentang Helpdesk</h2>
-            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div><br><br><br>
-            <div class="row align-items-center justify-content-between g-4">
-                <div class="col-12 col-md-6 p-4" data-aos="fade-right" data-aos-duration="1000">
-                    <h3 class="h3 fw-bold text-dark mb-3">Helpdesk Pemerintah Kota Blitar</h3>
-                    <p class="text-muted">
-                        Helpdesk Pemerintah Kota Blitar adalah sistem layanan berbasis teknologi yang <b>berfungsi</b> sebagai pusat dukungan bagi masyarakat dan pegawai pemerintahan dalam menangani berbagai aduan, permintaan informasi, serta bantuan teknis terkait layanan publik.
-                        <br><br>
-                        Helpdesk ini <b>bertujuan</b> untuk meningkatkan responsivitas, transparansi, dan efisiensi dalam pelayanan publik dengan menyediakan jalur komunikasi yang mudah diakses. Masyarakat dapat menyampaikan keluhan atau bertanya tentang layanan pemerintah.
-                    </p>
-                </div>
-                <div class="col-12 col-md-6 p-4 text-center text-md-end">
-                    <img src="{{ asset('assets/media/img/bg-auth.png') }}" alt="Gambar Helpdesk" class="img-fluid mx-auto d-block" style="max-width: 58%;" data-aos="fade-left" data-aos-duration="1000">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="py-5 text-center" id="mengapa">
+    <!-- Section Lapor Tanpa Login yang disesuaikan -->
+    <section class="bg-white py-5" id="lapor-tanpa-login">
         <div class="container py-4">
-            <h2 class="display-4 fw-bold text-dark my-3" data-aos="fade-down" data-aos-duration="1000" style="color:rgb(255, 255, 255) !important;">Mengapa Menggunakan Helpdesk?</h2>
-            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div><br><br>
-            <div class="row g-4">
-                <div class="col-12 col-md-4">
-                    <div class="card h-100 shadow" data-aos="fade-down" data-aos-duration="2000">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold text-dark">Dukungan di Mana Saja</h5>
-                            <p class="card-text text-muted">Sampaikan aduan Anda kapan saja, di mana saja, dengan cara yang paling nyaman bagi Anda.</p>
-                        </div>
-                        <div class="card-footer border-0 bg-white">
-                            <img src="{{ asset('assets/media/img/dukungan.png') }}" style="width: 300px; height: 300px;">
-                        </div>
+            <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="3000">Lapor Sebagai Tamu</h2>
+            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8;"></div><br><br>
+            <p class="text-center text-muted mb-5" data-aos="fade-down" data-aos-duration="1000">Laporkan masalah Anda tanpa perlu login untuk layanan publik tertentu.</p>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="card h-100 shadow" data-aos="fade-up" data-aos-duration="2000">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold text-dark">Komitmen Pelayanan</h5>
-                            <p class="card-text text-muted">Berkomitmen untuk meningkatkan kualitas pelayanan publik, memberikan solusi yang adil, cepat, dan sesuai kebutuhan masyarakat.</p>
-                        </div>
-                        <div class="card-footer border-0 bg-white">
-                            <img src="{{ asset('assets/media/img/komitmen.png') }}" style="width: 300px; height: 300px;">
-                        </div>
+                    @endif
+
+                    @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="card h-100 shadow" data-aos="fade-down" data-aos-duration="2000">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold text-dark">Didukung Tim Profesional</h5>
-                            <p class="card-text text-muted">Terdiri dari operator dan petugas teknis berpengalaman yang siap menangani aduan.</p>
+                    @endif
+
+                    @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    @endif
+
+                    <div class="card shadow border-0 rounded-lg" data-aos="fade-up" data-aos-duration="1000">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Form Pengaduan</h4>
                         </div>
-                        <div class="card-footer border-0 bg-white">
-                            <img src="{{ asset('assets/media/img/tim.png') }}" style="width: 300px; height: 300px;">
+                        <div class="card-body p-4">
+                            <div class="service-list">
+                                <div class="mb-4">
+                                    <div class="input-group input-group-lg shadow-sm">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-search text-primary"></i>
+                                        </span>
+                                        <input type="text" id="search" class="form-control border-start-0" placeholder="Cari layanan..." aria-label="Cari layanan">
+                                    </div>
+                                    <div class="form-text" id="search-hint" style="display: none;">
+                                        <i class="fas fa-info-circle me-1"></i> Pencarian akan menampilkan hasil dari semua unit
+                                    </div>
+                                </div>
+
+                                <!-- Quick Jump Menu -->
+                                <div class="mb-4" id="unit-pills-container">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="text-muted me-2"><i class="fas fa-filter me-1"></i> Pilih Unit:</span>
+                                        <div class="unit-pills">
+                                            @php
+                                            $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
+                                            @endphp
+                                            @foreach($units as $unitName => $unitId)
+                                            <button onclick="scrollToUnit({{ $unitId }})"
+                                                class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
+                                                aria-label="Pilih unit {{ $unitName }}">
+                                                {{ $unitName }}
+                                            </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Daftar Unit dengan Layanan -->
+                                <div class="scrolling-units" id="service-list-content">
+                                    @foreach($units as $unitName => $unitId)
+                                    <div id="unit-{{ $unitId }}" class="unit-section mb-4">
+                                        <div class="unit-header">
+                                            <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
+                                                <i class="fas fa-building me-2 text-primary"></i>
+                                                <span>{{ $unitName }}</span>
+                                                <div class="ms-auto">
+                                                    <span class="badge bg-primary rounded-pill">
+                                                        {{ $services->where('unit_id', $unitId)->count() }} Layanan
+                                                    </span>
+                                                </div>
+                                            </h4>
+                                        </div>
+                                        <div class="row row-cols-1 row-cols-md-3 g-3">
+                                            @foreach ($services->where('unit_id', $unitId) as $service)
+                                            <div class="col service-item">
+                                                <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
+                                                    <div class="card-body p-4">
+                                                        <button
+                                                            onclick="selectService({{ $service->id }}, {{ $service->unit_id }})"
+                                                            class="btn btn-link text-decoration-none p-0 w-100 text-start"
+                                                            aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="flex-shrink-0 me-3">
+                                                                    <div class="bg-light text-primary rounded-circle p-3">
+                                                                        <i class="fas fa-concierge-bell fa-fw"></i>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <h5 class="mb-1">{{ $service->svc_name }}</h5>
+                                                                    <div class="text-muted small">{{ $service->unit->unit_name }}</div>
+                                                                </div>
+                                                                <div class="flex-shrink-0 ms-2">
+                                                                    <i class="fas fa-chevron-right text-muted"></i>
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="form-section" id="form-pengaduan">
+                                <form action="{{ route('tickets.store.guest') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="unit_id" id="unit_id">
+                                    <input type="hidden" name="service_id" id="service_id">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="guest_name" name="guest_name" placeholder="Nama Lengkap" value="{{ old('guest_name') }}" required>
+                                                <label for="guest_name"><i class="fas fa-user me-2"></i>Nama Lengkap</label>
+                                                @error('guest_name')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="email" class="form-control" id="guest_email" name="guest_email" placeholder="Email" value="{{ old('guest_email') }}" required>
+                                                <label for="guest_email"><i class="fas fa-envelope me-2"></i>Email</label>
+                                                @error('guest_email')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="title" name="title" placeholder="Judul Aduan" value="{{ old('title') }}" required>
+                                        <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
+                                        @error('title')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-floating mb-3">
+                                        <textarea class="form-control" id="description" name="description" placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px" required>{{ old('description') }}</textarea>
+                                        <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi Masalah</label>
+                                        @error('description')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="images" class="form-label fw-bold"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
+                                        <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light" onclick="document.getElementById('images').click()">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="fas fa-cloud-upload-alt text-primary fa-3x mb-3"></i>
+                                                <p class="mb-2">Klik atau seret file ke sini</p>
+                                                <p class="text-muted small mb-0" id="fileNames">Tidak ada file dipilih</p>
+                                            </div>
+                                            <input type="file" name="images[]" id="images" multiple class="d-none" onchange="updateFileNames(event)" accept="image/*">
+                                        </div>
+                                        @error('images')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF (maks 2MB per file)
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between gap-3">
+                                        <button type="button" onclick="showServices()" class="btn btn-outline-secondary btn-lg px-4" aria-label="Kembali ke daftar layanan">
+                                            <i class="fas fa-arrow-left me-2"></i>Kembali
+                                        </button>
+                                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                                            <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light text-center py-3">
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Laporan Anda akan diverifikasi oleh tim kami sebelum diproses lebih lanjut
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <section class="py-5 text-center" id="cara-melapor">
-        <div class="container py-4"><br><br>
-            <h2 class="display-4 fw-bold" data-aos="fade-down" data-aos-duration="1000">Cara Melapor</h2>
-            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8 ;"></div><br><br>
-            <div class="row justify-content-center mt-5">
-                <div class="col-12 col-md-4 mb-4">
-                    <div data-aos="fade-up" data-aos-duration="1000">
-                        <h1 class="fw-bold" style="font-size: 64px;">01</h1>
-                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
-                            <div class="bg-white p-3 rounded me-3">
-                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
-                            </div>
-                            <div class="text-start">
-                                <p class="mb-0 fw-bold">Login / Register Akun Anda</p>
-                            </div>
-                        </div>
-                        <p class="mt-3 text-white-50">Sebelum melaporkan pengaduan Anda, terlebih dahulu lakukan login/register atau lapor tanpa login sebagai tamu</p>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 mb-4">
-                    <div data-aos="fade-up" data-aos-duration="1500">
-                        <h1 class="fw-bold" style="font-size: 64px;">02</h1>
-                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
-                            <div class="bg-white p-3 rounded me-3">
-                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
-                            </div>
-                            <div class="text-start">
-                                <p class="mb-0 fw-bold">Isi Form dan Ceritakan Kasusnya</p>
-                            </div>
-                        </div>
-                        <p class="mt-3 text-white-50">Klik Menu "Buat Aduan" dan lanjutkan mengisi formulir pengaduan yang telah disediakan</p>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 mb-4">
-                    <div data-aos="fade-up" data-aos-duration="2000">
-                        <h1 class="fw-bold" style="font-size: 64px;">03</h1>
-                        <div class="d-flex align-items-center bg-primary text-white rounded px-3 py-2 shadow">
-                            <div class="bg-white p-3 rounded me-3">
-                                <i class="fas fa-arrow-right fa-2x text-dark"></i>
-                            </div>
-                            <div class="text-start">
-                                <p class="mb-0 fw-bold">Kirimkan Form Yang sudah terisi</p>
-                            </div>
-                        </div>
-                        <p class="mt-3 text-white-50">Klik tombol "Kirim" untuk mengirim pengaduan Anda, Anda dapat memantau pengaduan yang dikirim di halaman "Dashboard"</p>
-                    </div>
-                    <br><br>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="lapor-sebagai-tamu" class="bg-white py-5">
-        <div class="card-account text-center py-5 mb-5 text-dark">
-            <h2 class="display-4 fw-bold my-3" data-aos="fade-down" data-aos-duration="3000">Buat Akun Sekarang</h2>
-            <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8;" data-aos="fade-down" data-aos-duration="3000"></div>
-            <h3 class="h3 my-4" data-aos="zoom-in" data-aos-duration="3000">Buat akun dan sampaikan aduan Anda hari ini atau buat lapor aduan sebagai Tamu!</h3> <br><br>
-            <button class="btn btn-primary text-white fw-bold rounded-pill py-2 shadow" onclick="window.location.href='{{ route('register') }}'" data-aos="fade-up" data-aos-duration="3000" style="width: 8cm; height: 2cm; font-size: 20px; margin-right: 8rem;">
-                Buat Akun
-            </button>
-            <button class="btn btn-primary text-white fw-bold rounded-pill py-2 shadow" onclick="window.location.href='{{ route('guest') }}'" data-aos="fade-up" data-aos-duration="3000" style="width: 8cm; height: 2cm; font-size: 20px;">
-                Lapor Sebagai Tamu
-            </button>
         </div>
     </section>
 

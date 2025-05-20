@@ -145,7 +145,7 @@ public function index(Request $request)
             ->with('unit')
             ->get();
 
-        return view('theme::auth.landing', compact('units', 'services'));
+        return view('guest', compact('units', 'services'));
     }
 
     public function storeGuest(Request $request)
@@ -950,7 +950,7 @@ public function createForService(Service $service)
 
     if ($service->category_id == 2 && $service->allow_guest == 1) {
         $units = Unit::all();
-        return view('theme::auth.landing', compact('units', 'services', 'service'));
+        return view('guest', compact('units', 'services', 'service'));
     }
 
     return redirect()->route('login');
