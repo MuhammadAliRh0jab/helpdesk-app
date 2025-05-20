@@ -85,6 +85,88 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
         }
 
+        .transition-300 {
+            transition: all 0.3s ease;
+        }
+
+        .dropzone-container {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dropzone-container:hover {
+            background-color: #f8f9fa;
+            border-color: var(--bs-primary) !important;
+        }
+
+        .service-item .card {
+            transition: all 0.2s ease;
+        }
+
+        .service-item .card:hover {
+            border-color: var(--bs-primary);
+        }
+
+        .unit-section {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fff;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .unit-header {
+            position: sticky;
+            top: -1px;
+            background-color: #fff;
+            z-index: 10;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .unit-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .unit-pills {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .scrolling-units {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .scrolling-units::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrolling-units::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .scrolling-units::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .scrolling-units::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+
         /* Hide form by default */
         .form-section {
             display: none;
@@ -208,29 +290,29 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
                     @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
                     @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
-                            <ul class="mb-0 mt-2">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
                     <div class="card shadow border-0 rounded-lg" data-aos="fade-up" data-aos-duration="1000">
@@ -260,14 +342,14 @@
                                             Unit:</span>
                                         <div class="unit-pills">
                                             @php
-                                                $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
+                                            $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
                                             @endphp
                                             @foreach($units as $unitName => $unitId)
-                                                <button onclick="scrollToUnit({{ $unitId }})"
-                                                    class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
-                                                    aria-label="Pilih unit {{ $unitName }}">
-                                                    {{ $unitName }}
-                                                </button>
+                                            <button onclick="scrollToUnit({{ $unitId }})"
+                                                class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
+                                                aria-label="Pilih unit {{ $unitName }}">
+                                                {{ $unitName }}
+                                            </button>
                                             @endforeach
                                         </div>
                                     </div>
@@ -314,13 +396,24 @@
                                                                             <i class="fas fa-chevron-right text-muted"></i>
                                                                         </div>
                                                                     </div>
-                                                                </button>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <h5 class="mb-1">{{ $service->svc_name }}</h5>
+                                                                    <div class="text-muted small">
+                                                                        {{ $service->unit->unit_name }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex-shrink-0 ms-2">
+                                                                    <i class="fas fa-chevron-right text-muted"></i>
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        </button>
                                                     </div>
-                                                @endforeach
+                                                </div>
                                             </div>
+                                            @endforeach
                                         </div>
+                                    </div>
                                     @endforeach
                                 </div>
                             </div>
@@ -340,7 +433,7 @@
                                                 <label for="guest_name"><i class="fas fa-user me-2"></i>Nama
                                                     Lengkap</label>
                                                 @error('guest_name')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -352,7 +445,7 @@
                                                 <label for="guest_email"><i
                                                         class="fas fa-envelope me-2"></i>Email</label>
                                                 @error('guest_email')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -363,7 +456,7 @@
                                             placeholder="Judul Aduan" value="{{ old('title') }}" required>
                                         <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
                                         @error('title')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -374,7 +467,7 @@
                                         <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi
                                             Masalah</label>
                                         @error('description')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -394,7 +487,7 @@
                                                     <label for="latitude"><i
                                                             class="fas fa-globe me-2"></i>Latitude</label>
                                                     @error('latitude')
-                                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -406,7 +499,7 @@
                                                     <label for="longitude"><i
                                                             class="fas fa-globe me-2"></i>Longitude</label>
                                                     @error('longitude')
-                                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -436,7 +529,7 @@
                                                 accept="image/*">
                                         </div>
                                         @error('images')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                         <!-- Area untuk pratinjau gambar -->
                                         <div id="preview-container" class="row mt-3"></div>
@@ -461,7 +554,6 @@
                                         </div>
                                     </div>
                             </div>
-
                             <div class="d-flex justify-content-between gap-3">
                                 <button type="button" @click="$store.form.showServices = true"
                                     class="btn btn-outline-secondary btn-lg px-4"
@@ -548,6 +640,22 @@
     <script src="{{ asset('assets/aos/aos.js') }}"></script>
     <script src="{{ asset('assets/js/cdn.js') }}"></script>
     <script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var navbar = document.getElementById("header");
+            var logo = document.getElementById("nav-logo");
+
+            window.addEventListener("scroll", function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add("scrolled");
+                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-black.png') }}";
+                } else {
+                    navbar.classList.remove("scrolled");
+                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
+                }
+            });
+        })
+    </script>
     <script>
         // Global selectService function
         function selectService(serviceId, unitId) {
@@ -757,7 +865,7 @@
         });
 
         // Map initialization and observer
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             let mapInstance = null;
 
             function initializeOrRefreshMap() {
@@ -788,7 +896,7 @@
                         draggable: true
                     }).addTo(mapInstance);
 
-                    marker.on('dragend', function (e) {
+                    marker.on('dragend', function(e) {
                         const position = marker.getLatLng();
                         document.getElementById('latitude').value = position.lat.toFixed(6);
                         document.getElementById('longitude').value = position.lng.toFixed(6);
@@ -801,8 +909,8 @@
                 }, 300);
             }
 
-            const observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
                     if (mutation.target.classList.contains('visible')) {
                         setTimeout(initializeOrRefreshMap, 250);
                     }
@@ -820,7 +928,7 @@
             // Initialize geolocation
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    function (position) {
+                    function(position) {
                         document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
                         document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
                         if (mapInstance) {
@@ -838,7 +946,7 @@
                             }
                         }
                     },
-                    function (error) {
+                    function(error) {
                         console.warn('Geolocation error:', error);
                     }
                 );
