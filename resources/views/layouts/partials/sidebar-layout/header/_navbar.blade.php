@@ -159,6 +159,12 @@
                                 Kelola Pengguna
                             </a>
                         </li>
+                        <li class="nav-main-item mb-2">
+                            <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('settings.index') }}">
+                                <i class="nav-main-link-icon si si-users me-2"></i>
+                                Settings
+                            </a>
+                        </li>
                         @else {{-- Warga --}}
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark {{ request()->routeIs('dashboard.warga') ? 'active' : '' }}" href="{{ route('dashboard.warga') }}">
