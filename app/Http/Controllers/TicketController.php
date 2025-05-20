@@ -190,7 +190,7 @@ public function index(Request $request)
             }
         }
 
-        return redirect()->route('welcome')->with('success', 'Laporan berhasil dibuat. Anda akan menerima konfirmasi melalui email.');
+        return redirect()->route('landing')->with('success', 'Laporan berhasil dibuat. Anda akan menerima konfirmasi melalui email.');
     }
 
     public function create()
