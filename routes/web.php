@@ -11,6 +11,7 @@ use App\Http\Controllers\ServiceManagementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PegawaiDashboardController;
 use App\Http\Controllers\WargaDashboardController;
+use App\Http\Controllers\SettingController;
 
 Route::get('/', function () {
     return view('theme::auth.landing');
@@ -79,6 +80,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/services/{service}/qrcode/data', [ServiceManagementController::class, 'getQrCode'])
     ->middleware('role:2')
     ->name('services.qrcode.data');
+    Route::middleware(['auth', 'role:1'])->group(function () {
+    Route::get('/settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index')->middleware('role:1');
+    Route::patch('/settings/pengadu_message_limit', [App\Http\Controllers\SettingController::class, 'updateMessageLimit'])->name('settings.updateMessageLimit')->middleware('role:1');
+});
     // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:2')->name('dashboard.index');
 });
 
