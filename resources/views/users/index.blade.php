@@ -39,74 +39,76 @@
                                 <h3 class="block-title">Daftar Akun Pengguna</h3>
                             </div>
                             <div class="block-content">
-                                <table class="table table-vcenter">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Nama</th>
-                                            <th>Username</th>
-                                            <th>Email</th>
-                                            <th>Fungsi</th>
-                                            <th class="text-center">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($users as $user)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td class="p-2 text-dark">{{ $user->name }}</td>
-                                            <td class="p-2 text-dark">{{ $user->username }}</td>
-                                            <td class="p-2 text-dark">{{ $user->email ?? 'Tidak ada' }}</td>
-                                            <td class="p-2 text-dark">{{ $user->getUserFunction() }}</td>
-                                            <td class="p-2 text-center">
-                                                <div class="mb-2">
-                                                    <!-- Tombol Detail -->
-                                                    <button type="button" class="btn btn-primary btn-sm detail-btn"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#userDetailModal"
-                                                        data-id="{{ $user->id }}"
-                                                        data-name="{{ $user->name }}"
-                                                        data-username="{{ $user->username }}"
-                                                        data-email="{{ $user->email ?? 'Tidak ada' }}"
-                                                        data-phone="{{ $user->phone ?? 'Tidak ada' }}"
-                                                        data-unit="{{ $user->unit ? $user->unit->unit_name : 'Tidak ada' }}"
-                                                        data-role="{{ $user->role ? $user->role->role_name : 'Tidak ada' }}"
-                                                        data-function="{{ $user->getUserFunction() }}"
-                                                        title="Detail">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </div>
-
-                                                <div class="btn-group">
-                                                    <!-- Tombol Reset Password -->
-                                                    <form action="{{ route('users.resetPassword', $user->id) }}" method="POST" class="d-inline me-1">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-warning"
-                                                            onclick="return confirm('Apakah Anda yakin ingin mereset password pengguna ini? Password akan disetel menjadi username mereka.')"
-                                                            data-bs-toggle="tooltip" title="Reset Password">
-                                                            <i class="fa fa-fw fa-key"></i>
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Nama</th>
+                                                <th>Username</th>
+                                                <th>Email</th>
+                                                <th>Fungsi</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($users as $user)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td class="p-2 text-dark">{{ $user->name }}</td>
+                                                <td class="p-2 text-dark">{{ $user->username }}</td>
+                                                <td class="p-2 text-dark">{{ $user->email ?? 'Tidak ada' }}</td>
+                                                <td class="p-2 text-dark">{{ $user->getUserFunction() }}</td>
+                                                <td class="p-2 text-center">
+                                                    <div class="mb-2">
+                                                        <!-- Tombol Detail -->
+                                                        <button type="button" class="btn btn-primary btn-sm detail-btn"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#userDetailModal"
+                                                            data-id="{{ $user->id }}"
+                                                            data-name="{{ $user->name }}"
+                                                            data-username="{{ $user->username }}"
+                                                            data-email="{{ $user->email ?? 'Tidak ada' }}"
+                                                            data-phone="{{ $user->phone ?? 'Tidak ada' }}"
+                                                            data-unit="{{ $user->unit ? $user->unit->unit_name : 'Tidak ada' }}"
+                                                            data-role="{{ $user->role ? $user->role->role_name : 'Tidak ada' }}"
+                                                            data-function="{{ $user->getUserFunction() }}"
+                                                            title="Detail">
+                                                            <i class="fas fa-eye"></i>
                                                         </button>
-                                                    </form>
+                                                    </div>
 
-                                                    @if ($user->role_id != 1)
-                                                    <!-- Tombol Hapus -->
-                                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline me-1">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                            onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')"
-                                                            data-bs-toggle="tooltip" title="Hapus Pengguna">
-                                                            <i class="fa fa-fw fa-trash-can"></i>
-                                                        </button>
-                                                    </form>
-                                                    @endif
-                                                </div>
+                                                    <div class="btn-group">
+                                                        <!-- Tombol Reset Password -->
+                                                        <form action="{{ route('users.resetPassword', $user->id) }}" method="POST" class="d-inline me-1">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-warning"
+                                                                onclick="return confirm('Apakah Anda yakin ingin mereset password pengguna ini? Password akan disetel menjadi username mereka.')"
+                                                                data-bs-toggle="tooltip" title="Reset Password">
+                                                                <i class="fa fa-fw fa-key"></i>
+                                                            </button>
+                                                        </form>
 
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                                        @if ($user->role_id != 1)
+                                                        <!-- Tombol Hapus -->
+                                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline me-1">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                                onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')"
+                                                                data-bs-toggle="tooltip" title="Hapus Pengguna">
+                                                                <i class="fa fa-fw fa-trash-can"></i>
+                                                            </button>
+                                                        </form>
+                                                        @endif
+                                                    </div>
+
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                         <!-- Modal -->
@@ -148,6 +150,12 @@
     .table tr {
         font-size: 14px !important;
         padding: 20px !important;
+    }
+
+    .table-responsive,
+    .block-content {
+        box-shadow: none !important;
+        /* border: none !important; */
     }
 </style>
 

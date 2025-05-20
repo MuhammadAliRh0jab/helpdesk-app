@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Helpdesk Pemerintah Kota Blitar</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
@@ -116,7 +116,7 @@
             border-radius: 8px;
             background-color: #fff;
             margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
         }
 
         .unit-header {
@@ -369,39 +369,39 @@
     <!-- Section Lapor Tanpa Login yang disesuaikan -->
     <section class="bg-white py-5" id="lapor-tanpa-login">
         <div class="container py-4">
-            <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="1000">Lapor Tanpa Login</h2>
+            <h2 class="display-4 fw-bold text-center text-dark my-3" data-aos="fade-down" data-aos-duration="3000">Lapor Tanpa Login</h2>
             <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8;"></div><br><br>
-            <p class="text-center text-muted mb-5">Laporkan masalah Anda tanpa perlu login untuk layanan publik tertentu.</p>
+            <p class="text-center text-muted mb-5" data-aos="fade-down" data-aos-duration="1000">Laporkan masalah Anda tanpa perlu login untuk layanan publik tertentu.</p>
 
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
                     @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
                     @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
-                            <ul class="mb-0 mt-2">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     @endif
 
-                    <div class="card shadow border-0 rounded-lg">
+                    <div class="card shadow border-0 rounded-lg" data-aos="fade-up" data-aos-duration="1000">
                         <div class="card-header bg-primary text-white py-3">
                             <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Form Pengaduan</h4>
                         </div>
@@ -425,14 +425,14 @@
                                         <span class="text-muted me-2"><i class="fas fa-filter me-1"></i> Pilih Unit:</span>
                                         <div class="unit-pills">
                                             @php
-                                                $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
+                                            $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
                                             @endphp
                                             @foreach($units as $unitName => $unitId)
-                                                <button onclick="scrollToUnit({{ $unitId }})" 
-                                                        class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
-                                                        aria-label="Pilih unit {{ $unitName }}">
-                                                    {{ $unitName }}
-                                                </button>
+                                            <button onclick="scrollToUnit({{ $unitId }})"
+                                                class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
+                                                aria-label="Pilih unit {{ $unitName }}">
+                                                {{ $unitName }}
+                                            </button>
                                             @endforeach
                                         </div>
                                     </div>
@@ -441,48 +441,48 @@
                                 <!-- Daftar Unit dengan Layanan -->
                                 <div class="scrolling-units" id="service-list-content">
                                     @foreach($units as $unitName => $unitId)
-                                        <div id="unit-{{ $unitId }}" class="unit-section mb-4">
-                                            <div class="unit-header">
-                                                <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
-                                                    <i class="fas fa-building me-2 text-primary"></i>
-                                                    <span>{{ $unitName }}</span>
-                                                    <div class="ms-auto">
-                                                        <span class="badge bg-primary rounded-pill">
-                                                            {{ $services->where('unit_id', $unitId)->count() }} Layanan
-                                                        </span>
-                                                    </div>
-                                                </h4>
-                                            </div>
-                                            <div class="row row-cols-1 row-cols-md-3 g-3">
-                                                @foreach ($services->where('unit_id', $unitId) as $service)
-                                                    <div class="col service-item">
-                                                        <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
-                                                            <div class="card-body p-4">
-                                                                <button
-                                                                    onclick="selectService({{ $service->id }}, {{ $service->unit_id }})"
-                                                                    class="btn btn-link text-decoration-none p-0 w-100 text-start"
-                                                                    aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 me-3">
-                                                                            <div class="bg-light text-primary rounded-circle p-3">
-                                                                                <i class="fas fa-concierge-bell fa-fw"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="flex-grow-1">
-                                                                            <h5 class="mb-1">{{ $service->svc_name }}</h5>
-                                                                            <div class="text-muted small">{{ $service->unit->unit_name }}</div>
-                                                                        </div>
-                                                                        <div class="flex-shrink-0 ms-2">
-                                                                            <i class="fas fa-chevron-right text-muted"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
+                                    <div id="unit-{{ $unitId }}" class="unit-section mb-4">
+                                        <div class="unit-header">
+                                            <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
+                                                <i class="fas fa-building me-2 text-primary"></i>
+                                                <span>{{ $unitName }}</span>
+                                                <div class="ms-auto">
+                                                    <span class="badge bg-primary rounded-pill">
+                                                        {{ $services->where('unit_id', $unitId)->count() }} Layanan
+                                                    </span>
+                                                </div>
+                                            </h4>
                                         </div>
+                                        <div class="row row-cols-1 row-cols-md-3 g-3">
+                                            @foreach ($services->where('unit_id', $unitId) as $service)
+                                            <div class="col service-item">
+                                                <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
+                                                    <div class="card-body p-4">
+                                                        <button
+                                                            onclick="selectService({{ $service->id }}, {{ $service->unit_id }})"
+                                                            class="btn btn-link text-decoration-none p-0 w-100 text-start"
+                                                            aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="flex-shrink-0 me-3">
+                                                                    <div class="bg-light text-primary rounded-circle p-3">
+                                                                        <i class="fas fa-concierge-bell fa-fw"></i>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <h5 class="mb-1">{{ $service->svc_name }}</h5>
+                                                                    <div class="text-muted small">{{ $service->unit->unit_name }}</div>
+                                                                </div>
+                                                                <div class="flex-shrink-0 ms-2">
+                                                                    <i class="fas fa-chevron-right text-muted"></i>
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                     @endforeach
                                 </div>
                             </div>
@@ -498,7 +498,7 @@
                                                 <input type="text" class="form-control" id="guest_name" name="guest_name" placeholder="Nama Lengkap" value="{{ old('guest_name') }}" required>
                                                 <label for="guest_name"><i class="fas fa-user me-2"></i>Nama Lengkap</label>
                                                 @error('guest_name')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -507,7 +507,7 @@
                                                 <input type="email" class="form-control" id="guest_email" name="guest_email" placeholder="Email" value="{{ old('guest_email') }}" required>
                                                 <label for="guest_email"><i class="fas fa-envelope me-2"></i>Email</label>
                                                 @error('guest_email')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -517,7 +517,7 @@
                                         <input type="text" class="form-control" id="title" name="title" placeholder="Judul Aduan" value="{{ old('title') }}" required>
                                         <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
                                         @error('title')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -525,7 +525,7 @@
                                         <textarea class="form-control" id="description" name="description" placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px" required>{{ old('description') }}</textarea>
                                         <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi Masalah</label>
                                         @error('description')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -540,7 +540,7 @@
                                             <input type="file" name="images[]" id="images" multiple class="d-none" onchange="updateFileNames(event)" accept="image/*">
                                         </div>
                                         @error('images')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                         <div class="form-text">
                                             <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF (maks 2MB per file)
@@ -599,16 +599,16 @@
         </svg>
         <div class="container text-white py-5">
             <div class="row">
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" data-aos="fade-left" data-aos-duration="3000">
                     <img src="{{ asset('assets/media/img/logo-helpdesk-1.png') }}" alt="Logo Helpdesk" class="img-fluid mb-3" style="width: 300px; height: auto;">
                     <p>Sistem Layanan Bantuan dan Dukungan Pemerintah Kota Blitar</p>
                 </div>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-duration="3000">
                     <h5 class="fw-semibold mb-3">Link Terkait</h5>
                     <a href="https://blitarkota.go.id/" class="text-white text-decoration-none">Pemerintah Kota Blitar</a> <br><br>
                     <a href="https://diskominfotik.blitarkota.go.id/" class="text-white text-decoration-none">DISKOMINFOTIK Kota Blitar</a>
                 </div>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" data-aos="fade-right" data-aos-duration="3000">
                     <h5 class="fw-semibold mb-3">Kontak</h5>
                     <p>Jl. Dr. Moh.Hatta Nomor 05 - Kota Blitar</p>
                     <p>Telp. 0342807805</p>
@@ -645,7 +645,10 @@
             function scrollToUnit(unitId) {
                 const unitElement = document.getElementById('unit-' + unitId);
                 if (unitElement) {
-                    unitElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    unitElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 }
             }
 
@@ -653,11 +656,11 @@
             function updateFileNames(event) {
                 const files = event.target.files;
                 const fileNamesElement = document.getElementById('fileNames');
-                fileNamesElement.textContent = files.length > 0
-                    ? files.length > 1
-                        ? `${files.length} file dipilih`
-                        : files[0].name
-                    : 'Tidak ada file dipilih';
+                fileNamesElement.textContent = files.length > 0 ?
+                    files.length > 1 ?
+                    `${files.length} file dipilih` :
+                    files[0].name :
+                    'Tidak ada file dipilih';
             }
 
             // Function to show services
@@ -674,7 +677,10 @@
                 document.querySelector('.form-section').classList.add('visible');
                 const formSection = document.getElementById('form-pengaduan');
                 if (formSection) {
-                    formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    formSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 }
             }
 

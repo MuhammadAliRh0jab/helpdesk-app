@@ -20,7 +20,7 @@
             display: flex;
             align-items: center;
             padding: 10px 15px;
-            border-radius: 8px;
+            /* border-radius: 8px; */
             color: #4B5563;
             text-decoration: none;
             transition: background-color 0.3s, color 0.3s;
@@ -46,6 +46,16 @@
         .nav-main-link.active .nav-main-link-name {
             color: white !important;
         }
+
+        #page-header {
+            background-color: #ebeef2 !important;
+            position: fixed;
+        }
+
+        #sidebar {
+            box-shadow: 1px 0 8px rgba(0, 0, 0, 0.15) !important;
+            padding-right: 10px;
+        }
     </style>
 </head>
 
@@ -58,7 +68,7 @@
                         <i class="fa fa-circle-notch text-primary"></i>
                     </span>
                     <span class="smini-hide">
-                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="55">
+                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="50">
                     </span>
                 </a>
                 <div class="d-flex align-items-center gap-1">
@@ -177,7 +187,7 @@
         </nav>
 
         <!-- Header -->
-        <header id="page-header" style="background-color: #ebeef2; position: fixed; top: 0;">
+        <header id="page-header">
             <div class="content-header">
                 <div class="d-flex align-items-center">
                     <!-- Toggle Sidebar -->
