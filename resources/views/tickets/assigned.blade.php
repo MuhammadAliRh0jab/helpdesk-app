@@ -142,7 +142,7 @@
                                                             @csrf
                                                             <div class="reply-input-row d-flex gap-2 mb-2">
                                                                 <textarea class="form-control" name="message" placeholder="Masukkan pesan..." required style="border-radius: 24px; border-color: #d1d5db; padding: 12px 16px; font-size: 0.9rem; resize: none;"></textarea>
-                                                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;">
+                                                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;" title="Kirim Pesan">
                                                                     <i class="fas fa-paper-plane"></i>
                                                                 </button>
                                                             </div>
@@ -154,7 +154,7 @@
                                                                 <span id="file-name-{{ $ticket->id }}" class="text-muted" style="font-size: 0.85rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tidak ada file dipilih</span>
                                                                 <input type="file" name="images[]" id="images-{{ $ticket->id }}" multiple class="form-control d-none">
                                                                 @if ($ticket->status == 1)
-                                                                <button type="submit" form="resolve-form-{{ $ticket->id }}" class="btn btn-success d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;" title="Tandai Selesai">
+                                                                <button type="button" class="btn btn-success d-flex align-items-center justify-content-center resolve-ticket-btn" data-ticket-id="{{ $ticket->id }}" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;" title="Tandai Selesai">
                                                                     <i class="fas fa-check-circle"></i>
                                                                 </button>
                                                                 @endif
@@ -262,8 +262,13 @@
         font-size: 0.75rem;
         font-weight: 600;
     }
+
+    .swal2-container {
+    z-index: 9999 !important;
+}
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     @forelse($tickets as $ticket)
@@ -313,6 +318,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     @empty
     @endforelse
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Select all buttons with the class 'resolve-ticket-btn'
+    document.querySelectorAll('.resolve-ticket-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const ticketId = this.getAttribute('data-ticket-id');
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah aduan ini telah selesai?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Selesai',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                customClass: {
+                    container: 'swal2-container' // Ensure the custom z-index class is applied
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form if confirmed
+                    const form = document.getElementById(`resolve-form-${ticketId}`);
+                    if (form) {
+                        form.submit();
+                    } else {
+                        console.error('Form tidak ditemukan untuk ticket ID: ' + ticketId);
+                    }
+                }
+            });
+        });
+    });
 });
 </script>
 @endsection

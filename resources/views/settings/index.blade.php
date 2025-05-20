@@ -4,46 +4,16 @@
 
 @section('content')
 <style>
-    /* Pastikan konten utama tidak bertabrakan dengan sidebar dan header */
     .main-content {
-        margin-left: 250px; /* Sesuaikan dengan lebar sidebar */
-        padding-top: 80px; /* Sesuaikan dengan tinggi header */
+        margin-left: 250px;
+        padding-top: 80px;
         padding-left: 20px;
         padding-right: 20px;
-        min-height: calc(100vh - 80px); /* Mengisi sisa tinggi layar */
+        min-height: calc(100vh - 80px);
         background-color: #f1f5f9;
         transition: margin-left 0.3s ease;
     }
 
-    /* Styling untuk block konten */
-    .block {
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-        padding: 0;
-    }
-
-    .block-header {
-        padding: 15px 20px;
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #e0e0e0;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-    }
-
-    .block-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #333;
-        margin: 0;
-    }
-
-    .block-content {
-        padding: 20px;
-    }
-
-    /* Styling untuk form */
     .form-group {
         margin-bottom: 20px;
     }
@@ -70,16 +40,8 @@
         outline: none;
     }
 
-    /* Styling untuk tombol */
-    .btn {
-        padding: 10px 20px;
-        border-radius: 4px;
-        font-weight: 500;
-        transition: background-color 0.3s ease, transform 0.1s ease;
-    }
-
     .btn-primary {
-        background-color: #487FFF;
+        background-color: #0287ff;
         color: #ffffff;
         border: none;
     }
@@ -100,15 +62,6 @@
         margin-left: 10px;
     }
 
-    .btn-secondary:hover {
-        background-color: #4B5563;
-        transform: translateY(-1px);
-    }
-
-    .btn-secondary:active {
-        transform: translateY(0);
-    }
-
     /* Pesan error */
     .text-danger {
         font-size: 0.875rem;
@@ -116,20 +69,11 @@
         margin-top: 5px;
     }
 
-    /* Responsivitas */
+
     @media (max-width: 991px) {
         .main-content {
             margin-left: 0;
-            padding-top: 100px; /* Sesuaikan jika header lebih tinggi di mobile */
-        }
-
-        .block {
-            margin-left: 10px;
-            margin-right: 10px;
-        }
-
-        .block-title {
-            font-size: 1.25rem;
+            padding-top: 100px;
         }
 
         .form-control {
@@ -143,36 +87,55 @@
         }
     }
 
-    /* Pastikan elemen tidak bertabrakan */
     * {
         box-sizing: border-box;
     }
 </style>
-
-<main id="main-container">
-    <div class="main-content">
-        <div class="block block-rounded">
-            <div class="block-header">
-                <h1 class="block-title">Pengaturan Sistem</h1>
-            </div>
-            <div class="block-content">
-                <form action="{{ route('settings.updateMessageLimit') }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-                    <div class="form-group">
-                        <label for="pengadu_message_limit" class="form-label">Batas Pesan Pengadu (Global untuk Semua Layanan dan Unit)</label>
-                        <input type="number" name="pengadu_message_limit" id="pengadu_message_limit" class="form-control" value="{{ $messageLimit->value }}" min="1" required>
-                        @error('pengadu_message_limit')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                        <a href="{{ route('dashboard.admin') }}" class="btn btn-secondary">Kembali</a>
-                    </div>
-                </form>
+<div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
+    <main id="main-container">
+        <div class="content">
+            <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center py-2 text-center text-md-start">
+                <div class="flex-grow-1 mb-1 mb-md-0">
+                    <h1 class="h3 fw-bold mb-2">
+                        Pengaturan Sistem
+                    </h1>
+                    <h2 class="h6 fw-medium fw-medium text-muted mb-0">
+                        Pengaturan sistem
+                    </h2>
+                </div>
             </div>
         </div>
-    </div>
-</main>
+        <div>
+            <div class="content">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="block block-rounded">
+                            <div class="block-header block-header-default">
+                                <h3 class="block-title">Batas Pesan Pengadu (Global untuk Semua Layanan dan Unit)</h3>
+                            </div>
+                            <div class="chat-limit p-4 bg-white">
+                                <form action="{{ route('settings.updateMessageLimit') }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="form-group">
+                                        <label for="pengadu_message_limit" class="form-label">Atur batas limit</label>
+                                        <input type="number" name="pengadu_message_limit" id="pengadu_message_limit" class="form-control" value="{{ $messageLimit->value }}" min="1" required>
+                                        @error('pengadu_message_limit')
+                                        <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group text-end">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i> Simpan
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
 @endsection
