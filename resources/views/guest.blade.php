@@ -260,37 +260,37 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                        <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                        <div class="alert alert-success alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                            <strong><i class="fas fa-check-circle me-2"></i>Berhasil!</strong> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     @endif
 
                     @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                        <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                            <strong><i class="fas fa-exclamation-circle me-2"></i>Error!</strong> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     @endif
 
                     @if ($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
-                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
-                        <ul class="mb-0 mt-2">
-                            @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                        <div class="alert alert-danger alert-dismissible fade show p-4 mb-4 rounded" role="alert">
+                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian!</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     @endif
 
                     <div class="card shadow border-0 rounded-lg" data-aos="fade-up" data-aos-duration="1000">
                         <h4 class="card-header bg-primary text-white py-3" id="form-title">
-                            <i class="fas fa-edit me-2"></i>Form Aduan
+                            <i class="fas fa-edit me-2"></i>Form Aduan {{ isset($service) ? $service->svc_name : '' }}
                         </h4>
                         <div class="card-body p-4">
-                            <div class="service-list {{ isset($service) ? 'hidden' : '' }}">
+                            <div class="service-list {{ isset($service) ? 'hidden' : '' }}" id="service-list">
                                 <div class="mb-4">
                                     <div class="input-group input-group-lg shadow-sm">
                                         <span class="input-group-text bg-white border-end-0">
@@ -312,14 +312,14 @@
                                             Unit:</span>
                                         <div class="unit-pills">
                                             @php
-                                            $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
+                                                $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
                                             @endphp
                                             @foreach($units as $unitName => $unitId)
-                                            <button onclick="scrollToUnit({{ $unitId }})"
-                                                class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
-                                                aria-label="Pilih unit {{ $unitName }}">
-                                                {{ $unitName }}
-                                            </button>
+                                                <button onclick="scrollToUnit({{ $unitId }})"
+                                                    class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
+                                                    aria-label="Pilih unit {{ $unitName }}">
+                                                    {{ $unitName }}
+                                                </button>
                                             @endforeach
                                         </div>
                                     </div>
@@ -328,61 +328,63 @@
                                 <!-- Daftar Unit dengan Layanan -->
                                 <div class="scrolling-units" id="service-list-content">
                                     @foreach($units as $unitName => $unitId)
-                                    <div id="unit-{{ $unitId }}" class="unit-section mb-4">
-                                        <div class="unit-header">
-                                            <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
-                                                <i class="fas fa-building me-2 text-primary"></i>
-                                                <span>{{ $unitName }}</span>
-                                                <div class="ms-auto">
-                                                    <span class="badge bg-primary rounded-pill">
-                                                        {{ $services->where('unit_id', $unitId)->count() }} Layanan
-                                                    </span>
-                                                </div>
-                                            </h4>
-                                        </div>
-                                        <div class="row row-cols-1 row-cols-md-3 g-3">
-                                            @foreach ($services->where('unit_id', $unitId) as $service)
-                                            <div class="col service-item">
-                                                <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
-                                                    <div class="card-body p-4">
-                                                        <button
-                                                            onclick="selectService({{ $service->id ?? 0 }}, {{ $service->unit_id ?? 0 }})"
-                                                            class="btn btn-link text-decoration-none p-0 w-100 text-start"
-                                                            aria-label="Pilih layanan {{ $service->svc_name }} dari unit {{ $service->unit->unit_name }}">
-                                                            <div class="d-flex align-items-center">
-                                                                <div class="flex-shrink-0 me-3">
-                                                                    <div
-                                                                        class="bg-light text-primary rounded-circle p-3">
-                                                                        <i class="fas fa-concierge-bell fa-fw"></i>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="flex-grow-1">
-                                                                    <h5 class="mb-1">{{ $service->svc_name }}</h5>
-                                                                    <div class="text-muted small">
-                                                                        {{ $service->unit->unit_name }}
-                                                                    </div>
-                                                                </div>
-                                                                <div class="flex-shrink-0 ms-2">
-                                                                    <i class="fas fa-chevron-right text-muted"></i>
-                                                                </div>
-                                                            </div>
-                                                        </button>
+                                        <div id="unit-{{ $unitId }}" class="unit-section mb-4">
+                                            <div class="unit-header">
+                                                <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
+                                                    <i class="fas fa-building me-2 text-primary"></i>
+                                                    <span>{{ $unitName }}</span>
+                                                    <div class="ms-auto">
+                                                        <span class="badge bg-primary rounded-pill">
+                                                            {{ $services->where('unit_id', $unitId)->count() }} Layanan
+                                                        </span>
                                                     </div>
-                                                </div>
+                                                </h4>
                                             </div>
-                                            @endforeach
+                                            <div class="row row-cols-1 row-cols-md-3 g-3">
+                                                @foreach ($services->where('unit_id', $unitId) as $svc)
+                                                    <div class="col service-item">
+                                                        <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
+                                                            <div class="card-body p-4">
+                                                                <button
+                                                                    onclick="selectService({{ $svc->id ?? 0 }}, {{ $svc->unit_id ?? 0 }}, '{{ $svc->svc_name }}')"
+                                                                    class="btn btn-link text-decoration-none p-0 w-100 text-start"
+                                                                    aria-label="Pilih layanan {{ $svc->svc_name }} dari unit {{ $svc->unit->unit_name }}">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="flex-shrink-0 me-3">
+                                                                            <div
+                                                                                class="bg-light text-primary rounded-circle p-3">
+                                                                                <i class="fas fa-concierge-bell fa-fw"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="flex-grow-1">
+                                                                            <h5 class="mb-1">{{ $svc->svc_name }}</h5>
+                                                                            <div class="text-muted small">
+                                                                                {{ $svc->unit->unit_name }}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="flex-shrink-0 ms-2">
+                                                                            <i class="fas fa-chevron-right text-muted"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         </div>
-                                    </div>
                                     @endforeach
                                 </div>
                             </div>
 
-                            <div class="form-section {{ isset($service) ? 'visible' : '' }}" x-show="!$store.form.showServices" x-transition>
+                            <div class="form-section {{ isset($service) ? 'visible' : '' }}" id="form-section">
                                 <form action="{{ route('tickets.store.guest') }}" method="POST"
-                                    enctype="multipart/form-data" x-data="mapForm" x-init="initMap">
+                                    enctype="multipart/form-data" id="ticket-form">
                                     @csrf
-                                    <input type="hidden" name="unit_id" x-bind:value="$store.form.selectedUnit">
-                                    <input type="hidden" name="service_id" x-bind:value="$store.form.selectedService">
+                                    <input type="hidden" name="unit_id" id="unit_id"
+                                        value="{{ isset($service) ? $service->unit_id : '' }}">
+                                    <input type="hidden" name="service_id" id="service_id"
+                                        value="{{ isset($service) ? $service->id : '' }}">
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <div class="form-floating mb-3">
@@ -392,7 +394,7 @@
                                                 <label for="guest_name"><i class="fas fa-user me-2"></i>Nama
                                                     Lengkap</label>
                                                 @error('guest_name')
-                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -404,7 +406,7 @@
                                                 <label for="guest_email"><i
                                                         class="fas fa-envelope me-2"></i>Email</label>
                                                 @error('guest_email')
-                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -415,7 +417,7 @@
                                             placeholder="Judul Aduan" value="{{ old('title') }}" required>
                                         <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
                                         @error('title')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -426,7 +428,7 @@
                                         <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi
                                             Masalah</label>
                                         @error('description')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -441,24 +443,22 @@
                                             <div class="col-md-6">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="latitude"
-                                                        name="latitude" x-model="latitude" placeholder="Latitude"
-                                                        readonly>
+                                                        name="latitude" placeholder="Latitude" readonly>
                                                     <label for="latitude"><i
                                                             class="fas fa-globe me-2"></i>Latitude</label>
                                                     @error('latitude')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="longitude"
-                                                        name="longitude" x-model="longitude" placeholder="Longitude"
-                                                        readonly>
+                                                        name="longitude" placeholder="Longitude" readonly>
                                                     <label for="longitude"><i
                                                             class="fas fa-globe me-2"></i>Longitude</label>
                                                     @error('longitude')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -472,27 +472,33 @@
 
                                     <!-- Bagian Upload File dengan Pratinjau -->
                                     <div class="mb-4">
-                                        <label for="images" class="form-label fw-bold"><i class="fas fa-images me-2"></i>Unggah Gambar Pendukung (Opsional)</label>
-                                        <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light" id="dropzone">
+                                        <label for="images" class="form-label fw-bold"><i
+                                                class="fas fa-images me-2"></i>Unggah Gambar Pendukung
+                                            (Opsional)</label>
+                                        <div class="dropzone-container p-4 text-center border border-dashed rounded-3 bg-light"
+                                            id="dropzone">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="fas fa-cloud-upload-alt text-primary fa-3x mb-3"></i>
                                                 <p class="mb-2">Klik atau seret file ke sini</p>
-                                                <p class="text-muted small mb-0" id="fileNames">Tidak ada file dipilih</p>
+                                                <p class="text-muted small mb-0" id="fileNames">Tidak ada file dipilih
+                                                </p>
                                             </div>
-                                            <input type="file" name="images[]" id="images" multiple class="d-none" accept="image/*">
+                                            <input type="file" name="images[]" id="images" multiple class="d-none"
+                                                accept="image/*">
                                         </div>
                                         @error('images')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                         <!-- Area untuk pratinjau gambar -->
                                         <div id="preview-container" class="row mt-3"></div>
                                         <div class="form-text">
-                                            <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF (maks 2MB per file)
+                                            <i class="fas fa-info-circle me-1"></i> Format yang didukung: JPG, PNG, GIF
+                                            (maks 2MB per file)
                                         </div>
                                     </div>
 
                                     <div class="d-flex justify-content-between gap-3">
-                                        <button type="button" @click="$store.form.showServices = true"
+                                        <button type="button" onclick="showServiceList()"
                                             class="btn btn-outline-secondary btn-lg px-4"
                                             aria-label="Kembali ke daftar layanan">
                                             <i class="fas fa-arrow-left me-2"></i>Kembali
@@ -572,13 +578,14 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="{{ asset('assets/js/cdn.js') }}"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
+    {{--
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             var navbar = document.getElementById("header");
             var logo = document.getElementById("nav-logo");
 
-            window.addEventListener("scroll", function() {
+            window.addEventListener("scroll", function () {
                 if (window.scrollY > 50) {
                     navbar.classList.add("scrolled");
                     logo.src = "{{ asset('assets/media/img/logo-helpdesk-black.png') }}";
@@ -593,17 +600,10 @@
         // Global selectService function
         function selectService(serviceId, unitId) {
             console.log('selectService called with serviceId:', serviceId, 'unitId:', unitId);
-            // Update hidden input fields
-            const serviceInput = document.querySelector('input[name="service_id"]');
-            const unitInput = document.querySelector('input[name="unit_id"]');
-            if (serviceInput && unitInput) {
-                serviceInput.value = serviceId;
-                unitInput.value = unitId;
-            } else {
-                console.error('Hidden input fields for service_id or unit_id not found');
-                return;
-            }
-            // Toggle visibility
+            Alpine.store('form').selectedService = serviceId;
+            Alpine.store('form').selectedUnit = unitId;
+            Alpine.store('form').showServices = false;
+
             const serviceList = document.querySelector('.service-list');
             const formSection = document.querySelector('.form-section');
             if (serviceList && formSection) {
@@ -613,7 +613,6 @@
                     behavior: 'smooth',
                     block: 'start'
                 });
-                // Refresh AOS animations
                 if (typeof AOS !== 'undefined') {
                     AOS.refresh();
                 }
@@ -621,9 +620,10 @@
                 console.error('Service list or form section not found in DOM');
             }
 
-            // Ambil nama layanan dari elemen yang dipilih
-            const serviceName = document.querySelector(`button[onclick*="selectService(${serviceId}, ${unitId})"]`).textContent.trim();
-            updateFormTitle(serviceName); // Panggil fungsi untuk mengubah judul form
+            const serviceName = document.querySelector(`button[onclick*="selectService(${serviceId}, ${unitId})"]`)?.textContent.trim();
+            if (serviceName) {
+                updateFormTitle(serviceName);
+            }
         }
 
         // Global scrollToUnit function (for unit pills)
@@ -642,13 +642,20 @@
 
         // Alpine.js untuk map dan upload file
         document.addEventListener('alpine:init', () => {
+            Alpine.store('form', {
+                showServices: {{ isset($service) ? 'false' : 'true' }},
+                selectedService: {{ isset($service) ? $service->id : 'null' }},
+                selectedUnit: {{ isset($service) ? $service->unit_id : 'null' }}
+    });
+
             Alpine.data('mapForm', () => ({
                 latitude: null,
                 longitude: null,
                 mapInitialized: false,
-                selectedFiles: [], // Array untuk menyimpan file yang dipilih
+                selectedFiles: [],
 
-                initMap() {
+                init() {
+                    // Initialize geolocation but don't setup map yet
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
@@ -671,6 +678,27 @@
                         document.getElementById('latitude').value = this.latitude.toFixed(6);
                         document.getElementById('longitude').value = this.longitude.toFixed(6);
                     }
+
+                    // Watch for form visibility to initialize map
+                    this.$watch('isFormVisible', (visible) => {
+                        if (visible && !this.mapInitialized) {
+                            this.setupMap();
+                        }
+                    });
+
+                    // Check initial visibility
+                    this.checkFormVisibility();
+                },
+
+                get isFormVisible() {
+                    const formSection = this.$el.closest('.form-section');
+                    return formSection && formSection.classList.contains('visible');
+                },
+
+                checkFormVisibility() {
+                    if (this.isFormVisible && !this.mapInitialized) {
+                        this.setupMap();
+                    }
                 },
 
                 setupMap() {
@@ -679,6 +707,10 @@
                         console.error('Map container not found');
                         return;
                     }
+
+                    // Ensure map container has dimensions
+                    mapElement.style.height = '300px';
+                    mapElement.style.width = '100%';
 
                     setTimeout(() => {
                         const map = L.map(mapElement).setView([this.latitude || -8.0916, this.longitude || 112.1814], 13);
@@ -712,15 +744,14 @@
                     const files = event.target.files;
                     const fileNamesElement = document.getElementById('fileNames');
                     const previewContainer = document.getElementById('preview-container');
-                    previewContainer.innerHTML = ''; // Bersihkan pratinjau sebelumnya
-                    this.selectedFiles = Array.from(files); // Simpan file yang dipilih
+                    previewContainer.innerHTML = '';
+                    this.selectedFiles = Array.from(files);
 
                     if (files.length > 0) {
                         fileNamesElement.textContent = files.length === 1 ?
                             files[0].name :
                             `${files.length} file dipilih`;
 
-                        // Tampilkan pratinjau untuk setiap file
                         Array.from(files).forEach((file, index) => {
                             if (file.type.startsWith('image/')) {
                                 const reader = new FileReader();
@@ -728,17 +759,17 @@
                                     const col = document.createElement('div');
                                     col.className = 'col-6 col-md-3 mb-3';
                                     col.innerHTML = `
-                                        <div class="position-relative">
-                                            <img src="${e.target.result}" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;">
-                                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
-                                                    style="transform: translate(50%, -50%);"
-                                                    onclick="Alpine.store('mapForm').removeFile(${index})"
-                                                    aria-label="Hapus gambar ${file.name}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <small class="d-block text-muted mt-1 text-center">${file.name}</small>
-                                        </div>
-                                    `;
+                                <div class="position-relative">
+                                    <img src="${e.target.result}" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;">
+                                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                            style="transform: translate(50%, -50%);"
+                                            onclick="Alpine.store('mapForm').removeFile(${index})"
+                                            aria-label="Hapus gambar ${file.name}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <small class="d-block text-muted mt-1 text-center">${file.name}</small>
+                                </div>
+                            `;
                                     previewContainer.appendChild(col);
                                 };
                                 reader.readAsDataURL(file);
@@ -750,24 +781,19 @@
                 },
 
                 removeFile(index) {
-                    // Hapus file dari array selectedFiles
                     this.selectedFiles.splice(index, 1);
-
-                    // Perbarui input file
                     const input = document.getElementById('images');
                     const dataTransfer = new DataTransfer();
                     this.selectedFiles.forEach(file => dataTransfer.items.add(file));
                     input.files = dataTransfer.files;
 
-                    // Perbarui teks jumlah file
                     const fileNamesElement = document.getElementById('fileNames');
                     fileNamesElement.textContent = this.selectedFiles.length === 0 ?
                         'Tidak ada file dipilih' :
                         this.selectedFiles.length === 1 ?
-                        this.selectedFiles[0].name :
-                        `${this.selectedFiles.length} file dipilih`;
+                            this.selectedFiles[0].name :
+                            `${this.selectedFiles.length} file dipilih`;
 
-                    // Perbarui pratinjau
                     const previewContainer = document.getElementById('preview-container');
                     previewContainer.innerHTML = '';
                     this.selectedFiles.forEach((file, newIndex) => {
@@ -777,17 +803,17 @@
                                 const col = document.createElement('div');
                                 col.className = 'col-6 col-md-3 mb-3';
                                 col.innerHTML = `
-                                    <div class="position-relative">
-                                        <img src="${e.target.result}" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;">
-                                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
-                                                style="transform: translate(50%, -50%);"
-                                                onclick="Alpine.store('mapForm').removeFile(${newIndex})"
-                                                aria-label="Hapus gambar ${file.name}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        <small class="d-block text-muted mt-1 text-center">${file.name}</small>
-                                    </div>
-                                `;
+                            <div class="position-relative">
+                                <img src="${e.target.result}" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;">
+                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                        style="transform: translate(50%, -50%);"
+                                        onclick="Alpine.store('mapForm').removeFile(${newIndex})"
+                                        aria-label="Hapus gambar ${file.name}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <small class="d-block text-muted mt-1 text-center">${file.name}</small>
+                            </div>
+                        `;
                                 previewContainer.appendChild(col);
                             };
                             reader.readAsDataURL(file);
@@ -798,7 +824,7 @@
         });
 
         // Map initialization and observer
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let mapInstance = null;
 
             function initializeOrRefreshMap() {
@@ -829,7 +855,7 @@
                         draggable: true
                     }).addTo(mapInstance);
 
-                    marker.on('dragend', function(e) {
+                    marker.on('dragend', function (e) {
                         const position = marker.getLatLng();
                         document.getElementById('latitude').value = position.lat.toFixed(6);
                         document.getElementById('longitude').value = position.lng.toFixed(6);
@@ -842,8 +868,8 @@
                 }, 300);
             }
 
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
                     if (mutation.target.classList.contains('visible')) {
                         setTimeout(initializeOrRefreshMap, 250);
                     }
@@ -861,7 +887,7 @@
             // Initialize geolocation
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    function(position) {
+                    function (position) {
                         document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
                         document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
                         if (mapInstance) {
@@ -879,7 +905,7 @@
                             }
                         }
                     },
-                    function(error) {
+                    function (error) {
                         console.warn('Geolocation error:', error);
                     }
                 );
@@ -914,132 +940,266 @@
         AOS.init();
     </script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const input = document.getElementById('images');
-            var navbar = document.getElementById("header");
-            var logo = document.getElementById("nav-logo");
-            const dropzone = document.getElementById('dropzone');
-            const fileNamesElement = document.getElementById('fileNames');
-            const previewContainer = document.getElementById('preview-container');
-            let selectedFiles = [];
+document.addEventListener('DOMContentLoaded', function() {
+    let mapInstance = null;
+    let selectedFiles = [];
 
-            window.addEventListener("scroll", function() {
-                if (window.scrollY > 50) {
-                    navbar.classList.add("scrolled");
-                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-black.png') }}";
-                } else {
-                    navbar.classList.remove("scrolled");
-                    logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
+    // Initialize map
+    function initializeMap() {
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) {
+            console.error('Map container not found');
+            return;
+        }
+
+        // Ensure map container has dimensions
+        mapContainer.style.height = '300px';
+        mapContainer.style.width = '100%';
+
+        // Get initial coordinates
+        let lat = parseFloat(document.getElementById('latitude').value) || -8.0916;
+        let lng = parseFloat(document.getElementById('longitude').value) || 112.1814;
+
+        // Initialize geolocation
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    lat = position.coords.latitude;
+                    lng = position.coords.longitude;
+                    document.getElementById('latitude').value = lat.toFixed(6);
+                    document.getElementById('longitude').value = lng.toFixed(6);
+                    setupMap(lat, lng);
+                },
+                (error) => {
+                    console.warn('Geolocation error:', error);
+                    document.getElementById('latitude').value = lat.toFixed(6);
+                    document.getElementById('longitude').value = lng.toFixed(6);
+                    setupMap(lat, lng);
                 }
+            );
+        } else {
+            document.getElementById('latitude').value = lat.toFixed(6);
+            document.getElementById('longitude').value = lng.toFixed(6);
+            setupMap(lat, lng);
+        }
+    }
+
+    function setupMap(lat, lng) {
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) return;
+
+        // Remove existing map instance if any
+        if (mapInstance) {
+            mapInstance.remove();
+        }
+
+        // Initialize map with delay to ensure DOM is ready
+        setTimeout(() => {
+            mapInstance = L.map('map').setView([lat, lng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(mapInstance);
+
+            const marker = L.marker([lat, lng], {
+                draggable: true
+            }).addTo(mapInstance);
+
+            marker.on('dragend', function(e) {
+                const position = marker.getLatLng();
+                document.getElementById('latitude').value = position.lat.toFixed(6);
+                document.getElementById('longitude').value = position.lng.toFixed(6);
             });
 
-            function renderPreview() {
-                previewContainer.innerHTML = '';
-                selectedFiles.forEach((file, index) => {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const col = document.createElement('div');
-                            col.className = 'col-6 col-md-3 mb-3';
-                            col.innerHTML = `
+            // Ensure map renders correctly
+            setTimeout(() => {
+                mapInstance.invalidateSize();
+                setTimeout(() => mapInstance.invalidateSize(), 500);
+            }, 100);
+        }, 300);
+    }
+
+    // Check form visibility and initialize map if form is visible
+    function checkFormVisibility() {
+        const formSection = document.getElementById('form-section');
+        if (formSection && formSection.classList.contains('visible')) {
+            initializeMap();
+        }
+    }
+
+    // Service selection
+    window.selectService = function(serviceId, unitId, serviceName) {
+        console.log('selectService called with serviceId:', serviceId, 'unitId:', unitId, 'serviceName:', serviceName);
+        document.getElementById('service_id').value = serviceId;
+        document.getElementById('unit_id').value = unitId;
+        document.getElementById('form-title').textContent = `Form Aduan ${serviceName}`;
+
+        const serviceList = document.getElementById('service-list');
+        const formSection = document.getElementById('form-section');
+        if (serviceList && formSection) {
+            serviceList.classList.add('hidden');
+            formSection.classList.add('visible');
+            formSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            initializeMap(); // Initialize map when form becomes visible
+            if (typeof AOS !== 'undefined') {
+                AOS.refresh();
+            }
+        } else {
+            console.error('Service list or form section not found in DOM');
+        }
+    };
+
+    // Show service list
+    window.showServiceList = function() {
+        const serviceList = document.getElementById('service-list');
+        const formSection = document.getElementById('form-section');
+        if (serviceList && formSection) {
+            serviceList.classList.remove('hidden');
+            formSection.classList.remove('visible');
+            serviceList.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            if (typeof AOS !== 'undefined') {
+                AOS.refresh();
+            }
+        }
+    };
+
+    // Scroll to unit
+    window.scrollToUnit = function(unitId) {
+        console.log('scrollToUnit called with unitId:', unitId);
+        const unitElement = document.getElementById(`unit-${unitId}`);
+        if (unitElement) {
+            unitElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        } else {
+            console.error(`Unit element with ID unit-${unitId} not found`);
+        }
+    };
+
+    // File upload and preview
+    const dropzone = document.getElementById('dropzone');
+    const input = document.getElementById('images');
+    const fileNamesElement = document.getElementById('fileNames');
+    const previewContainer = document.getElementById('preview-container');
+
+    function updateFileNamesAndPreview(event) {
+        const newFiles = Array.from(event.target.files);
+        // Append new files to selectedFiles
+        selectedFiles = [...selectedFiles, ...newFiles];
+
+        // Update the file input's files property
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        input.files = dataTransfer.files;
+
+        // Update file names display
+        if (selectedFiles.length > 0) {
+            fileNamesElement.textContent = selectedFiles.length === 1 ?
+                selectedFiles[0].name :
+                `${selectedFiles.length} file dipilih`;
+            renderPreview();
+        } else {
+            fileNamesElement.textContent = 'Tidak ada file dipilih';
+            previewContainer.innerHTML = '';
+        }
+    }
+
+    function renderPreview() {
+        previewContainer.innerHTML = '';
+        selectedFiles.forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-md-3 mb-3';
+                    col.innerHTML = `
                         <div class="position-relative">
-                            <img src="${e.target.result}" 
-                                 class="img-fluid rounded shadow-sm" 
-                                 style="max-height: 150px; object-fit: cover;"
-                                 onclick="openModal('${e.target.result}')">
-                            <button type="button" 
-                                    class="btn btn-danger btn-sm position-absolute top-0 end-0" 
-                                    style="transform: translate(50%, -50%); z-index: 10;"
-                                    onclick="removeFile(${index})">
+                            <img src="${e.target.result}" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;">
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                    style="transform: translate(50%, -50%);"
+                                    onclick="removeFile(${index})"
+                                    aria-label="Hapus gambar ${file.name}">
                                 <i class="fas fa-trash"></i>
                             </button>
                             <small class="d-block text-muted mt-1 text-center">${file.name}</small>
-                        </div>`;
-                            previewContainer.appendChild(col);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
+                        </div>
+                    `;
+                    previewContainer.appendChild(col);
+                };
+                reader.readAsDataURL(file);
             }
-
-            function updateFileNamesAndPreview(event) {
-                const files = event.target.files;
-                if (files.length > 0) {
-                    selectedFiles = [...selectedFiles, ...Array.from(files)];
-
-                    fileNamesElement.textContent = selectedFiles.length === 1 ?
-                        selectedFiles[0].name :
-                        `${selectedFiles.length} file dipilih`;
-
-                    renderPreview();
-                } else {
-                    fileNamesElement.textContent = 'Tidak ada file dipilih';
-                    previewContainer.innerHTML = '';
-                }
-            }
-
-            window.removeFile = function(index) {
-                selectedFiles.splice(index, 1);
-
-                const dataTransfer = new DataTransfer();
-                selectedFiles.forEach(file => dataTransfer.items.add(file));
-                input.files = dataTransfer.files;
-
-                fileNamesElement.textContent = selectedFiles.length === 0 ?
-                    'Tidak ada file dipilih' :
-                    selectedFiles.length === 1 ?
-                    selectedFiles[0].name :
-                    `${selectedFiles.length} file dipilih`;
-
-                renderPreview();
-            };
-
-            window.openModal = function(imageUrl) {
-                const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-                document.getElementById('modalImage').src = imageUrl;
-                modal.show();
-            };
-
-            // Input file change event
-            input?.addEventListener('change', updateFileNamesAndPreview);
-
-            // Drag-and-drop functionality
-            dropzone?.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropzone.classList.add('border-primary', 'bg-primary-subtle');
-            });
-
-            dropzone?.addEventListener('dragleave', (e) => {
-                e.preventDefault();
-                dropzone.classList.remove('border-primary', 'bg-primary-subtle');
-            });
-
-            dropzone?.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropzone.classList.remove('border-primary', 'bg-primary-subtle');
-
-                const droppedFiles = Array.from(e.dataTransfer.files);
-                const dataTransfer = new DataTransfer();
-                [...selectedFiles, ...droppedFiles].forEach(file => dataTransfer.items.add(file));
-                input.files = dataTransfer.files;
-
-                const changeEvent = new Event('change', {
-                    bubbles: true
-                });
-                input.dispatchEvent(changeEvent);
-            });
-
-            dropzone?.addEventListener('click', () => input?.click());
-
-            // Function to update form title
-            window.updateFormTitle = function(serviceName) {
-                const formTitle = document.getElementById('form-title');
-                if (formTitle) {
-                    formTitle.textContent = `Form Aduan ${serviceName}`;
-                }
-            };
         });
-    </script>
+    }
+
+    window.removeFile = function(index) {
+        selectedFiles.splice(index, 1);
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        input.files = dataTransfer.files;
+        fileNamesElement.textContent = selectedFiles.length === 0 ?
+            'Tidak ada file dipilih' :
+            selectedFiles.length === 1 ?
+            selectedFiles[0].name :
+            `${selectedFiles.length} file dipilih`;
+        renderPreview();
+    };
+
+    // Drag-and-drop events
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('border-primary', 'bg-primary-subtle');
+    });
+
+    dropzone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('border-primary', 'bg-primary-subtle');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('border-primary', 'bg-primary-subtle');
+        const newFiles = Array.from(e.dataTransfer.files);
+        // Append new files to selectedFiles
+        selectedFiles = [...selectedFiles, ...newFiles];
+        // Update the file input's files property
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        input.files = dataTransfer.files;
+        // Trigger change event
+        const event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
+    });
+
+    dropzone.addEventListener('click', () => input.click());
+    input.addEventListener('change', updateFileNamesAndPreview);
+
+    // Navbar scroll effect
+    const navbar = document.getElementById("header");
+    const logo = document.getElementById("nav-logo");
+    window.addEventListener("scroll", function() {
+        if (window.scrollY > 50) {
+            navbar.classList.add("scrolled");
+            logo.src = "{{ asset('assets/media/img/logo-helpdesk-black.png') }}";
+        } else {
+            navbar.classList.remove("scrolled");
+            logo.src = "{{ asset('assets/media/img/logo-helpdesk-1.png') }}";
+        }
+    });
+
+    // Initialize map if form is visible on page load
+    checkFormVisibility();
+
+    // Initialize AOS
+    AOS.init();
+});
+</script>
 
 </body>
 

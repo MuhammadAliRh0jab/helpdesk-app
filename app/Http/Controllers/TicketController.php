@@ -914,16 +914,6 @@ class TicketController extends Controller
         return response()->json($stats);
     }
 
-
-
-
-
-
-
-
-
-
-
     public function pegawaiTicketStats()
     {
         $user = auth()->user();
