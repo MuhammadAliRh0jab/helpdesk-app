@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en" class="light">
 
 <head>
@@ -24,7 +25,8 @@
     
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/media/img/logo.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets2/media/favicons/apple-touch-icon-180x180.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="{{ asset('assets2/media/favicons/apple-touch-icon-180x180.png') }}">
 
     <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('assets2/js/plugins/datatables-bs5/css/dataTables.bootstrap5.min.css') }}">
@@ -149,5 +151,6 @@
 
     </style>
 </body>
+
 
 </html>
