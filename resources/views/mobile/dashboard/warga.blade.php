@@ -33,8 +33,8 @@
                                 <h6 class="card-title mb-0 text-muted">Jumlah Aduan</h6>
                                 <h4 class="fw-bold mb-0" id="total-tickets">0</h4>
                             </div>
-                            <div class="bg-light rounded-circle p-3">
-                                <i class="fas fa-ticket-alt fs-3 text-primary"></i>
+                            <div class="ps-3">
+                                <i class="fa fa-ticket-alt fs-3 text-primary"></i>
                             </div>
                         </div>
                     </div>
@@ -46,8 +46,8 @@
                                 <h6 class="card-title mb-0 text-muted">Aduan Pending</h6>
                                 <h4 class="fw-bold mb-0" id="pending-tickets">0</h4>
                             </div>
-                            <div class="bg-light rounded-circle p-3">
-                                <i class="fas fa-hourglass-start fs-3 text-warning"></i>
+                            <div class="ps-3">
+                                <i class="fa fa-hourglass-start fs-3 text-warning"></i>
                             </div>
                         </div>
                     </div>
@@ -59,8 +59,8 @@
                                 <h6 class="card-title mb-0 text-muted">Aduan Ditugaskan</h6>
                                 <h4 class="fw-bold mb-0" id="assigned-tickets">0</h4>
                             </div>
-                            <div class="bg-light rounded-circle p-3">
-                                <i class="fas fa-user-clock fs-3 text-info"></i>
+                            <div class="ps-3">
+                                <i class="fa fa-user-clock fs-3 text-info"></i>
                             </div>
                         </div>
                     </div>
@@ -72,8 +72,8 @@
                                 <h6 class="card-title mb-0 text-muted">Aduan Selesai</h6>
                                 <h4 class="fw-bold mb-0" id="completed-tickets">0</h4>
                             </div>
-                            <div class="bg-light rounded-circle p-3">
-                                <i class="fas fa-check-circle fs-3 text-success"></i>
+                            <div class="ps-3">
+                                <i class="fa fa-check-circle fs-3 text-success"></i>
                             </div>
                         </div>
                     </div>
@@ -273,19 +273,6 @@
             </div>
         </template>
     </div>
-@endsection
-
-@section('scripts')
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        canvas {
-            max-height: 200px !important;
-        }
-    </style>
 @endsection
 
 @section('footer')

@@ -30,19 +30,10 @@
                         </li>
                     </ul>
                 </li>
-                {{-- <li @if (request()->routeIs('mobile.account')) class="active" @endif> --}}
                 <li>
                     <a href="{{ route('profile') }}">
                         <i class="bi bi-person"></i> Akun
                     </a>
-                </li>
-                <li>
-                    <div class="night-mode-nav">
-                        <i class="bi bi-moon"></i> Night Mode
-                        <div class="form-check form-switch">
-                            <input class="form-check-input form-check-success" id="darkSwitch" type="checkbox">
-                        </div>
-                    </div>
                 </li>
                 <li>
                     <a href="#"
