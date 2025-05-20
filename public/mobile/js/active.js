@@ -72,6 +72,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    let passWordConfirm = document.getElementById('password-visibility-confirm');
+
+    if (passWordConfirm) {
+        passWordConfirm.addEventListener('click', function () {
+            let passInputConfirm = document.getElementById('psw-input-confirm');
+            if (passInputConfirm) {
+                passWordConfirm.classList.toggle('active');
+                passInputConfirm.type = (passInputConfirm.type === 'password') ? 'text' : 'password';
+            }
+        });
+    }
+
     // 1.3 => Prevent Default 'a' Click
 
     let emptyLinks = document.querySelectorAll('a[href="#"]');

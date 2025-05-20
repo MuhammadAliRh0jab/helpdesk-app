@@ -107,7 +107,7 @@ class TicketController extends Controller
         }
         $services = $servicesQuery->with('unit')->get();
 
-        return view('tickets.index', compact('tickets', 'pics', 'services'));
+        return view('theme::tickets.index', compact('tickets', 'pics', 'services'));
     }
 
 
@@ -149,7 +149,7 @@ class TicketController extends Controller
             ->with('unit')
             ->get();
 
-        return view('guest', compact('units', 'services'));
+        return view('theme::guest', compact('units', 'services'));
     }
 
     public function storeGuest(Request $request)

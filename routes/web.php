@@ -75,7 +75,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
     Route::get('/get-services/{unitId}', [TicketController::class, 'getServices'])->name('get.services');
 
-    // User Management Routes (Super Admin)
     Route::prefix('users')->middleware('role:1')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
         Route::get('/{user}', [UserController::class, 'show'])->name('users.show');
