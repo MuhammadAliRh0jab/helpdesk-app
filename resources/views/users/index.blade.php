@@ -84,8 +84,8 @@
                                                             @csrf
                                                             <button type="submit" class="btn btn-sm btn-warning"
                                                                 onclick="return confirm('Apakah Anda yakin ingin mereset password pengguna ini? Password akan disetel menjadi username mereka.')"
-                                                                data-bs-toggle="tooltip" title="Reset Password">
-                                                                <i class="fa fa-fw fa-key"></i>
+                                                                data-bs-toggle="tooltip">
+                                                                <i class="fa fa-fw fa-key" title="Reset Password"></i>
                                                             </button>
                                                         </form>
 
@@ -96,8 +96,8 @@
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-sm btn-danger"
                                                                 onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')"
-                                                                data-bs-toggle="tooltip" title="Hapus Pengguna">
-                                                                <i class="fa fa-fw fa-trash-can"></i>
+                                                                data-bs-toggle="tooltip">
+                                                                <i class="fa fa-fw fa-trash-can" title="Hapus Pengguna"></i>
                                                             </button>
                                                         </form>
                                                         @endif
