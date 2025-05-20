@@ -1059,60 +1059,110 @@ class TicketController extends Controller
         return response()->json($resolvedTickets);
     }
 
-    public function createForService(Service $service)
-    {
-        $user = auth()->user();
+    // public function createForService(Service $service)
+    // {
+    //     $user = auth()->user();
 
-        // Check if the service is active
-        if ($service->status !== 'active') {
-            return redirect()->route('landing')->with('error', 'Layanan ini tidak aktif.');
+    //     // Check if the service is active
+    //     if ($service->status !== 'active') {
+    //         return redirect()->route('landing')->with('error', 'Layanan ini tidak aktif.');
+    //     }
+
+    //     // Guest-allowed service
+    //     if ($service->allow_guest == 1 && $service->category_id == 2) {
+    //         $units = Unit::all();
+    //         $services = Service::where('status', 'active')
+    //             ->where('category_id', 2)
+    //             ->where('allow_guest', 1)
+    //             ->with('unit')
+    //             ->get();
+    //         return view('theme::guest', compact('units', 'services', 'service'));
+    //     }
+
+    //     // Public service requiring login
+    //     if ($service->category_id == 2 && $service->allow_guest == 0) {
+    //         if (!$user) {
+    //             return redirect()->route('login')->with('intended_url', route('tickets.create.service', $service->uuid));
+    //         }
+    //         if (in_array($user->role_id, [2, 3, 4])) {
+    //             $units = Unit::all();
+    //             $services = Service::where('status', 'active')
+    //                 ->where('category_id', 2)
+    //                 ->with('unit')
+    //                 ->get();
+    //             return view('theme::tickets.create', compact('units', 'services', 'service'));
+    //         }
+    //     }
+
+    //     // Government-only service
+    //     if ($service->category_id == 1) {
+    //         if (!$user) {
+    //             return redirect()->route('login')->with('intended_url', route('tickets.create.service', $service->uuid));
+    //         }
+    //         if (in_array($user->role_id, [1, 2, 3])) {
+    //             $units = Unit::all();
+    //             $services = Service::where('status', 'active')
+    //                 ->with('unit')
+    //                 ->get();
+    //             return view('theme::tickets.create', compact('units', 'services', 'service'));
+    //         } else {
+    //             return redirect()->route('landing')->with('error', 'Layanan ini hanya untuk pegawai pemerintah.');
+    //         }
+    //     }
+
+    //     return redirect()->route('landing')->with('error', 'Layanan tidak valid.');
+    // }
+
+    
+    public function createForService(Service $service)
+{
+    $user = auth()->user();
+
+    // Check if the service is active
+    if ($service->status !== 'active') {
+        return redirect()->route('landing')->with('error', 'Layanan ini tidak aktif.');
+    }
+
+    // Guest-allowed service
+    if ($service->allow_guest == 1 && $service->category_id == 2) {
+        $units = Unit::all();
+        $services = Service::where('status', 'active')
+            ->where('category_id', 2)
+            ->where('allow_guest', 1)
+            ->with('unit')
+            ->get();
+        return view('theme::guest', compact('units', 'services', 'service'));
+    }
+
+    // Services requiring login (public or government)
+    if (($service->category_id == 2 && $service->allow_guest == 0) || $service->category_id == 1) {
+        if (!$user) {
+            // Use redirect()->guest to set url.intended
+            \Log::info('Setting url.intended: ' . route('tickets.create.service', $service->uuid));
+            return redirect()->guest(route('login'));
         }
 
-        // Guest-allowed service
-        if ($service->allow_guest == 1 && $service->category_id == 2) {
+        // Role-based access
+        if ($service->category_id == 2 && in_array($user->role_id, [2, 3, 4])) {
             $units = Unit::all();
             $services = Service::where('status', 'active')
                 ->where('category_id', 2)
-                ->where('allow_guest', 1)
                 ->with('unit')
                 ->get();
-            return view('theme::guest', compact('units', 'services', 'service'));
+            return view('theme::tickets.create', compact('units', 'services', 'service'));
+        } elseif ($service->category_id == 1 && in_array($user->role_id, [1, 2, 3])) {
+            $units = Unit::all();
+            $services = Service::where('status', 'active')
+                ->with('unit')
+                ->get();
+            return view('theme::tickets.create', compact('units', 'services', 'service'));
+        } else {
+            return redirect()->route('landing')->with('error', 'Anda tidak memiliki akses ke layanan ini.');
         }
-
-        // Public service requiring login
-        if ($service->category_id == 2 && $service->allow_guest == 0) {
-            if (!$user) {
-                return redirect()->route('login')->with('intended_url', route('tickets.create.service', $service->uuid));
-            }
-            if (in_array($user->role_id, [2, 3, 4])) {
-                $units = Unit::all();
-                $services = Service::where('status', 'active')
-                    ->where('category_id', 2)
-                    ->with('unit')
-                    ->get();
-                return view('theme::tickets.create', compact('units', 'services', 'service'));
-            }
-        }
-
-        // Government-only service
-        if ($service->category_id == 1) {
-            if (!$user) {
-                return redirect()->route('login')->with('intended_url', route('tickets.create.service', $service->uuid));
-            }
-            if (in_array($user->role_id, [1, 2, 3])) {
-                $units = Unit::all();
-                $services = Service::where('status', 'active')
-                    ->with('unit')
-                    ->get();
-                return view('theme::tickets.create', compact('units', 'services', 'service'));
-            } else {
-                return redirect()->route('landing')->with('error', 'Layanan ini hanya untuk pegawai pemerintah.');
-            }
-        }
-
-        return redirect()->route('landing')->with('error', 'Layanan tidak valid.');
     }
 
+    return redirect()->route('landing')->with('error', 'Layanan tidak valid.');
+}
     public function getTicketDistribution(Request $request)
     {
         $user = auth()->user(); // pegawai_22 (user_id 9)

@@ -75,7 +75,7 @@
     {{-- <script src="{{ asset('assets2/js/plugins/datatables/jquery.dataTables.min.js') }}"></script> --}}
 
     <!-- Page JS Code -->
-    <script src="{{ asset('assets2/js/pages/be_tables_datatables.min.js') }}"></script>
+    {{-- <script src="{{ asset('assets2/js/pages/be_tables_datatables.min.js') }}"></script> --}}
     <script src="{{ asset('assets2/js/chat.js') }}"></script>
 
         <!-- Alpine.js -->
