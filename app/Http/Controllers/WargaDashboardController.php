@@ -9,27 +9,37 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-
 class WargaDashboardController extends Controller
 {
     public function getStaticStats()
-{
-    $user = Auth::user();
-    if (!$user) {
-        return response()->json(['error' => 'Unauthenticated'], 401);
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $pending = Ticket::where(function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                  ->orWhere('guest_email', $user->email);
+        })->where('status', 0)->count();
+
+        $assigned = Ticket::where(function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                  ->orWhere('guest_email', $user->email);
+        })->where('status', 1)->count();
+
+        $completed = Ticket::where(function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                  ->orWhere('guest_email', $user->email);
+        })->where('status', 2)->count();
+
+        return response()->json([
+            'pending' => $pending,
+            'assigned' => $assigned,
+            'completed' => $completed,
+        ]);
     }
 
-    $pending = Ticket::where('user_id', $user->id)->where('status', 0)->count();
-    $assigned = Ticket::where('user_id', $user->id)->where('status', 1)->count();
-    $completed = Ticket::where('user_id', $user->id)->where('status', 2)->count();
-
-    return response()->json([
-        'pending' => $pending,
-        'assigned' => $assigned,
-        'completed' => $completed,
-    ]);
-}
-    
     public function getTicketStats(Request $request)
     {
         try {
@@ -104,26 +114,23 @@ class WargaDashboardController extends Controller
                     break;
             }
 
-            $createdPendingQuery = Ticket::where('user_id', $user->id)
-                ->where('status', 0)
-                ->where('created_at', '>=', $startDate)
-                ->where('created_at', '<=', $endDate)
+            $baseQuery = Ticket::where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('guest_email', $user->email);
+            })->where('created_at', '>=', $startDate)
+              ->where('created_at', '<=', $endDate);
+
+            $createdPendingQuery = (clone $baseQuery)->where('status', 0)
                 ->selectRaw("DATE_FORMAT(created_at, '$groupByFormat') as period, COUNT(*) as count")
                 ->groupBy('period')
                 ->orderBy('period');
 
-            $createdAssignedQuery = Ticket::where('user_id', $user->id)
-                ->where('status', 1)
-                ->where('created_at', '>=', $startDate)
-                ->where('created_at', '<=', $endDate)
+            $createdAssignedQuery = (clone $baseQuery)->where('status', 1)
                 ->selectRaw("DATE_FORMAT(created_at, '$groupByFormat') as period, COUNT(*) as count")
                 ->groupBy('period')
                 ->orderBy('period');
 
-            $createdCompletedQuery = Ticket::where('user_id', $user->id)
-                ->where('status', 2)
-                ->where('created_at', '>=', $startDate)
-                ->where('created_at', '<=', $endDate)
+            $createdCompletedQuery = (clone $baseQuery)->where('status', 2)
                 ->selectRaw("DATE_FORMAT(created_at, '$groupByFormat') as period, COUNT(*) as count")
                 ->groupBy('period')
                 ->orderBy('period');
@@ -132,10 +139,7 @@ class WargaDashboardController extends Controller
             $createdAssigned = $createdAssignedQuery->get();
             $createdCompleted = $createdCompletedQuery->get();
 
-            $totalCreated = Ticket::where('user_id', $user->id)
-                ->where('created_at', '>=', $startDate)
-                ->where('created_at', '<=', $endDate)
-                ->count();
+            $totalCreated = (clone $baseQuery)->count();
 
             $periods = [];
             $currentPeriod = clone $startDate;
@@ -294,8 +298,14 @@ class WargaDashboardController extends Controller
     }
 
     public function getTickets(Request $request)
-    {
+{
+    try {
         $user = Auth::user();
+        if (!$user) {
+            Log::error('Unauthenticated user attempted to access /api/warga/tickets');
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
         $perPage = $request->query('per_page', 10);
 
         $ticketsQuery = DB::table('tickets')
@@ -306,22 +316,38 @@ class WargaDashboardController extends Controller
                 'tickets.description',
                 'tickets.status',
                 'tickets.created_at',
+                'tickets.guest_name',
+                'tickets.user_id',
+                'tickets.guest_email',
                 'services.svc_name'
             )
             ->leftJoin('services', 'tickets.service_id', '=', 'services.id')
-            ->where('tickets.user_id', $user->id)
+            ->where(function ($query) use ($user) {
+                $query->where('tickets.user_id', $user->id)
+                      ->orWhere('tickets.guest_email', $user->email);
+            })
             ->orderBy('tickets.created_at', 'desc');
 
         $tickets = $ticketsQuery->paginate($perPage);
 
+        $transformedTickets = $tickets->getCollection()->map(function ($ticket) {
+            $ticket->is_guest = is_null($ticket->user_id) && !is_null($ticket->guest_email);
+            $ticket->pengadu = $ticket->is_guest ? ($ticket->guest_name ?? 'Guest') : 'warga';
+            return $ticket;
+        });
+
         return response()->json([
-            'data' => $tickets->items(),
+            'data' => $transformedTickets,
             'current_page' => $tickets->currentPage(),
             'last_page' => $tickets->lastPage(),
             'per_page' => $tickets->perPage(),
             'total' => $tickets->total(),
         ]);
+    } catch (\Exception $e) {
+        Log::error('Error in getTickets: ' . $e->getMessage(), ['exception' => $e]);
+        return response()->json(['error' => 'Failed to fetch tickets'], 500);
     }
+}
 
     public function getTicketDetail($id)
     {
@@ -338,19 +364,28 @@ class WargaDashboardController extends Controller
                 'tickets.latitude',
                 'tickets.longitude',
                 'tickets.rating',
+                'tickets.user_id',
+                'tickets.guest_name',
+                'tickets.guest_email',
                 'units.unit_name',
                 'services.svc_name'
             )
             ->leftJoin('units', 'tickets.unit_id', '=', 'units.id')
             ->leftJoin('services', 'tickets.service_id', '=', 'services.id')
             ->where('tickets.id', $id)
-            ->where('tickets.user_id', $user->id)
+            ->where(function ($query) use ($user) {
+                $query->where('tickets.user_id', $user->id)
+                      ->orWhere('tickets.guest_email', $user->email);
+            })
             ->first();
 
         if (!$ticket) {
             Log::warning('Ticket not found for user ID: ' . $user->id . ', requested ID: ' . $id);
             return response()->json(['message' => 'Ticket not found'], 404);
         }
+
+        $ticket->is_guest = is_null($ticket->user_id) && !is_null($ticket->guest_email);
+        $ticket->pengadu = $ticket->is_guest ? ($ticket->guest_name ?? 'Guest') : 'warga';
 
         return response()->json($ticket);
     }

@@ -4,24 +4,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let ticketStatsChart = null;
 let ticketDistributionChart = null;
-let ticketStats = { pending: 0, assigned: 0, completed: 0 }; // Untuk distribusi chart dan statistic card
+let ticketStats = { pending: 0, assigned: 0, completed: 0 };
+
+// Store modal instances to manage them properly
+const modalInstances = new Map();
 
 function initializeWargaDashboard() {
     setupTimeRangeListeners();
-    fetchStaticStats(); // Ambil data untuk statistic card dan distribusi chart
-    fetchTicketStats(); // Ambil data untuk ticket stats chart
+    fetchStaticStats();
+    fetchTicketStats();
     fetchTickets();
+    setupModalEventListeners();
 }
 
 function setupTimeRangeListeners() {
-    const timeRangeItems = document.querySelectorAll(
-        "#ticket-stats-time-range .dropdown-item[data-time-range]"
-    );
+    const timeRangeItems = document.querySelectorAll("#ticket-stats-time-range .dropdown-item[data-time-range]");
     timeRangeItems.forEach((item) => {
         item.addEventListener("click", function () {
             const timeRange = this.getAttribute("data-time-range");
             timeRangeItems.forEach((i) => i.classList.remove("active"));
             this.classList.add("active");
+            document.getElementById("ticket-stats-time-label").textContent = this.textContent;
             if (window.ticketStatsDatePicker) {
                 window.ticketStatsDatePicker.clear();
             }
@@ -29,9 +32,7 @@ function setupTimeRangeListeners() {
         });
     });
 
-    const ticketStatsDatePickerElement = document.getElementById(
-        "ticket-stats-date-picker"
-    );
+    const ticketStatsDatePickerElement = document.getElementById("ticket-stats-date-picker");
     if (ticketStatsDatePickerElement) {
         const ticketStatsDatePicker = flatpickr("#ticket-stats-date-picker", {
             mode: "range",
@@ -40,52 +41,110 @@ function setupTimeRangeListeners() {
             maxDate: new Date(),
             onClose: function (selectedDates, dateStr, instance) {
                 if (selectedDates.length === 2) {
-                    const startDate = selectedDates[0]
-                        .toISOString()
-                        .split("T")[0];
-                    const endDate = selectedDates[1]
-                        .toISOString()
-                        .split("T")[0];
+                    const startDate = selectedDates[0].toISOString().split("T")[0];
+                    const endDate = selectedDates[1].toISOString().split("T")[0];
                     timeRangeItems.forEach((i) => i.classList.remove("active"));
-                    document
-                        .getElementById("ticket-stats-custom-range")
-                        ?.classList.add("active");
+                    document.getElementById("ticket-stats-custom-range")?.classList.add("active");
+                    document.getElementById("ticket-stats-time-label").textContent = "Kustom";
                     fetchTicketStats(null, startDate, endDate);
                 } else {
-                    console.warn(
-                        "Please select a valid date range for Ticket Stats."
-                    );
+                    console.warn("Please select a valid date range for Ticket Stats.");
                 }
             },
         });
         window.ticketStatsDatePicker = ticketStatsDatePicker;
 
-        document
-            .getElementById("ticket-stats-custom-range")
-            ?.addEventListener("click", function () {
-                if (window.ticketStatsDatePicker) {
-                    window.ticketStatsDatePicker.open();
-                }
-            });
+        document.getElementById("ticket-stats-custom-range")?.addEventListener("click", function () {
+            if (window.ticketStatsDatePicker) {
+                window.ticketStatsDatePicker.open();
+            }
+        });
     }
 
     setupFilterListeners();
+    setupFileInputListeners();
 }
 
-// Fungsi baru untuk mengambil data statis (tanpa filter waktu)
+function setupFileInputListeners() {
+    document.addEventListener("click", function (e) {
+        if (e.target.closest("[id^='custom-button-']")) {
+            const button = e.target.closest("[id^='custom-button-']");
+            const ticketId = button.id.split("-")[2];
+            const fileInput = document.getElementById(`images-${ticketId}`);
+            fileInput.click();
+        }
+    });
+
+    document.addEventListener("change", function (e) {
+        if (e.target.matches("[id^='images-']")) {
+            const ticketId = e.target.id.split("-")[1];
+            const fileNameSpan = document.getElementById(`file-name-${ticketId}`);
+            const files = e.target.files;
+            if (files.length > 0) {
+                fileNameSpan.textContent = files.length > 1 ? `${files.length} files selected` : files[0].name;
+            } else {
+                fileNameSpan.textContent = "Tidak ada file dipilih";
+            }
+        }
+    });
+}
+
+function setupFilterListeners() {
+    document.querySelectorAll(".dropdown-item[data-status]").forEach((item) => {
+        item.addEventListener("click", function () {
+            const filter = this.getAttribute("data-status");
+            const rows = document.querySelectorAll("tr[data-status-row]");
+            rows.forEach((row) => {
+                if (filter === "semua" || row.getAttribute("data-status-row") === filter) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+    });
+}
+
+function setupModalEventListeners() {
+    // Event delegation for detail buttons
+    document.addEventListener("click", function (e) {
+        const detailButton = e.target.closest(".btn-primary[data-bs-toggle='modal'][title='Detail']");
+        if (detailButton) {
+            const ticketId = detailButton.getAttribute("data-ticket-id");
+            showTicketDetail(ticketId);
+        }
+    });
+
+    // Clean up backdrop and body class on modal close
+    document.addEventListener("hidden.bs.modal", function (e) {
+        const modalId = e.target.id;
+        // Dispose of the modal instance
+        if (modalInstances.has(modalId)) {
+            modalInstances.get(modalId).dispose();
+            modalInstances.delete(modalId);
+        }
+
+        // Fallback cleanup
+        const backdrop = document.querySelector(".modal-backdrop");
+        if (backdrop) {
+            backdrop.remove();
+        }
+        document.body.classList.remove("modal-open");
+        document.body.style.overflow = "";
+        document.body.style.paddingRight = "";
+    });
+}
+
 function fetchStaticStats() {
     fetch("/api/warga/static-stats", {
         headers: {
             Accept: "application/json",
             "X-Requested-With": "XMLHttpRequest",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
-                .content,
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
         },
     })
         .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         })
         .then((data) => {
@@ -105,12 +164,20 @@ function fetchStaticStats() {
         });
 }
 
-// Modifikasi fetchTicketStats untuk hanya memperbarui ticketStatsChart
-function fetchTicketStats(
-    timeRange = "week",
-    startDate = null,
-    endDate = null
-) {
+function updateStatisticCards() {
+    const total = (ticketStats.pending || 0) + (ticketStats.assigned || 0) + (ticketStats.completed || 0);
+    document.getElementById("total-tickets").textContent = total;
+    document.getElementById("pending-tickets").textContent = ticketStats.pending || 0;
+    document.getElementById("assigned-tickets").textContent = ticketStats.assigned || 0;
+    document.getElementById("completed-tickets").textContent = ticketStats.completed || 0;
+
+    const totalTickets = total || 1; // Avoid division by zero
+    document.getElementById("pending-percent").textContent = `${((ticketStats.pending / totalTickets) * 100).toFixed(1)}%`;
+    document.getElementById("assigned-percent").textContent = `${((ticketStats.assigned / totalTickets) * 100).toFixed(1)}%`;
+    document.getElementById("completed-percent").textContent = `${((ticketStats.completed / totalTickets) * 100).toFixed(1)}%`;
+}
+
+function fetchTicketStats(timeRange = "week", startDate = null, endDate = null) {
     let url = "/api/warga/ticket-stats";
     const params = new URLSearchParams();
     if (timeRange) params.append("time_range", timeRange);
@@ -124,14 +191,11 @@ function fetchTicketStats(
         headers: {
             Accept: "application/json",
             "X-Requested-With": "XMLHttpRequest",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
-                .content,
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
         },
     })
         .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         })
         .then((data) => {
@@ -143,43 +207,26 @@ function fetchTicketStats(
         });
 }
 
-function fetchTickets() {
-    fetch("/api/warga/tickets", {
+function fetchTickets(page = 1, perPage = 10) {
+    fetch(`/api/warga/tickets?page=${page}&per_page=${perPage}`, {
         headers: {
             Accept: "application/json",
             "X-Requested-With": "XMLHttpRequest",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
-                .content,
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
         },
     })
         .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         })
         .then((data) => {
-            const tickets = data.data || [];
-            renderTickets(tickets);
+            console.log(data); // Debug API response
+            renderTickets(data.data || [], data.current_page, data.last_page, data.per_page, data.total);
         })
         .catch((error) => {
-            console.error("Error fetching tickets:", error);
-            renderTickets([]);
+            console.error("Error fetching tickets:", error, error.message);
+            renderTickets([], 1, 1, 10, 0);
         });
-}
-
-function updateStatisticCards() {
-    const total =
-        (ticketStats.pending || 0) +
-        (ticketStats.assigned || 0) +
-        (ticketStats.completed || 0);
-    document.getElementById("total-tickets").textContent = total;
-    document.getElementById("pending-tickets").textContent =
-        ticketStats.pending || 0;
-    document.getElementById("assigned-tickets").textContent =
-        ticketStats.assigned || 0;
-    document.getElementById("completed-tickets").textContent =
-        ticketStats.completed || 0;
 }
 
 function setupTicketStatsChart(data) {
@@ -188,11 +235,9 @@ function setupTicketStatsChart(data) {
 
     chartContainer.style.height = "300px";
     const ctx = chartContainer.getContext("2d");
-
-    if (ticketStatsChart instanceof Chart) {
+    if (ticketStatsChart) {
         ticketStatsChart.destroy();
     }
-
     ticketStatsChart = new Chart(ctx, {
         type: "line",
         data: {
@@ -237,15 +282,16 @@ function setupTicketStatsChart(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: "top", align: "end" },
+                legend: {
+                    position: "top",
+                    align: "end",
+                },
                 tooltip: {
                     mode: "index",
                     intersect: false,
                     callbacks: {
                         label: function (context) {
-                            const label = context.dataset.label || "";
-                            const value = context.parsed.y;
-                            return `${label}: ${value}`;
+                            return `${context.dataset.label}: ${context.parsed.y}`;
                         },
                     },
                 },
@@ -258,10 +304,14 @@ function setupTicketStatsChart(data) {
                         drawBorder: false,
                         color: "rgba(200, 200, 200, 0.15)",
                     },
-                    ticks: { stepSize: 1 },
+                    ticks: {
+                        stepSize: 1,
+                    },
                 },
                 x: {
-                    grid: { display: false },
+                    grid: {
+                        display: false,
+                    },
                     ticks: {
                         autoSkip: true,
                         maxTicksLimit: 10,
@@ -279,37 +329,20 @@ function setupTicketDistributionChart() {
     if (!chartContainer) return;
 
     const ctx = chartContainer.getContext("2d");
-    const data = [
-        ticketStats.pending || 0,
-        ticketStats.assigned || 0,
-        ticketStats.completed || 0,
-    ];
+    const data = [ticketStats.pending || 0, ticketStats.assigned || 0, ticketStats.completed || 0];
     const total = data.reduce((a, b) => a + b, 0);
-    const percentages = {
-        pending: total > 0 ? ((data[0] / total) * 100).toFixed(1) : 0,
-        assigned: total > 0 ? ((data[1] / total) * 100).toFixed(1) : 0,
-        completed: total > 0 ? ((data[2] / total) * 100).toFixed(1) : 0,
-    };
 
-    const hasData = total > 0;
-    const completedPercentElement =
-        document.getElementById("completed-percent");
-    const pendingPercentElement = document.getElementById("pending-percent");
-    const assignedPercentElement = document.getElementById("assigned-percent");
-
-    if (!hasData) {
-        chartContainer.parentElement.innerHTML =
-            '<p class="text-center text-muted">Tidak ada data distribusi aduan.</p>';
-        if (completedPercentElement) completedPercentElement.textContent = "0%";
-        if (pendingPercentElement) pendingPercentElement.textContent = "0%";
-        if (assignedPercentElement) assignedPercentElement.textContent = "0%";
+    if (total === 0) {
+        chartContainer.parentElement.innerHTML = '<p class="text-center text-muted">Tidak ada data distribusi aduan.</p>';
+        document.getElementById("completed-percent").textContent = "0%";
+        document.getElementById("pending-percent").textContent = "0%";
+        document.getElementById("assigned-percent").textContent = "0%";
         return;
     }
 
-    if (ticketDistributionChart instanceof Chart) {
+    if (ticketDistributionChart) {
         ticketDistributionChart.destroy();
     }
-
     ticketDistributionChart = new Chart(ctx, {
         type: "doughnut",
         data: {
@@ -342,14 +375,8 @@ function setupTicketDistributionChart() {
                         label: function (context) {
                             let label = context.label || "";
                             let value = context.raw || 0;
-                            let total = context.dataset.data.reduce(
-                                (a, b) => a + b,
-                                0
-                            );
-                            let percent =
-                                total > 0
-                                    ? ((value / total) * 100).toFixed(1)
-                                    : "0.0";
+                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            let percent = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
                             return `${label}: ${value} (${percent}%)`;
                         },
                     },
@@ -358,100 +385,72 @@ function setupTicketDistributionChart() {
         },
     });
 
-    if (completedPercentElement)
-        completedPercentElement.textContent = `${percentages.completed}%`;
-    if (pendingPercentElement)
-        pendingPercentElement.textContent = `${percentages.pending}%`;
-    if (assignedPercentElement)
-        assignedPercentElement.textContent = `${percentages.assigned}%`;
+    document.getElementById("completed-percent").textContent = `${((data[2] / total) * 100).toFixed(1)}%`;
+    document.getElementById("pending-percent").textContent = `${((data[0] / total) * 100).toFixed(1)}%`;
+    document.getElementById("assigned-percent").textContent = `${((data[1] / total) * 100).toFixed(1)}%`;
 }
 
-function setupFilterListeners() {
-    document.querySelectorAll(".dropdown-item[data-status]").forEach((item) => {
-        item.addEventListener("click", function () {
-            const filter = this.getAttribute("data-status");
-            const rows = document.querySelectorAll("tr[data-status-row]");
-
-            rows.forEach((row) => {
-                if (
-                    filter === "semua" ||
-                    row.getAttribute("data-status-row") === filter
-                ) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
-            });
-        });
-    });
-}
-
-function renderTickets(tickets) {
+function renderTickets(tickets, currentPage, lastPage, perPage, total) {
     const tableBody = document.getElementById("ticket-list-table");
+    const paginationLinks = document.getElementById("paginationLinks");
     if (!tableBody) return;
 
     if (!Array.isArray(tickets) || tickets.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center">
+                <td colspan="8" class="text-center">
                     <div class="alert alert-info m-0">
                         Anda belum memiliki tiket. Silakan klik "Buat Aduan" untuk membuat tiket baru.
                     </div>
                 </td>
             </tr>
         `;
+        paginationLinks.innerHTML = "";
         return;
     }
 
-    const modalTemplate = document.getElementById(
-        "ticketDetailModalTemplate"
-    ).innerHTML;
-    const chatModalTemplate =
-        document.getElementById("chatModalTemplate").innerHTML;
-
-    tableBody.innerHTML = tickets
-        .map((ticket, index) => {
-            const status =
-                ticket.status === 0
-                    ? "belum"
-                    : ticket.status === 1
-                    ? "direspon"
-                    : "selesai";
-            const statusBadge =
-                ticket.status === 0
-                    ? '<span class="badge bg-warning">Pending</span>'
-                    : ticket.status === 1
-                    ? '<span class="badge bg-info">Direspon</span>'
-                    : '<span class="badge bg-success">Selesai</span>';
-
-            const modalId = `detailModal-${ticket.id}`;
-            const modalHtml = modalTemplate.replace(
-                /ID_PLACEHOLDER/g,
-                ticket.id
-            );
-            const chatModalId = `chatModal-${ticket.id}`;
-            const chatModalHtml = chatModalTemplate.replace(
-                /ID_PLACEHOLDER/g,
-                ticket.id
-            );
+    // Create modals only if they don't already exist
+    const modalTemplate = document.getElementById("ticketDetailModalTemplate").innerHTML;
+    const chatModalTemplate = document.getElementById("chatModalTemplate").innerHTML;
+    tickets.forEach((ticket) => {
+        const modalId = `detailModal-${ticket.id}`;
+        const chatModalId = `chatModal-${ticket.id}`;
+        if (!document.getElementById(modalId)) {
+            const modalHtml = modalTemplate.replace(/ID_PLACEHOLDER/g, ticket.id);
             document.body.insertAdjacentHTML("beforeend", modalHtml);
+        }
+        if (!document.getElementById(chatModalId)) {
+            const chatModalHtml = chatModalTemplate.replace(/ID_PLACEHOLDER/g, ticket.id);
             document.body.insertAdjacentHTML("beforeend", chatModalHtml);
+        }
+    });
 
-            return `
+    tableBody.innerHTML = tickets.map((ticket, index) => {
+        const status = ticket.status === 0 ? "belum" : ticket.status === 1 ? "direspon" : "selesai";
+        const statusBadge = ticket.status === 0
+            ? '<span class="badge bg-warning">Pending</span>'
+            : ticket.status === 1
+            ? '<span class="badge bg-info">Direspon</span>'
+            : '<span class="badge bg-success">Selesai</span>';
+
+        const pengaduDisplay = ticket.is_guest
+            ? `${ticket.pengadu} <span class="fs-xs fw-semibold d-inline-block py-1 px-2 rounded-pill bg-secondary-light text-secondary ms-1">Guest</span>`
+            : ticket.pengadu;
+
+        const modalId = `detailModal-${ticket.id}`;
+        const chatModalId = `chatModal-${ticket.id}`;
+
+        return `
             <tr class="text-nowrap" data-status-row="${status}">
-                <td>${index + 1}</td>
+                <td>${((currentPage - 1) * perPage) + index + 1}</td>
                 <td>${ticket.ticket_code || "N/A"}</td>
                 <td>${ticket.svc_name || "N/A"}</td>
                 <td>${ticket.title || "No Title"}</td>
                 <td>${ticket.description || "No Description"}</td>
+                <td>${pengaduDisplay}</td>
                 <td class="text-center">${statusBadge}</td>
                 <td class="text-center">
-                    <button type="button"
-                        class="btn btn-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#detailModal-${ticket.id}"
-                        title="Detail"
-                        onclick="showTicketDetail(${ticket.id})">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#${modalId}" data-ticket-id="${ticket.id}" title="Detail">
                         <i class="fas fa-eye"></i>
                     </button>
                     <button type="button" class="btn btn-success btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#${chatModalId}" title="Pesan">
@@ -460,8 +459,61 @@ function renderTickets(tickets) {
                 </td>
             </tr>
         `;
-        })
-        .join("");
+    }).join("");
+
+    paginationLinks.innerHTML = generatePagination(currentPage, lastPage, perPage);
+    attachPaginationListeners();
+}
+
+function generatePagination(currentPage, lastPage, perPage) {
+    if (lastPage <= 1) return "";
+
+    let html = '<nav aria-label="Page navigation"><ul class="pagination">';
+    html += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="javascript:void(0)" data-page="${currentPage - 1}" aria-label="Previous">
+                <span aria-hidden="true">«</span>
+            </a>
+        </li>
+    `;
+
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(lastPage, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+        startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        html += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="javascript:void(0)" data-page="${i}">${i}</a>
+            </li>
+        `;
+    }
+
+    html += `
+        <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+            <a class="page-link" href="javascript:void(0)" data-page="${currentPage + 1}" aria-label="Next">
+                <span aria-hidden="true">»</span>
+            </a>
+        </li>
+    `;
+    html += '</ul></nav>';
+    return html;
+}
+
+function attachPaginationListeners() {
+    document.querySelectorAll("#paginationLinks .page-link").forEach((link) => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+            const page = parseInt(this.getAttribute("data-page"));
+            if (page && !this.parentElement.classList.contains("disabled")) {
+                fetchTickets(page);
+            }
+        });
+    });
 }
 
 function showTicketDetail(ticketId) {
@@ -469,14 +521,11 @@ function showTicketDetail(ticketId) {
         headers: {
             Accept: "application/json",
             "X-Requested-With": "XMLHttpRequest",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
-                .content,
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
         },
     })
         .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         })
         .then((data) => {
@@ -487,65 +536,44 @@ function showTicketDetail(ticketId) {
                 return;
             }
 
-            document.getElementById(
-                `modal-ticket-code-${ticketId}`
-            ).textContent = data.ticket_code || "N/A";
-            document.getElementById(`modal-title-${ticketId}`).textContent =
-                data.title || "No Title";
-            document.getElementById(
-                `modal-description-${ticketId}`
-            ).textContent = data.description || "No Description";
-            document.getElementById(`modal-svc-name-${ticketId}`).textContent =
-                data.svc_name || "N/A";
-            document.getElementById(`modal-unit-name-${ticketId}`).textContent =
-                data.unit_name || "N/A";
-            document.getElementById(
-                `modal-created-at-${ticketId}`
-            ).textContent = data.created_at
-                ? new Date(data.created_at).toLocaleString("id-ID", {
-                      timeZone: "Asia/Jakarta",
-                  })
+            document.getElementById(`modal-ticket-code-${ticketId}`).textContent = data.ticket_code || "N/A";
+            document.getElementById(`modal-title-${ticketId}`).textContent = data.title || "No Title";
+            document.getElementById(`modal-description-${ticketId}`).textContent = data.description || "No Description";
+            document.getElementById(`modal-svc-name-${ticketId}`).textContent = data.svc_name || "N/A";
+            document.getElementById(`modal-unit-name-${ticketId}`).textContent = data.unit_name || "N/A";
+            document.getElementById(`modal-created-at-${ticketId}`).textContent = data.created_at
+                ? new Date(data.created_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })
                 : "N/A";
 
-            const statusElement = document.getElementById(
-                `modal-status-${ticketId}`
-            );
+            const statusElement = document.getElementById(`modal-status-${ticketId}`);
             if (data.status === 0) {
                 statusElement.textContent = "Pending";
-                statusElement.className =
-                    "fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning";
+                statusElement.className = "fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning";
             } else if (data.status === 1) {
                 statusElement.textContent = "Ditugaskan";
-                statusElement.className =
-                    "fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info";
+                statusElement.className = "fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info";
             } else {
                 statusElement.textContent = "Selesai";
-                statusElement.className =
-                    "fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success";
+                statusElement.className = "fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success";
             }
 
-            const locationElement = document.getElementById(
-                `modal-location-${ticketId}`
-            );
+            const locationElement = document.getElementById(`modal-location-${ticketId}`);
             if (data.latitude && data.longitude) {
                 locationElement.innerHTML = `
-                <div class="d-flex gap-3">
-                    <p class="mb-0"><strong>Latitude:</strong> ${data.latitude}</p>
-                    <p class="mb-0"><strong>Longitude:</strong> ${data.longitude}</p>
-                </div>
-                <div id="map-${ticketId}" style="height: 200px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-            `;
+                    <div class="d-flex gap-3">
+                        <p class="mb-0"><strong>Latitude:</strong> ${data.latitude}</p>
+                        <p class="mb-0"><strong>Longitude:</strong> ${data.longitude}</p>
+                    </div>
+                    <div id="map-${ticketId}" style="height: 200px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                `;
                 initializeMap(ticketId, data.latitude, data.longitude);
             } else {
-                locationElement.innerHTML =
-                    '<p class="text-muted">Lokasi tidak tersedia.</p>';
+                locationElement.innerHTML = '<p class="text-muted">Lokasi tidak tersedia.</p>';
             }
 
-            document.getElementById(
-                `modal-original-unit-${ticketId}`
-            ).textContent = "Tidak ditentukan";
-
-            new bootstrap.Modal(modal).show();
+            const modalInstance = new bootstrap.Modal(modal);
+            modalInstances.set(modalId, modalInstance);
+            modalInstance.show();
         })
         .catch((error) => {
             console.error("Error fetching ticket detail:", error);
@@ -559,105 +587,9 @@ function initializeMap(ticketId, latitude, longitude) {
         const map = L.map(mapElement).setView([latitude, longitude], 13);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
-            attribution:
-                '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
-        L.marker([latitude, longitude])
-            .addTo(map)
-            .bindPopup("Lokasi Aduan")
-            .openPopup();
+        L.marker([latitude, longitude]).addTo(map).bindPopup("Lokasi Aduan").openPopup();
+        mapElement._map = map;
     }
-}
-
-function generateLabels(timeRange, startDate, endDate) {
-    const labels = [];
-    const now = new Date();
-    let start;
-
-    if (startDate && endDate) {
-        start = new Date(startDate);
-        const end = new Date(endDate);
-        while (start <= end) {
-            labels.push(
-                start.toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                })
-            );
-            start.setDate(start.getDate() + 1);
-        }
-        return labels;
-    }
-
-    switch (timeRange) {
-        case "day":
-            for (let i = 23; i >= 0; i--) {
-                const date = new Date(now);
-                date.setHours(now.getHours() - i);
-                labels.push(
-                    date.toLocaleTimeString("id-ID", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })
-                );
-            }
-            break;
-        case "week":
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(now);
-                date.setDate(now.getDate() - i);
-                labels.push(
-                    date.toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                    })
-                );
-            }
-            break;
-        case "month":
-            for (let i = 29; i >= 0; i--) {
-                const date = new Date(now);
-                date.setDate(now.getDate() - i);
-                labels.push(
-                    date.toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                    })
-                );
-            }
-            break;
-        case "year":
-            for (let i = 11; i >= 0; i--) {
-                const date = new Date(now);
-                date.setMonth(now.getMonth() - i);
-                labels.push(
-                    date.toLocaleDateString("id-ID", {
-                        month: "short",
-                        year: "numeric",
-                    })
-                );
-            }
-            break;
-        case "10year":
-            for (let i = 9; i >= 0; i--) {
-                const date = new Date(now);
-                date.setFullYear(now.getFullYear() - i);
-                labels.push(
-                    date.toLocaleDateString("id-ID", { year: "numeric" })
-                );
-            }
-            break;
-        default:
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(now);
-                date.setDate(now.getDate() - i);
-                labels.push(
-                    date.toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                    })
-                );
-            }
-    }
-    return labels;
 }

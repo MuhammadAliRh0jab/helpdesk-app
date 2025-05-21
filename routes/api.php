@@ -4,22 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PegawaiDashboardController;
-use App\Http\Controllers\OperatorDashboardContorller;
+use App\Http\Controllers\OperatorDashboardController;
 use App\Http\Controllers\SuperadminDashboardController;
 use App\Http\Controllers\WargaDashboardController;
 use App\Models\Service;
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-
 
 Route::get('/service/{id}', function ($id) {
     $service = Service::with('unit')->find($id);
@@ -34,27 +22,20 @@ Route::get('/service/{id}', function ($id) {
     return response()->json(['error' => 'Service not found or not accessible'], 404);
 });
 
+// Semua route berikut hanya bisa diakses jika sudah login dengan Sanctum
 Route::middleware('auth:sanctum')->group(function () {
-    // Endpoint untuk Operator Dashboard
-    Route::get('/ticket-stats', [OperatorDashboardContorller::class, 'ticketStats']);
-    Route::get('/ticket-performance', [OperatorDashboardContorller::class, 'ticketPerformance']);
-    Route::get('/ticket-categories', [OperatorDashboardContorller::class, 'ticketCategories']);
-    Route::get('/resolution-times', [OperatorDashboardContorller::class, 'resolutionTimes']);
-    Route::get('/recent-tickets', [OperatorDashboardContorller::class, 'recentTickets']);
-    Route::get('/units', [OperatorDashboardContorller::class, 'units']);
-    Route::get('/service-stats', [OperatorDashboardContorller::class, 'serviceStats']);
-    Route::get('/service-distribution', [OperatorDashboardContorller::class, 'serviceDistribution']);
-    Route::get('/ticket-performance', [OperatorDashboardContorller::class, 'ticketPerformance']);
-    
 
-    // Route::get('/pegawai-recent-tickets', [PegawaiDashboardController::class, 'getRecentTickets']);
-    // Route::get('/pegawai-ticket-stats', [PegawaiDashboardController::class, 'getTicketStats']);
-    // Route::get('/pegawai-ticket-distribution/created', [PegawaiDashboardController::class, 'getTicketDistributionCreated']);
-    // Route::get('/pegawai-ticket-distribution/assigned', [PegawaiDashboardController::class, 'getTicketDistributionAssigned']);
-    // Route::get('/pegawai-resolution-times', [PegawaiDashboardController::class, 'getResolutionTimes']);
-});
+    // Operator Dashboard Routes
+    Route::get('/ticket-stats', [OperatorDashboardController::class, 'ticketStats']);
+    Route::get('/ticket-performance', [OperatorDashboardController::class, 'ticketPerformance']);
+    Route::get('/ticket-categories', [OperatorDashboardController::class, 'ticketCategories']);
+    Route::get('/resolution-times', [OperatorDashboardController::class, 'resolutionTimes']);
+    Route::get('/recent-tickets', [OperatorDashboardController::class, 'recentTickets']);
+    Route::get('/units', [OperatorDashboardController::class, 'units']);
+    Route::get('/service-stats', [OperatorDashboardController::class, 'serviceStats']);
+    Route::get('/service-distribution', [OperatorDashboardController::class, 'serviceDistribution']);
 
-Route::middleware('auth:api')->group(function () {
+    // Pegawai Dashboard Routes
     Route::get('/pegawai-recent-tickets', [PegawaiDashboardController::class, 'getRecentTickets']);
     Route::get('/pegawai-ticket-stats', [PegawaiDashboardController::class, 'getTicketStats']);
     Route::get('/pegawai-ticket-distribution-created', [PegawaiDashboardController::class, 'getTicketDistributionCreated']);
@@ -68,10 +49,14 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/pegawai-ticket-list', [PegawaiDashboardController::class, 'getTicketList']);
     Route::get('/pegawai-dashboard-metrics', [PegawaiDashboardController::class, 'getDashboardMetrics']);
     Route::get('/pegawai-stats', [PegawaiDashboardController::class, 'getStats']);
+
+    // Warga Dashboard Routes
     Route::get('/warga/ticket-stats', [WargaDashboardController::class, 'getTicketStats']);
     Route::get('/warga/tickets', [WargaDashboardController::class, 'getTickets']);
     Route::get('/warga/tickets/{id}', [WargaDashboardController::class, 'getTicketDetail']);
     Route::get('/warga/static-stats', [WargaDashboardController::class, 'getStaticStats']);
+
+    // Superadmin Dashboard Routes
     Route::get('/top-ticket-categories', [SuperadminDashboardController::class, 'topTicketCategories']);
     Route::get('/unit-distribution', [SuperadminDashboardController::class, 'unitDistribution']);
 });
