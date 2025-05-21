@@ -87,7 +87,7 @@
     <script src="{{ asset('assets/js/axios.min.js') }}"></script>
 
     <!-- Sidebar Toggle Script -->
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -107,7 +107,7 @@
                 });
             }
         });
-    </script>
+    </script> -->
 
     <!-- Yield Additional Scripts -->
     @yield('scripts')
@@ -117,6 +117,7 @@
             font-family: "Poppins", sans-serif;
             margin-bottom: 5rem;
             background-color: #ebeef2 !important;
+        }
 
         .flatpickr-calendar {
             z-index: 9999 !important;

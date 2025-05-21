@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="card mt-4 col-lg-10 mx-auto shadow-sm border-0 rounded-3">
+        <div class="card mt-4 col-lg-10 mx-auto shadow-sm border-0 rounded-3 p-3">
             <div class="card-header bg-primary text-white rounded-top">
                 <h3 class="card-title m-0 fs-5" id="form-title">
                     <i class="fas fa-edit me-2"></i>Form Aduan {{ isset($service) ? $service->svc_name : '' }}
@@ -211,11 +211,11 @@
                     </form>
                 </div>
             </div>
-            <div class="card-footer bg-light text-center py-3">
-                <p class="text-muted mb-0">
-                    <i class="fas fa-info-circle me-2"></i>Aduan Anda akan diverifikasi oleh tim kami sebelum diproses lebih lanjut
-                </p>
-            </div>
+        </div>
+        <div class="card-footer bg-light text-center py-3">
+            <p class="text-muted mb-0">
+                <i class="fas fa-info-circle me-2"></i>Aduan Anda akan diverifikasi oleh tim kami sebelum diproses lebih lanjut
+            </p>
         </div>
     </main>
 </div>

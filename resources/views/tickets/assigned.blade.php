@@ -30,158 +30,158 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="block block-rounded">
-                        <div class="block-header block-header-default">
-                            <!-- <h3 class="block-title">Riwayat Aduan</h3> -->
-                        </div>
-                        <div class="block-content">
-                            <table class="table table-vcenter">
-                                <thead>
-                                    <tr class="">
-                                        <th>#</th>
-                                        <th>Kode Tiket</th>
-                                        <th>Judul</th>
-                                        <th>Layanan</th>
-                                        <th>Unit</th>
-                                        <th>Status</th>
-                                        <th>Tanggal Dibuat</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($tickets as $ticket)
-                                    <tr class="">
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $ticket->ticket_code }}</td>
-                                        <td>{{ $ticket->title }}</td>
-                                        <td>{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
-                                        <td>{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
-                                        <td>
-                                            @if($ticket->status == 0) Pending
-                                            @elseif($ticket->status == 1) Ditugaskan
-                                            @else Resolved
-                                            @endif
-                                        </td>
-                                        <td>{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalTicket{{ $ticket->id }}" title="Balas Pesan">
-                                                <i class="fas fa-reply me-1"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                        <div class="table-responsive">
 
-                                    <!-- Modal Percakapan Gaya Chat -->
-                                    <div class="modal fade bg-dark" id="modalTicket{{ $ticket->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
-                                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="modalLabel{{ $ticket->id }}">Kode Tiket: {{ $ticket->ticket_code }}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body" style="padding: 0; display: flex; flex-direction: column">
-                                                    <div class="chat-container px-4 py-3" id="chat-container-{{ $ticket->id }}" style="flex: 1; overflow-y: auto; background-color: #f9fafb;">
-                                                        <div class="mb-4">
-                                                            <strong>Lokasi Aduan:</strong>
-                                                            @if ($ticket->latitude && $ticket->longitude)
-                                                                <div class="d-flex flex-column gap-2 mt-2">
-                                                                    <div class="d-flex gap-3">
-                                                                        <p class="mb-0"><strong>Latitude:</strong> {{ $ticket->latitude }}</p>
-                                                                        <p class="mb-0"><strong>Longitude:</strong> {{ $ticket->longitude }}</p>
-                                                                    </div>
-                                                                    <div id="map-{{ $ticket->id }}" style="height: 200px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-                                                                </div>
-                                                            @else
-                                                                <p class="text-muted">Lokasi tidak tersedia.</p>
-                                                            @endif
-                                                        </div>
-                                                        @forelse($ticket->responses as $response)
-                                                        @php
-                                                        $isSender = $response->user_id == auth()->user()->id;
-                                                        @endphp
-                                                        <div class="message-wrapper mb-3" style="display: flex; flex-direction: column; align-items: {{ $isSender ? 'flex-end' : 'flex-start' }};">
-                                                            <div class="message-info d-flex align-items-center gap-2 mb-1">
-                                                                @if (!$isSender)
-                                                                <div class="avatar" style="width: 28px; height: 28px; border-radius: 50%; background-color: #1e3a8a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600;">
-                                                                    {{ substr($response->user->username, 0, 1) }}
-                                                                </div>
-                                                                @endif
-                                                                <span class="message-sender" style="font-weight: 600; font-size: 0.85rem; color: #374151;">
-                                                                    @if ($response->user->role_id == 2)
-                                                                    Sistem (Operator)
-                                                                    @else
-                                                                    {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
-                                                                    @endif
-                                                                </span>
-                                                            </div>
-                                                            @if ($response->ticket_id_quote)
-                                                            <div class="message-quote" style="font-style: italic; {{ $isSender ? 'color: rgba(255, 255, 255, 0.8);' : 'color: #6b7280;' }} font-size: 0.8rem; margin-bottom: 6px; padding-left: 8px; border-left: 2px solid {{ $isSender ? 'rgba(255, 255, 255, 0.5)' : '#d1d5db' }};">
-                                                                "{{ $response->quotedResponse->message }}"
-                                                            </div>
-                                                            @endif
-                                                            <div class="message-box {{ $isSender ? 'sent' : 'received' }}" style="max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 0.5rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
-                                                                <p class="mb-0" style="line-height: 1.5; font-size: 0.9rem;">{{ $response->message }}</p>
-                                                                @foreach($response->uploads as $upload)
-                                                                <div class="message-attachment mb-2">
-                                                                    <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
-                                                                        <img src="{{ asset('storage/' . $upload->filename_path) }}" alt="{{ $upload->filename_ori }}" style="width: 128px; height: 128px; object-fit: cover; border-radius: 8px; {{ !$isSender ? 'border: 1px solid #e5e7eb;' : '' }}">
-                                                                    </a>
-                                                                </div>
-                                                                @endforeach
-                                                                <span class="message-time" style="font-size: 0.7rem; {{ $isSender ? 'color: rgba(255, 255, 255, 0.85);' : 'color: #6b7280;' }} display: block; text-align: right; margin-top: 4px;">
-                                                                    {{ $response->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        @empty
-                                                        <p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>
-                                                        @endforelse
+                            <div class="block-content">
+                                <table class="table table-vcenter">
+                                    <thead>
+                                        <tr class="">
+                                            <th>#</th>
+                                            <th>Kode Tiket</th>
+                                            <th>Judul</th>
+                                            <th>Layanan</th>
+                                            <th>Unit</th>
+                                            <th>Status</th>
+                                            <th>Tanggal Dibuat</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($tickets as $ticket)
+                                        <tr class="">
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $ticket->ticket_code }}</td>
+                                            <td>{{ $ticket->title }}</td>
+                                            <td>{{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</td>
+                                            <td>{{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</td>
+                                            <td>
+                                                @if($ticket->status == 0) Pending
+                                                @elseif($ticket->status == 1) Ditugaskan
+                                                @else Resolved
+                                                @endif
+                                            </td>
+                                            <td>{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalTicket{{ $ticket->id }}" title="Balas Pesan">
+                                                    <i class="fas fa-reply me-1"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+    
+                                        <!-- Modal Percakapan Gaya Chat -->
+                                        <div class="modal fade bg-dark" id="modalTicket{{ $ticket->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
+                                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="modalLabel{{ $ticket->id }}">Kode Tiket: {{ $ticket->ticket_code }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                     </div>
-
-                                                    @if ($ticket->status != 2)
-                                                    <div class="reply-container" style="background-color: white; border-top: 1px solid #e5e7eb; padding: 1rem;">
-                                                        <form id="chat-form-{{ $ticket->id }}" action="{{ route('tickets.respond', $ticket->id) }}" method="POST" enctype="multipart/form-data">
-                                                            @csrf
-                                                            <div class="reply-input-row d-flex gap-2 mb-2">
-                                                                <textarea class="form-control" name="message" placeholder="Masukkan pesan..." required style="border-radius: 24px; border-color: #d1d5db; padding: 12px 16px; font-size: 0.9rem; resize: none;"></textarea>
-                                                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;" title="Kirim Pesan">
-                                                                    <i class="fas fa-paper-plane"></i>
-                                                                </button>
-                                                            </div>
-                                                            <div class="attachment-row d-flex align-items-center gap-2">
-                                                                <button class="btn btn-outline-primary" type="button" id="custom-button-{{ $ticket->id }}" style="border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
-                                                                    <i class="fas fa-paperclip"></i>
-                                                                    <span>Pilih File</span>
-                                                                </button>
-                                                                <span id="file-name-{{ $ticket->id }}" class="text-muted" style="font-size: 0.85rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tidak ada file dipilih</span>
-                                                                <input type="file" name="images[]" id="images-{{ $ticket->id }}" multiple class="form-control d-none">
-                                                                @if ($ticket->status == 1)
-                                                                <button type="button" class="btn btn-success d-flex align-items-center justify-content-center resolve-ticket-btn" data-ticket-id="{{ $ticket->id }}" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;" title="Tandai Selesai">
-                                                                    <i class="fas fa-check-circle"></i>
-                                                                </button>
+                                                    <div class="modal-body" style="padding: 0; display: flex; flex-direction: column">
+                                                        <div class="chat-container px-4 py-3" id="chat-container-{{ $ticket->id }}" style="flex: 1; overflow-y: auto; background-color: #f9fafb;">
+                                                            <div class="mb-4">
+                                                                <strong>Lokasi Aduan:</strong>
+                                                                @if ($ticket->latitude && $ticket->longitude)
+                                                                    <div class="d-flex flex-column gap-2 mt-2">
+                                                                        <div class="d-flex gap-3">
+                                                                            <p class="mb-0"><strong>Latitude:</strong> {{ $ticket->latitude }}</p>
+                                                                            <p class="mb-0"><strong>Longitude:</strong> {{ $ticket->longitude }}</p>
+                                                                        </div>
+                                                                        <div id="map-{{ $ticket->id }}" style="height: 200px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                                                                    </div>
+                                                                @else
+                                                                    <p class="text-muted">Lokasi tidak tersedia.</p>
                                                                 @endif
                                                             </div>
-                                                        </form>
-
-                                                        @if ($ticket->status == 1)
-                                                        <form action="{{ route('tickets.update', $ticket->id) }}" method="POST" id="resolve-form-{{ $ticket->id }}" class="d-none">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <input type="hidden" name="status" value="2">
-                                                        </form>
+                                                            @forelse($ticket->responses as $response)
+                                                            @php
+                                                            $isSender = $response->user_id == auth()->user()->id;
+                                                            @endphp
+                                                            <div class="message-wrapper mb-3" style="display: flex; flex-direction: column; align-items: {{ $isSender ? 'flex-end' : 'flex-start' }};">
+                                                                <div class="message-info d-flex align-items-center gap-2 mb-1">
+                                                                    @if (!$isSender)
+                                                                    <div class="avatar" style="width: 28px; height: 28px; border-radius: 50%; background-color: #1e3a8a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600;">
+                                                                        {{ substr($response->user->username, 0, 1) }}
+                                                                    </div>
+                                                                    @endif
+                                                                    <span class="message-sender" style="font-weight: 600; font-size: 0.85rem; color: #374151;">
+                                                                        @if ($response->user->role_id == 2)
+                                                                        Sistem (Operator)
+                                                                        @else
+                                                                        {{ $response->user->username }} ({{ $response->user->role_id == 4 ? 'Pengadu' : 'PIC' }})
+                                                                        @endif
+                                                                    </span>
+                                                                </div>
+                                                                @if ($response->ticket_id_quote)
+                                                                <div class="message-quote" style="font-style: italic; {{ $isSender ? 'color: rgba(255, 255, 255, 0.8);' : 'color: #6b7280;' }} font-size: 0.8rem; margin-bottom: 6px; padding-left: 8px; border-left: 2px solid {{ $isSender ? 'rgba(255, 255, 255, 0.5)' : '#d1d5db' }};">
+                                                                    "{{ $response->quotedResponse->message }}"
+                                                                </div>
+                                                                @endif
+                                                                <div class="message-box {{ $isSender ? 'sent' : 'received' }}" style="max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 0.5rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                                                                    <p class="mb-0" style="line-height: 1.5; font-size: 0.9rem;">{{ $response->message }}</p>
+                                                                    @foreach($response->uploads as $upload)
+                                                                    <div class="message-attachment mb-2">
+                                                                        <a href="{{ asset('storage/' . $upload->filename_path) }}" target="_blank">
+                                                                            <img src="{{ asset('storage/' . $upload->filename_path) }}" alt="{{ $upload->filename_ori }}" style="width: 128px; height: 128px; object-fit: cover; border-radius: 8px; {{ !$isSender ? 'border: 1px solid #e5e7eb;' : '' }}">
+                                                                        </a>
+                                                                    </div>
+                                                                    @endforeach
+                                                                    <span class="message-time" style="font-size: 0.7rem; {{ $isSender ? 'color: rgba(255, 255, 255, 0.85);' : 'color: #6b7280;' }} display: block; text-align: right; margin-top: 4px;">
+                                                                        {{ $response->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            @empty
+                                                            <p class="text-muted text-center">Belum ada percakapan untuk tiket ini.</p>
+                                                            @endforelse
+                                                        </div>
+    
+                                                        @if ($ticket->status != 2)
+                                                        <div class="reply-container" style="background-color: white; border-top: 1px solid #e5e7eb; padding: 1rem;">
+                                                            <form id="chat-form-{{ $ticket->id }}" action="{{ route('tickets.respond', $ticket->id) }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <div class="reply-input-row d-flex gap-2 mb-2">
+                                                                    <textarea class="form-control" name="message" placeholder="Masukkan pesan..." required style="border-radius: 24px; border-color: #d1d5db; padding: 12px 16px; font-size: 0.9rem; resize: none;"></textarea>
+                                                                    <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;" title="Kirim Pesan">
+                                                                        <i class="fas fa-paper-plane"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="attachment-row d-flex align-items-center gap-2">
+                                                                    <button class="btn btn-outline-primary" type="button" id="custom-button-{{ $ticket->id }}" style="border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                                                                        <i class="fas fa-paperclip"></i>
+                                                                        <span>Pilih File</span>
+                                                                    </button>
+                                                                    <span id="file-name-{{ $ticket->id }}" class="text-muted" style="font-size: 0.85rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tidak ada file dipilih</span>
+                                                                    <input type="file" name="images[]" id="images-{{ $ticket->id }}" multiple class="form-control d-none">
+                                                                    @if ($ticket->status == 1)
+                                                                    <button type="button" class="btn btn-success d-flex align-items-center justify-content-center resolve-ticket-btn" data-ticket-id="{{ $ticket->id }}" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;" title="Tandai Selesai">
+                                                                        <i class="fas fa-check-circle"></i>
+                                                                    </button>
+                                                                    @endif
+                                                                </div>
+                                                            </form>
+    
+                                                            @if ($ticket->status == 1)
+                                                            <form action="{{ route('tickets.update', $ticket->id) }}" method="POST" id="resolve-form-{{ $ticket->id }}" class="d-none">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <input type="hidden" name="status" value="2">
+                                                            </form>
+                                                            @endif
+                                                        </div>
                                                         @endif
                                                     </div>
-                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center text-muted">Tidak ada aduan yang ditugaskan.</td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+    
+                                        @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted">Tidak ada aduan yang ditugaskan.</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

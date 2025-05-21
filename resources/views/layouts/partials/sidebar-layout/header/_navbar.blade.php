@@ -21,18 +21,20 @@
 <body>
     <div id="page-container" class="sidebar-o sidebar-dark enable-page-overlay side-scroll page-header-fixed main-content-narrow">
         <nav id="sidebar" aria-label="Main Navigation" style="background-color: #ebeef2">
-            <div class="content-header d-flex justify-content-center align-items-center" style="background-color: #ebeef2">
-                <a class="fw-semibold text-dual text-center">
-                    <span class="smini-visible">
-                        <i class="fa fa-circle-notch text-primary"></i>
-                    </span>
-                    <span class="smini-hide">
-                        <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="50">
-                    </span>
-                </a>
+            <div class="content-header d-flex align-items-center" style="background-color: #ebeef2">
+                <div class="flex-grow-1 d-flex justify-content-center">
+                    <a class="fw-semibold text-dual text-center">
+                        <span class="smini-visible">
+                            <i class="fa fa-circle-notch text-primary"></i>
+                        </span>
+                        <span class="smini-hide">
+                            <img src="{{ asset('assets/media/img/logo-helpdesk-black.png') }}" alt="Helpdesk Logo" height="50">
+                        </span>
+                    </a>
+                </div>
                 <div class="d-flex align-items-center gap-1">
                     <!-- Close Sidebar, Visible only on mobile screens -->
-                    <a class="d-lg-none btn btn-sm btn-alt-secondary ms-1" data-toggle="layout"
+                    <a class="d-lg-none btn btn-sm btn-light ms-1" data-toggle="layout"
                         data-action="sidebar_close" href="javascript:void(0)">
                         <i class="fa fa-fw fa-times"></i>
                     </a>
@@ -303,6 +305,7 @@
             max-width: 90%;
             margin: 0 auto;
         }
+
     </style>
     <script src="{{asset('assets2/js/oneui.app.min.js')}}"></script>
     <script src="{{asset('assets2/js/plugins/chart.js/chart.umd.js')}}"></script>

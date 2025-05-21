@@ -276,16 +276,18 @@
       <!-- Recent Tickets -->
       <div class="row">
         <div class="col-xl-12 col-xxl-12">
+          <div></div>
           <div class="block block-rounded">
             <div class="block-header block-header-default">
               <h3 class="block-title">Tiket Terbaru</h3>
               <div class="block-options">
                 <button type="button" class="btn-block-option" data-toggle="block-option"
-                  data-action="state_toggle" data-action-mode="demo">
-                  <i class="si si-refresh"></i>
-                </button>
-              </div>
+                data-action="state_toggle" data-action-mode="demo">
+                <i class="si si-refresh"></i>
+              </button>
             </div>
+          </div>
+          <div class="table-responsive">
             <div class="block-content">
               <table class="table table-borderless table-striped table-vcenter fs-sm">
                 <thead>
@@ -312,6 +314,7 @@
                 </a>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

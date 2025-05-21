@@ -60,7 +60,7 @@
                         <div class="bg-body-light rounded-bottom"></div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-6">
+                <div class="col-sm-6 col-xl-6x">
                     <div class="block block-rounded d-flex flex-column h-100 mb-0">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
@@ -74,7 +74,7 @@
                         <div class="bg-body-light rounded-bottom"></div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-6">
+                <div class="col-sm-6 col-xl-6x">
                     <div class="block block-rounded d-flex flex-column h-100 mb-0">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
@@ -188,21 +188,23 @@
                                                     </button>
                                                 </div>
                                             </div>
-                                            <div class="block-content">
-                                                <table class="table table-borderless table-striped table-vcenter fs-sm">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Kode</th>
-                                                            <th>Judul</th>
-                                                            <th>Tanggal Dibuat</th>
-                                                            <th>Unit</th>
-                                                            <th class="text-center" style="width: 100px;">Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="recent-tickets-table">
-                                                        <!-- Will be populated by JS -->
-                                                    </tbody>
-                                                </table>
+                                            <div class="table-responsive">
+                                                <div class="block-content">
+                                                    <table class="table table-borderless table-striped table-vcenter fs-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Kode</th>
+                                                                <th>Judul</th>
+                                                                <th>Tanggal Dibuat</th>
+                                                                <th>Unit</th>
+                                                                <th class="text-center" style="width: 100px;">Status</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="recent-tickets-table">
+                                                            <!-- Will be populated by JS -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                             <div class="block-content block-content-full bg-body-light">
                                                 <div class="d-flex justify-content-between">
@@ -317,21 +319,23 @@
                                                     </button>
                                                 </div>
                                             </div>
-                                            <div class="block-content">
-                                                <table class="table table-borderless table-striped table-vcenter fs-sm">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Kode</th>
-                                                            <th>Judul</th>
-                                                            <th>Status</th>
-                                                            <th>Tanggal Dibuat</th>
-                                                            <th>Tanggal Selesai</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="ticket-list-table">
-                                                        <!-- Will be populated by JS -->
-                                                    </tbody>
-                                                </table>
+                                            <div class="table-responsive">
+                                                <div class="block-content">
+                                                    <table class="table table-borderless table-striped table-vcenter fs-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Kode</th>
+                                                                <th>Judul</th>
+                                                                <th>Status</th>
+                                                                <th>Tanggal Dibuat</th>
+                                                                <th>Tanggal Selesai</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="ticket-list-table">
+                                                            <!-- Will be populated by JS -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -36,72 +36,72 @@
         <div class="content">
             <!-- Statistics Cards -->
             <!-- Statistics Cards -->
-<div class="row items-push">
-    <div class="col-sm-6 col-xxl-3">
-        <div class="block block-rounded d-flex flex-column h-100 mb-0">
-            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                <dl class="mb-0">
-                    <dt class="fs-3 fw-bold" id="total-tickets">
-                        {{ $ticketStats['total'] }}
-                    </dt>
-                    <dd class="fs-sm fw-medium text-muted mb-0">Total Tiket</dd>
-                </dl>
-                <div class="item item-rounded-lg bg-body-light">
-                    <i class="fas fa-ticket-alt fs-3 text-primary"></i>
+            <div class="row items-push">
+                <div class="col-sm-6 col-xxl-3">
+                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="fs-3 fw-bold" id="total-tickets">
+                                    {{ $ticketStats['total'] }}
+                                </dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Total Tiket</dd>
+                            </dl>
+                            <div class="item item-rounded-lg bg-body-light">
+                                <i class="fas fa-ticket-alt fs-3 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="bg-body-light rounded-bottom"></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xxl-3">
+                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="fs-3 fw-bold" id="pending-tickets">
+                                    {{ $ticketStats['pending'] ?? 0 }}
+                                </dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Pending</dd>
+                            </dl>
+                            <div class="item item-rounded-lg bg-body-light">
+                                <i class="fas fa-clock fs-3 text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="bg-body-light rounded-bottom"></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xxl-3">
+                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="fs-3 fw-bold" id="assigned-tickets">
+                                    {{ $ticketStats['assigned'] ?? 0 }}
+                                </dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Ditugaskan</dd>
+                            </dl>
+                            <div class="item item-rounded-lg bg-body-light">
+                                <i class="fas fa-user-clock fs-3 text-info"></i>
+                            </div>
+                        </div>
+                        <div class="bg-body-light rounded-bottom"></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xxl-3">
+                    <div class="block block-rounded d-flex flex-column h-100 mb-0">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="fs-3 fw-bold" id="completed-tickets">
+                                    {{ $ticketStats['completed'] ?? 0 }}
+                                </dt>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Tiket Selesai</dd>
+                            </dl>
+                            <div class="item item-rounded-lg bg-body-light">
+                                <i class="fas fa-check-circle fs-3 text-success"></i>
+                            </div>
+                        </div>
+                        <div class="bg-body-light rounded-bottom"></div>
+                    </div>
                 </div>
             </div>
-            <div class="bg-body-light rounded-bottom"></div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xxl-3">
-        <div class="block block-rounded d-flex flex-column h-100 mb-0">
-            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                <dl class="mb-0">
-                    <dt class="fs-3 fw-bold" id="pending-tickets">
-                        {{ $ticketStats['pending'] ?? 0 }}
-                    </dt>
-                    <dd class="fs-sm fw-medium text-muted mb-0">Tiket Pending</dd>
-                </dl>
-                <div class="item item-rounded-lg bg-body-light">
-                    <i class="fas fa-clock fs-3 text-warning"></i>
-                </div>
-            </div>
-            <div class="bg-body-light rounded-bottom"></div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xxl-3">
-        <div class="block block-rounded d-flex flex-column h-100 mb-0">
-            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                <dl class="mb-0">
-                    <dt class="fs-3 fw-bold" id="assigned-tickets">
-                        {{ $ticketStats['assigned'] ?? 0 }}
-                    </dt>
-                    <dd class="fs-sm fw-medium text-muted mb-0">Tiket Ditugaskan</dd>
-                </dl>
-                <div class="item item-rounded-lg bg-body-light">
-                    <i class="fas fa-user-clock fs-3 text-info"></i>
-                </div>
-            </div>
-            <div class="bg-body-light rounded-bottom"></div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xxl-3">
-        <div class="block block-rounded d-flex flex-column h-100 mb-0">
-            <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                <dl class="mb-0">
-                    <dt class="fs-3 fw-bold" id="completed-tickets">
-                        {{ $ticketStats['completed'] ?? 0 }}
-                    </dt>
-                    <dd class="fs-sm fw-medium text-muted mb-0">Tiket Selesai</dd>
-                </dl>
-                <div class="item item-rounded-lg bg-body-light">
-                    <i class="fas fa-check-circle fs-3 text-success"></i>
-                </div>
-            </div>
-            <div class="bg-body-light rounded-bottom"></div>
-        </div>
-    </div>
-</div>
 
             <div class="row">
                 <!-- Service Distribution Chart (New) -->
@@ -207,94 +207,92 @@
                 </div>
 
 
-                <div class="row">
-                    <!-- Ticket Category Distribution (Pelapor) -->
-                    <div class="col-xl-4 col-xxl-4 d-flex flex-column">
-                        <div class="block block-rounded flex-grow-1 d-flex flex-column">
-                            <div class="block-header block-header-default">
-                                <h3 class="block-title">Distribusi Pelapor</h3>
-                                <div class="block-options">
-                                    <button type="button" class="btn-block-option" data-toggle="block-option"
-                                        data-action="state_toggle" data-action-mode="demo">
-                                        <i class="si si-refresh"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="block-content block-content-full flex-grow-1 d-flex align-items-center justify-content-center">
-                                <div style="position: relative; width: 100%; height: 230px;">
-                                    <canvas id="ticketCategoryChart"></canvas>
-                                </div>
+                <!-- Ticket Category Distribution (Pelapor) -->
+                <div class="col-xl-4 col-xxl-4 d-flex flex-column">
+                    <div class="block block-rounded flex-grow-1 d-flex flex-column">
+                        <div class="block-header block-header-default">
+                            <h3 class="block-title">Distribusi Pelapor</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-toggle="block-option"
+                                    data-action="state_toggle" data-action-mode="demo">
+                                    <i class="si si-refresh"></i>
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Ticket Resolution Time -->
-                    <div class="col-xl-4 col-xxl-4 d-flex flex-column">
-                        <div class="block block-rounded flex-grow-1 d-flex flex-column">
-                            <div class="block-header block-header-default">
-                                <h3 class="block-title">Waktu Penyelesaian</h3>
-                                <div class="block-options">
-                                    <button type="button" class="btn-block-option" data-toggle="block-option"
-                                        data-action="state_toggle" data-action-mode="demo">
-                                        <i class="si si-refresh"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="block-content block-content-full flex-grow-1 d-flex align-items-center justify-content-center">
-                                <div style="position: relative; width: 100%; height: 230px;">
-                                    <canvas id="resolutionTimeChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Per-Service Ticket Chart (Slidable) -->
-                    <div class="col-xl-4 col-xxl-4 d-flex flex-column">
-                        <div class="block block-rounded flex-grow-1 d-flex flex-column">
-                            <div class="block-header block-header-default">
-                                <h3 class="block-title">Performa per Layanan</h3>
-                                <div class="block-options">
-                                    <button type="button" class="btn-block-option" id="prev-service">
-                                        <i class="fa fa-arrow-left"></i>
-                                    </button>
-                                    <button type="button" class="btn-block-option" id="next-service">
-                                        <i class="fa fa-arrow-right"></i>
-                                    </button>
-                                    <button type="button" class="btn-block-option" data-toggle="block-option"
-                                        data-action="state_toggle" data-action-mode="demo">
-                                        <i class="si si-refresh"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="block-content block-content-full flex-grow-1 d-flex align-items-center justify-content-center">
-                                <div style="position: relative; width: 100%; height: 230px;">
-                                    <canvas id="perServiceChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="block-content bg-body-light text-center">
-                                <span id="current-service-name">Memuat...</span>
+                        <div
+                            class="block-content block-content-full flex-grow-1 d-flex align-items-center justify-content-center">
+                            <div style="position: relative; width: 100%; height: 230px;">
+                                <canvas id="ticketCategoryChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recent Tickets -->
-                <!-- Recent Tickets -->
-                <div class="row">
-                    <div class="col-xl-12 col-xxl-12">
-                        <div class="block block-rounded">
-                            <div class="block-header block-header-default">
-                                <h3 class="block-title">Tiket Terbaru</h3>
-                                <div class="block-options">
-                                    <button type="button" class="btn-block-option" data-toggle="block-option"
-                                        data-action="state_toggle" data-action-mode="demo">
-                                        <i class="si si-refresh"></i>
-                                    </button>
-                                </div>
+                <!-- Ticket Resolution Time -->
+                <div class="col-xl-4 col-xxl-4 d-flex flex-column">
+                    <div class="block block-rounded flex-grow-1 d-flex flex-column">
+                        <div class="block-header block-header-default">
+                            <h3 class="block-title">Waktu Penyelesaian</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-toggle="block-option"
+                                    data-action="state_toggle" data-action-mode="demo">
+                                    <i class="si si-refresh"></i>
+                                </button>
                             </div>
+                        </div>
+                        <div
+                            class="block-content block-content-full flex-grow-1 d-flex align-items-center justify-content-center">
+                            <div style="position: relative; width: 100%; height: 230px;">
+                                <canvas id="resolutionTimeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Per-Service Ticket Chart (Slidable) -->
+                <div class="col-xl-4 col-xxl-4 d-flex flex-column">
+                    <div class="block block-rounded flex-grow-1 d-flex flex-column">
+                        <div class="block-header block-header-default">
+                            <h3 class="block-title">Performa per Layanan</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" id="prev-service">
+                                    <i class="fa fa-arrow-left"></i>
+                                </button>
+                                <button type="button" class="btn-block-option" id="next-service">
+                                    <i class="fa fa-arrow-right"></i>
+                                </button>
+                                <button type="button" class="btn-block-option" data-toggle="block-option"
+                                    data-action="state_toggle" data-action-mode="demo">
+                                    <i class="si si-refresh"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            class="block-content block-content-full flex-grow-1 d-flex align-items-center justify-content-center">
+                            <div style="position: relative; width: 100%; height: 230px;">
+                                <canvas id="perServiceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="block-content bg-body-light text-center">
+                            <span id="current-service-name">Memuat...</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Recent Tickets -->
+                <div class="col-xl-12 col-xxl-12">
+                    <div class="block block-rounded">
+                        <div class="block-header block-header-default">
+                            <h3 class="block-title">Tiket Terbaru</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-toggle="block-option"
+                                    data-action="state_toggle" data-action-mode="demo">
+                                    <i class="si si-refresh"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
                             <div class="block-content">
                                 <table class="table table-borderless table-striped table-vcenter fs-sm">
                                     <thead>
@@ -329,24 +327,41 @@
 </div>
 
 @section('scripts')
-    <!-- ApexCharts (dashboard-specific) -->
-    <script src="{{ asset('assets/js/apexcharts.min.js') }}"></script>
 
-    <!-- Axios (dashboard-specific) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- ApexCharts (dashboard-specific) -->
+<script src="{{ asset('assets/js/apexcharts.min.js') }}"></script>
 
-    <!-- Dashboard JavaScript -->
-    <script>
-        // Pass PHP data to JavaScript
-        window.currentOperatorUnitId = {{ Auth::user()->unit_id ?? 'null' }};
-        window.initialTicketStats = {
-            completed: {{ $ticketStats['completed'] ?? 0 }},
-            pending: {{ $ticketStats['pending'] ?? 0 }},
-            assigned: {{ $ticketStats['assigned'] ?? 0 }}
-                        };
-    </script>
-    <script src="{{ asset('assets/js/operator_dashboard.js') }}"></script>
+<!-- Axios (dashboard-specific) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Dashboard JavaScript -->
+<script>
+    // Pass PHP data to JavaScript
+    window.currentOperatorUnitId = {
+        {
+            Auth::user() - > unit_id ?? 'null'
+        }
+    };
+    window.initialTicketStats = {
+        completed: {
+            {
+                $ticketStats['completed'] ?? 0
+            }
+        },
+        pending: {
+            {
+                $ticketStats['pending'] ?? 0
+            }
+        },
+        assigned: {
+            {
+                $ticketStats['assigned'] ?? 0
+            }
+        }
+    };
+</script>
+<script src="{{ asset('assets/js/operator_dashboard.js') }}"></script>
 
 
 @endsection
