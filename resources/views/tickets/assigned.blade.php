@@ -63,9 +63,16 @@
                                         </td>
                                         <td>{{ $ticket->created_at->format('d-m-Y H:i') }}</td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalTicket{{ $ticket->id }}" title="Balas Pesan">
-                                                <i class="fas fa-reply me-1"></i>
-                                            </button>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <!-- Tombol Detail -->
+                                                <button type="button" class="btn btn-sm btn-primary detail-btn" data-bs-toggle="modal" data-bs-target="#detailModal{{ $ticket->id }}" title="Detail Aduan">
+                                                    <i class="fas fa-eye me-1"></i>
+                                                </button>
+                                                <!-- Tombol Balas Pesan -->
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalTicket{{ $ticket->id }}" title="Balas Pesan">
+                                                    <i class="fas fa-reply me-1"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
 
@@ -175,6 +182,66 @@
                                         </div>
                                     </div>
 
+                                    <!-- Modal Detail -->
+                                    <!-- Modal Detail -->
+<div class="modal fade bg-dark" id="detailModal{{ $ticket->id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ $ticket->id }}" data-bs-backdrop="static" aria-hidden="true" style="font-size: 12px;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalLabel{{ $ticket->id }}">Detail Tiket: {{ $ticket->ticket_code }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Waktu Dibuat:</strong> {{ $ticket->created_at->timezone('Asia/Jakarta')->format('j F Y, H:i') }}</p>
+                <p><strong>Kode Tiket:</strong> {{ $ticket->ticket_code }}</p>
+                <p><strong>Judul:</strong> {{ $ticket->title }}</p>
+                <p><strong>Layanan:</strong> {{ $ticket->service->svc_name ?? 'Tidak ditentukan' }}</p>
+                <p><strong>Unit:</strong> {{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</p>
+                <p><strong>Status:</strong>
+                    @if($ticket->status == 0)
+                        <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-warning-light text-warning">Pending</span>
+                    @elseif($ticket->status == 1)
+                        <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-info-light text-info">Ditugaskan</span>
+                    @else
+                        <span class="fs-xs fw-semibold d-inline-block py-1 px-3 rounded-pill bg-success-light text-success">Selesai</span>
+                    @endif
+                </p>
+                <p><strong>Deskripsi:</strong> {{ $ticket->description }}</p>
+                <div class="mt-3">
+                    <strong>Lampiran:</strong>
+                    @if ($ticket->uploads->isNotEmpty())
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            @foreach ($ticket->uploads as $attachment)
+                                <div class="message-attachment">
+                                    <a href="{{ asset('storage/' . $attachment->filename_path) }}" target="_blank">
+                                        <img src="{{ asset('storage/' . $attachment->filename_path) }}" alt="{{ $attachment->filename_ori }}" style="width: 128px; height: 128px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted">Tidak ada lampiran.</p>
+                    @endif
+                </div>
+                <div class="mt-3">
+                    <strong>Lokasi Aduan:</strong>
+                    @if ($ticket->latitude && $ticket->longitude)
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <div class="d-flex gap-3">
+                                <p class="mb-0"><strong>Latitude:</strong> {{ $ticket->latitude }}</p>
+                                <p class="mb-0"><strong>Longitude:</strong> {{ $ticket->longitude }}</p>
+                            </div>
+                            <div id="mapDetail-{{ $ticket->id }}" style="height: 200px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                        </div>
+                    @else
+                        <p class="text-muted">Lokasi tidak tersedia.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
                                     @empty
                                     <tr>
                                         <td colspan="7" class="text-center text-muted">Tidak ada aduan yang ditugaskan.</td>
@@ -264,8 +331,24 @@
     }
 
     .swal2-container {
-    z-index: 9999 !important;
-}
+        z-index: 9999 !important;
+    }
+
+    /* Styling untuk tombol detail */
+    .btn-sm.btn-primary.detail-btn {
+        background-color: #4b5563;
+        border-color: #4b5563;
+    }
+
+    .btn-sm.btn-primary.detail-btn:hover {
+        background-color: #6b7280;
+        border-color: #6b7280;
+    }
+
+    /* Pastikan modal detail memiliki z-index yang cukup */
+    .modal.fade.bg-dark {
+        z-index: 1055;
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -294,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Initialize map when modal is shown
+        // Initialize map for chat modal when shown
         const modal{{ $ticket->id }} = document.getElementById('modalTicket{{ $ticket->id }}');
         if (modal{{ $ticket->id }}) {
             modal{{ $ticket->id }}.addEventListener('shown.bs.modal', function () {
@@ -313,6 +396,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
                     const marker = L.marker([{{ $ticket->latitude }}, {{ $ticket->longitude }}]).addTo(map);
+                @endif
+            });
+        }
+
+        // Initialize map for detail modal when shown
+        const detailModal{{ $ticket->id }} = document.getElementById('detailModal{{ $ticket->id }}');
+        if (detailModal{{ $ticket->id }}) {
+            detailModal{{ $ticket->id }}.addEventListener('shown.bs.modal', function () {
+                @if ($ticket->latitude && $ticket->longitude)
+                    const detailMap = L.map('mapDetail-{{ $ticket->id }}').setView([{{ $ticket->latitude }}, {{ $ticket->longitude }}], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(detailMap);
+
+                    // Set the default icon path
+                    delete L.Icon.Default.prototype._getIconUrl;
+                    L.Icon.Default.mergeOptions({
+                        iconRetinaUrl: '{{ asset('assets/leaflet/images/marker-icon-2x.png') }}',
+                        iconUrl: '{{ asset('assets/leaflet/images/marker-icon.png') }}',
+                        shadowUrl: '{{ asset('assets/leaflet/images/marker-shadow.png') }}'
+                    });
+
+                    const detailMarker = L.marker([{{ $ticket->latitude }}, {{ $ticket->longitude }}]).addTo(detailMap);
                 @endif
             });
         }
