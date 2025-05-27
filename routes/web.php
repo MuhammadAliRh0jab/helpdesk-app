@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:2');
     Route::post('/tickets/{ticket}/respond', [TicketController::class, 'respond'])
         ->name('tickets.respond')
-        ->middleware('role:3');
+        ->middleware('role:2,3,4');
     Route::post('/tickets/{ticket}/remove-pic', [TicketController::class, 'removePic'])
         ->name('tickets.removePic')
         ->middleware('role:2');
@@ -75,6 +75,9 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:3');
     Route::post('/tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
     Route::get('/get-services/{unitId}', [TicketController::class, 'getServices'])->name('get.services');
+    Route::post('tickets/resolve/{ticket}', [TicketController::class, 'resolve'])
+        ->name('tickets.resolve')
+        ->middleware('role:2');
 
     Route::prefix('users')->middleware('role:1')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');

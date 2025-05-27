@@ -112,93 +112,93 @@ class TicketController extends Controller
 
 
     public function index(Request $request)
-{
-    $user = auth()->user();
-    $search = $request->input('search');
-    $statusFilter = $request->input('status_filter');
-    $perPage = $request->input('per_page', 10);
+    {
+        $user = auth()->user();
+        $search = $request->input('search');
+        $statusFilter = $request->input('status_filter');
+        $perPage = $request->input('per_page', 10);
 
-    $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit', 'pics.user']);
+        $query = Ticket::with(['responses.user', 'responses.uploads', 'user', 'uploads', 'service', 'service.unit', 'pics.user']);
 
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('ticket_code', 'like', "%$search%")
-                ->orWhere('title', 'like', "%$search%");
-        });
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('ticket_code', 'like', "%$search%")
+                    ->orWhere('title', 'like', "%$search%");
+            });
+        }
+
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $query->where('status', $statusFilter);
+        }
+
+        if ($user->role_id == 4) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                    ->orWhere('guest_email', $user->email);
+            });
+        } elseif ($user->role_id == 3) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                    ->orWhereHas('pics', function ($query) use ($user) {
+                        $query->where('user_id', $user->id)
+                            ->where('ticket_pic.pic_stats', 'active');
+                    });
+            });
+        } elseif ($user->role_id == 2) {
+            $query->where('unit_id', $user->unit_id);
+        }
+
+        $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tickets' => $tickets,
+                'pics' => $user->role_id == 2 ? User::where('role_id', 3)
+                    ->where('unit_id', $user->unit_id)
+                    ->with([
+                        'pics' => function ($query) {
+                            $query->where('pic_stats', 'active');
+                        }
+                    ])
+                    ->get()
+                    ->map(function ($user) {
+                        return (object) [
+                            'id' => $user->id,
+                            'username' => $user->username,
+                            'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
+                            'is_active' => $user->pics->isNotEmpty(),
+                        ];
+                    }) : collect(),
+                'units' => \App\Models\Unit::all(),
+                'pagination' => $tickets->links('pagination::bootstrap-5')->toHtml(),
+            ]);
+        }
+
+        $pics = $user->role_id == 2 && $user->unit_id ? User::where('role_id', 3)
+            ->where('unit_id', $user->unit_id)
+            ->with([
+                'pics' => function ($query) {
+                    $query->where('pic_stats', 'active');
+                }
+            ])
+            ->get()
+            ->map(function ($user) {
+                return (object) [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
+                    'is_active' => $user->pics->isNotEmpty(),
+                ];
+            }) : collect();
+
+        $servicesQuery = Service::where('status', 'active');
+        if ($user->role_id == 4) {
+            $servicesQuery->where('category_id', 2);
+        }
+        $services = $servicesQuery->with('unit')->get();
+
+        return view('theme::tickets.index', compact('tickets', 'pics', 'services'));
     }
-
-    if ($statusFilter !== null && $statusFilter !== '') {
-        $query->where('status', $statusFilter);
-    }
-
-    if ($user->role_id == 4) {
-        $query->where(function ($q) use ($user) {
-            $q->where('user_id', $user->id)
-              ->orWhere('guest_email', $user->email);
-        });
-    } elseif ($user->role_id == 3) {
-        $query->where(function ($q) use ($user) {
-            $q->where('user_id', $user->id)
-                ->orWhereHas('pics', function ($query) use ($user) {
-                    $query->where('user_id', $user->id)
-                        ->where('ticket_pic.pic_stats', 'active');
-                });
-        });
-    } elseif ($user->role_id == 2) {
-        $query->where('unit_id', $user->unit_id);
-    }
-
-    $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
-
-    if ($request->ajax()) {
-        return response()->json([
-            'tickets' => $tickets,
-            'pics' => $user->role_id == 2 ? User::where('role_id', 3)
-                ->where('unit_id', $user->unit_id)
-                ->with([
-                    'pics' => function ($query) {
-                        $query->where('pic_stats', 'active');
-                    }
-                ])
-                ->get()
-                ->map(function ($user) {
-                    return (object) [
-                        'id' => $user->id,
-                        'username' => $user->username,
-                        'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
-                        'is_active' => $user->pics->isNotEmpty(),
-                    ];
-                }) : collect(),
-            'units' => \App\Models\Unit::all(),
-            'pagination' => $tickets->links('pagination::bootstrap-5')->toHtml(),
-        ]);
-    }
-
-    $pics = $user->role_id == 2 && $user->unit_id ? User::where('role_id', 3)
-        ->where('unit_id', $user->unit_id)
-        ->with([
-            'pics' => function ($query) {
-                $query->where('pic_stats', 'active');
-            }
-        ])
-        ->get()
-        ->map(function ($user) {
-            return (object) [
-                'id' => $user->id,
-                'username' => $user->username,
-                'pic_desc' => $user->pics->first()?->pic_desc ?? 'Pegawai tanpa deskripsi',
-                'is_active' => $user->pics->isNotEmpty(),
-            ];
-        }) : collect();
-
-    $servicesQuery = Service::where('status', 'active');
-    if ($user->role_id == 4) {
-        $servicesQuery->where('category_id', 2);
-    }
-    $services = $servicesQuery->with('unit')->get();
-
-    return view('theme::tickets.index', compact('tickets', 'pics', 'services'));
-}
     public function assigned()
     {
         $user = auth()->user();
@@ -458,24 +458,101 @@ class TicketController extends Controller
         $user = auth()->user();
         \Log::info('User ID in respond(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
 
-        if ($user->role_id != 3) {
+        // Role-based access control
+        if (!in_array($user->role_id, [2, 3, 4])) {
             \Log::warning('Unauthorized role: ' . $user->role_id);
             return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
         }
 
-        if (!$user->isAssignedAsPic()) {
-            \Log::warning('User not assigned as PIC: ' . $user->id);
-            return response()->json(['success' => false, 'message' => 'Anda belum ditugaskan sebagai PIC.'], 403);
+        // For role_id == 3 (PIC): Check if user is assigned as PIC
+        if ($user->role_id == 3) {
+            if (!$user->isAssignedAsPic()) {
+                \Log::warning('User not assigned as PIC: ' . $user->id);
+                return response()->json(['success' => false, 'message' => 'Anda belum ditugaskan sebagai PIC.'], 403);
+            }
+
+            $isAssignedToTicket = $this->isPicAssignedToTicket($user->id, $ticket);
+            \Log::info('Is user assigned to this ticket in respond(): ' . ($isAssignedToTicket ? 'Yes' : 'No'));
+
+            if (!$isAssignedToTicket) {
+                \Log::warning('User ' . $user->id . ' not assigned to ticket ' . $ticket->id);
+                return response()->json(['success' => false, 'message' => 'Anda belum ditugaskan sebagai PIC untuk tiket ini.'], 403);
+            }
         }
 
-        $isAssignedToTicket = $this->isPicAssignedToTicket($user->id, $ticket);
-        \Log::info('Is user assigned to this ticket in respond(): ' . ($isAssignedToTicket ? 'Yes' : 'No'));
+        // For role_id == 4 (pengadu): Check if a PIC is assigned or an operator has responded
+        if ($user->role_id == 4) {
+            if ($ticket->user_id != $user->id && $ticket->guest_email != $user->email) {
+                \Log::warning('Ticket ownership mismatch. User ID: ' . $user->id . ', Ticket User ID: ' . $ticket->user_id);
+                return response()->json(['success' => false, 'message' => 'Anda tidak diizinkan membalas respons untuk tiket ini.'], 403);
+            }
 
-        if (!$isAssignedToTicket) {
-            \Log::warning('User ' . $user->id . ' not assigned to ticket ' . $ticket->id);
-            return response()->json(['success' => false, 'message' => 'Anda belum ditugaskan sebagai PIC untuk tiket ini.'], 403);
+            if ($ticket->status == 2) {
+                \Log::warning('Ticket resolved. Status: ' . $ticket->status);
+                return response()->json(['success' => false, 'message' => 'Tiket ini sudah resolved, Anda tidak dapat membalas lagi.'], 403);
+            }
+
+            // Check if a PIC is assigned or an operator has responded
+            $hasPicAssigned = DB::table('ticket_pic')
+                ->where('ticket_id', $ticket->id)
+                ->where('pic_stats', 'active')
+                ->exists();
+
+            $hasOperatorResponse = $ticket->responses()
+                ->whereHas('user', function ($query) {
+                    $query->where('role_id', 2);
+                })
+                ->exists();
+
+            if (!$hasPicAssigned && !$hasOperatorResponse) {
+                \Log::warning('No PIC assigned or operator response for ticket ' . $ticket->id);
+                return response()->json(['success' => false, 'message' => 'Anda hanya dapat membalas setelah PIC ditugaskan atau operator merespons.'], 403);
+            }
+
+            // Check message limit for pengadu
+            $pengaduResponses = $ticket->responses()
+                ->where('user_id', $user->id)
+                ->count();
+            \Log::info('Pengadu responses count before sending: ' . $pengaduResponses);
+
+            $hasPegawaiResponse = $ticket->responses()
+                ->where('user_id', '!=', $user->id)
+                ->whereHas('user', function ($query) {
+                    $query->where('role_id', 3);
+                })
+                ->exists();
+
+            $pengaduMessagesSinceLastPegawai = $pengaduResponses;
+            if ($hasPegawaiResponse) {
+                $lastPegawaiResponse = $ticket->responses()
+                    ->where('user_id', '!=', $user->id)
+                    ->whereHas('user', function ($query) {
+                        $query->where('role_id', 3);
+                    })
+                    ->latest()
+                    ->first();
+
+                $pengaduMessagesSinceLastPegawai = $ticket->responses()
+                    ->where('user_id', $user->id)
+                    ->where('created_at', '>', $lastPegawaiResponse->created_at)
+                    ->count();
+                \Log::info('Pengadu messages since last pegawai response: ' . $pengaduMessagesSinceLastPegawai);
+            }
+
+            $messageLimit = \App\Models\Setting::where('key', 'pengadu_message_limit')->value('value') ?? 10;
+            if ($pengaduMessagesSinceLastPegawai >= $messageLimit) {
+                \Log::info("Pengadu reached $messageLimit messages since last pegawai reply. Ticket ID: " . $ticket->id);
+                return response()->json([
+                    'success' => false,
+                    'message' => "Anda telah mencapai batas $messageLimit pesan. Tunggu balasan dari pegawai untuk mengirim lagi.",
+                    'message_count' => $pengaduMessagesSinceLastPegawai,
+                    'limit_reached' => true,
+                    'message_limit' => $messageLimit,
+                ], 403);
+            }
         }
 
+        // For role_id == 2 (operator): No additional checks needed
         try {
             $request->validate([
                 'message' => 'required',
@@ -524,6 +601,55 @@ class TicketController extends Controller
             \Log::error('Exception in respond: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat mengirim respons.'], 500);
         }
+    }
+
+    public function resolve(Request $request, Ticket $ticket)
+    {
+        $user = auth()->user();
+        \Log::info('User ID in resolve(): ' . $user->id . ', Ticket ID: ' . $ticket->id);
+
+        // Restrict to role_id == 2 (operator) only
+        if ($user->role_id != 2) {
+            \Log::warning('Unauthorized role: ' . $user->role_id);
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Ensure ticket belongs to the operator's unit
+        if ($ticket->unit_id != $user->unit_id) {
+            \Log::warning('Ticket unit_id ' . $ticket->unit_id . ' does not match Operator unit_id ' . $user->unit_id);
+            return redirect()->back()->with('error', 'Tiket tidak berada di unit Anda.');
+        }
+
+        // If resolving the ticket (status = 2)
+        if ($ticket->status != 2) {
+            // Deactivate all PICs associated with the ticket
+            $assignments = DB::table('ticket_pic')
+                ->where('ticket_id', $ticket->id)
+                ->where('pic_stats', 'active')
+                ->get();
+
+            foreach ($assignments as $assignment) {
+                DB::table('ticket_pic')
+                    ->where('ticket_id', $ticket->id)
+                    ->where('pic_id', $assignment->pic_id)
+                    ->update(['pic_stats' => 'inactive', 'updated_at' => now()]);
+
+                \Log::info('Removed ticket_pic relation for ticket: ' . $ticket->ticket_code . ' and PIC: ' . $assignment->pic_id);
+            }
+
+            // Update ticket status to resolved
+            $ticket->update(['status' => 2]);
+            \Log::info('Ticket resolved by Operator ID: ' . $user->id . ' for ticket: ' . $ticket->ticket_code);
+
+            // Add automatic message to chat history
+            TicketResponse::create([
+                'ticket_id' => $ticket->id,
+                'user_id' => $user->id,
+                'message' => "Tiket telah diselesaikan oleh operator ({$user->username}).",
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Tiket berhasil diselesaikan.');
     }
 
     public function removePic(Request $request, Ticket $ticket)
@@ -1062,8 +1188,7 @@ class TicketController extends Controller
 
     public function pegawaiResolutionTimes()
     {
-        $user = auth()->user();
-        ;
+        $user = auth()->user();;
         if ($user->role_id != 3) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -1201,56 +1326,56 @@ class TicketController extends Controller
     //     return redirect()->route('landing')->with('error', 'Layanan tidak valid.');
     // }
 
-    
+
     public function createForService(Service $service)
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    // Check if the service is active
-    if ($service->status !== 'active') {
-        return redirect()->route('landing')->with('error', 'Layanan ini tidak aktif.');
-    }
-
-    // Guest-allowed service
-    if ($service->allow_guest == 1 && $service->category_id == 2) {
-        $units = Unit::all();
-        $services = Service::where('status', 'active')
-            ->where('category_id', 2)
-            ->where('allow_guest', 1)
-            ->with('unit')
-            ->get();
-        return view('theme::guest', compact('units', 'services', 'service'));
-    }
-
-    // Services requiring login (public or government)
-    if (($service->category_id == 2 && $service->allow_guest == 0) || $service->category_id == 1) {
-        if (!$user) {
-            // Use redirect()->guest to set url.intended
-            \Log::info('Setting url.intended: ' . route('tickets.create.service', $service->uuid));
-            return redirect()->guest(route('login'));
+        // Check if the service is active
+        if ($service->status !== 'active') {
+            return redirect()->route('landing')->with('error', 'Layanan ini tidak aktif.');
         }
 
-        // Role-based access
-        if ($service->category_id == 2 && in_array($user->role_id, [2, 3, 4])) {
+        // Guest-allowed service
+        if ($service->allow_guest == 1 && $service->category_id == 2) {
             $units = Unit::all();
             $services = Service::where('status', 'active')
                 ->where('category_id', 2)
+                ->where('allow_guest', 1)
                 ->with('unit')
                 ->get();
-            return view('theme::tickets.create', compact('units', 'services', 'service'));
-        } elseif ($service->category_id == 1 && in_array($user->role_id, [1, 2, 3])) {
-            $units = Unit::all();
-            $services = Service::where('status', 'active')
-                ->with('unit')
-                ->get();
-            return view('theme::tickets.create', compact('units', 'services', 'service'));
-        } else {
-            return redirect()->route('landing')->with('error', 'Anda tidak memiliki akses ke layanan ini.');
+            return view('theme::guest', compact('units', 'services', 'service'));
         }
-    }
 
-    return redirect()->route('landing')->with('error', 'Layanan tidak valid.');
-}
+        // Services requiring login (public or government)
+        if (($service->category_id == 2 && $service->allow_guest == 0) || $service->category_id == 1) {
+            if (!$user) {
+                // Use redirect()->guest to set url.intended
+                \Log::info('Setting url.intended: ' . route('tickets.create.service', $service->uuid));
+                return redirect()->guest(route('login'));
+            }
+
+            // Role-based access
+            if ($service->category_id == 2 && in_array($user->role_id, [2, 3, 4])) {
+                $units = Unit::all();
+                $services = Service::where('status', 'active')
+                    ->where('category_id', 2)
+                    ->with('unit')
+                    ->get();
+                return view('theme::tickets.create', compact('units', 'services', 'service'));
+            } elseif ($service->category_id == 1 && in_array($user->role_id, [1, 2, 3])) {
+                $units = Unit::all();
+                $services = Service::where('status', 'active')
+                    ->with('unit')
+                    ->get();
+                return view('theme::tickets.create', compact('units', 'services', 'service'));
+            } else {
+                return redirect()->route('landing')->with('error', 'Anda tidak memiliki akses ke layanan ini.');
+            }
+        }
+
+        return redirect()->route('landing')->with('error', 'Layanan tidak valid.');
+    }
     public function getTicketDistribution(Request $request)
     {
         $user = auth()->user(); // pegawai_22 (user_id 9)
