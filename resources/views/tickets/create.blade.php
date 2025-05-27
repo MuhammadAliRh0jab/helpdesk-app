@@ -38,7 +38,7 @@
                                 <i class="fas fa-search text-primary"></i>
                             </span>
                             <input type="text" id="search" class="form-control border-start-0"
-                                   placeholder="Cari layanan..." aria-label="Cari layanan">
+                                placeholder="Cari layanan..." aria-label="Cari layanan">
                         </div>
                         <div class="form-text" id="search-hint" style="display: none;">
                             <i class="fas fa-info-circle me-1"></i> Pencarian akan menampilkan hasil dari semua unit
@@ -51,14 +51,14 @@
                             <span class="text-muted me-2"><i class="fas fa-filter me-1"></i> Pilih Unit:</span>
                             <div class="unit-pills">
                                 @php
-                                    $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
+                                $units = $services->pluck('unit_id', 'unit.unit_name')->toArray();
                                 @endphp
                                 @foreach($units as $unitName => $unitId)
-                                    <button onclick="scrollToUnit({{ $unitId }})"
-                                            class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
-                                            aria-label="Pilih unit {{ $unitName }}">
-                                        {{ $unitName }}
-                                    </button>
+                                <button onclick="scrollToUnit({{ $unitId }})"
+                                    class="btn btn-sm btn-outline-primary rounded-pill me-2 mb-2"
+                                    aria-label="Pilih unit {{ $unitName }}">
+                                    {{ $unitName }}
+                                </button>
                                 @endforeach
                             </div>
                         </div>
@@ -67,50 +67,53 @@
                     <!-- Daftar Unit dengan Layanan -->
                     <div class="scrolling-units" id="service-list-content">
                         @foreach($units as $unitName => $unitId)
-                            <div id="unit-{{ $unitId }}" class="unit-section mb-4">
-                                <div class="unit-header">
-                                    <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
-                                        <i class="fas fa-building me-2 text-primary"></i>
-                                        <span>{{ $unitName }}</span>
-                                        <div class="ms-auto">
-                                            <span class="badge bg-primary rounded-pill">
-                                                {{ $services->where('unit_id', $unitId)->count() }} Layanan
-                                            </span>
-                                        </div>
-                                    </h4>
-                                </div>
-                                <div class="row row-cols-1 row-cols-md-3 g-3">
-                                    @foreach ($services->where('unit_id', $unitId) as $svc)
-                                        <div class="col service-item">
-                                            <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
-                                                <div class="card-body p-4">
-                                                    <button
-                                                        onclick="selectService({{ $svc->id ?? 0 }}, {{ $svc->unit_id ?? 0 }}, '{{ addslashes($svc->svc_name) }}')"
-                                                        class="btn btn-link text-decoration-none p-0 w-100 text-start"
-                                                        aria-label="Pilih layanan {{ $svc->svc_name }} dari unit {{ $svc->unit->unit_name }}">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="flex-shrink-0 me-3">
-                                                                <div class="bg-light text-primary rounded-circle p-3">
-                                                                    <i class="fas fa-concierge-bell fa-fw"></i>
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex-grow-1">
-                                                                <h5 class="mb-1">{{ $svc->svc_name }}</h5>
-                                                                <div class="text-muted small">
-                                                                    {{ $svc->unit->unit_name }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex-shrink-0 ms-2">
-                                                                <i class="fas fa-chevron-right text-muted"></i>
-                                                            </div>
-                                                        </div>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
+                        <div id="unit-{{ $unitId }}" class="unit-section mb-4">
+                            <div class="unit-header">
+                                <h4 class="mb-3 pb-2 border-bottom d-flex align-items-center">
+                                    <i class="fas fa-building me-2 text-primary"></i>
+                                    <span>{{ $unitName }}</span>
+                                    <div class="ms-auto">
+                                        <span class="badge bg-primary rounded-pill">
+                                            {{ $services->where('unit_id', $unitId)->count() }} Layanan
+                                        </span>
+                                    </div>
+                                </h4>
                             </div>
+                            <div class="row row-cols-1 row-cols-md-3 g-3">
+                                @foreach ($services->where('unit_id', $unitId) as $svc)
+                                <div class="col service-item">
+                                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-300">
+                                        <div class="card-body p-4">
+                                            <button
+                                                onclick="selectService({{ $svc->id ?? 0 }}, {{ $svc->unit_id ?? 0 }}, '{{ addslashes($svc->svc_name) }}')"
+                                                class="btn btn-link text-decoration-none p-0 w-100 text-start"
+                                                aria-label="Pilih layanan {{ $svc->svc_name }} dari unit {{ $svc->unit->unit_name }}">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0 me-3">
+                                                        <div class="bg-light text-primary rounded-circle p-3">
+                                                            <i class="fas fa-concierge-bell fa-fw"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h5 class="mb-1">{{ $svc->svc_name }}</h5>
+                                                        <div class="text-muted small">
+                                                            {{ $svc->unit->unit_name }}
+                                                        </div>
+                                                        <div class="text-muted small">
+                                                            <p>Estimasi Penyelesaian: {{ $svc->avg_duration_text }}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-shrink-0 ms-2">
+                                                        <i class="fas fa-chevron-right text-muted"></i>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
                         @endforeach
                     </div>
                 </div>
@@ -124,21 +127,21 @@
                             <div class="col-12">
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="title" name="title"
-                                           placeholder="Judul Aduan" value="{{ old('title') }}" required>
+                                        placeholder="Judul Aduan" value="{{ old('title') }}" required>
                                     <label for="title"><i class="fas fa-heading me-2"></i>Judul Laporan</label>
                                     @error('title')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-floating mb-3">
                                     <textarea class="form-control" id="description" name="description"
-                                              placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px"
-                                              required>{{ old('description') }}</textarea>
+                                        placeholder="Deskripsikan masalah Anda secara detail" style="height: 150px"
+                                        required>{{ old('description') }}</textarea>
                                     <label for="description"><i class="fas fa-comment-alt me-2"></i>Deskripsi Masalah</label>
                                     @error('description')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -152,20 +155,20 @@
                                         <div class="col-md-6">
                                             <div class="form-floating">
                                                 <input type="text" class="form-control" id="latitude" name="latitude"
-                                                       placeholder="Latitude" readonly>
+                                                    placeholder="Latitude" readonly>
                                                 <label for="latitude"><i class="fas fa-globe me-2"></i>Latitude</label>
                                                 @error('latitude')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-floating">
                                                 <input type="text" class="form-control" id="longitude" name="longitude"
-                                                       placeholder="Longitude" readonly>
+                                                    placeholder="Longitude" readonly>
                                                 <label for="longitude"><i class="fas fa-globe me-2"></i>Longitude</label>
                                                 @error('longitude')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -187,7 +190,7 @@
                                         <input type="file" name="images[]" id="images" multiple class="d-none" accept="image/*">
                                     </div>
                                     @error('images')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                     @enderror
                                     <div id="preview-container" class="row mt-3"></div>
                                     <div class="form-text">
@@ -198,8 +201,8 @@
                             <div class="col-12">
                                 <div class="d-flex justify-content-between gap-3">
                                     <button type="button" onclick="showServiceList()"
-                                            class="btn btn-outline-secondary btn-lg px-4"
-                                            aria-label="Kembali ke daftar layanan">
+                                        class="btn btn-outline-secondary btn-lg px-4"
+                                        aria-label="Kembali ke daftar layanan">
                                         <i class="fas fa-arrow-left me-2"></i>Kembali
                                     </button>
                                     <button type="submit" class="btn btn-primary btn-lg px-5">
@@ -222,9 +225,9 @@
 @endsection
 
 @section('scripts')
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
-    <script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
+<script>
     // Prevent DataTables initialization
     window.One = window.One || {};
     window.One.initDataTables = function() {
@@ -305,8 +308,7 @@
                             mapInstance.setView([-8.0916, 112.1814], 13);
                             marker.setLatLng([-8.0916, 112.1814]);
                         }
-                    },
-                    {
+                    }, {
                         enableHighAccuracy: true,
                         timeout: 10000,
                         maximumAge: 0
@@ -509,7 +511,9 @@
             const dataTransfer = new DataTransfer();
             selectedFiles.forEach(file => dataTransfer.items.add(file));
             input.files = dataTransfer.files;
-            const event = new Event('change', { bubbles: true });
+            const event = new Event('change', {
+                bubbles: true
+            });
             input.dispatchEvent(event);
         });
 
@@ -535,109 +539,132 @@
         // Initialize AOS
         AOS.init();
     });
-    </script>
+</script>
 @endsection
 
 @section('styles')
-    <link rel="stylesheet" href="{{ asset('assets/aos/aos.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}">
-    <style>
-        .hover-shadow {
-            transition: all 0.3s ease;
-        }
-        .hover-shadow:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-        }
-        .transition-300 {
-            transition: all 0.3s ease;
-        }
-        .dropzone-container {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .dropzone-container:hover {
-            background-color: #f8f9fa;
-            border-color: var(--bs-primary) !important;
-        }
-        .service-item .card {
-            transition: all 0.2s ease;
-        }
-        .service-item .card:hover {
-            border-color: var(--bs-primary);
-        }
-        .unit-section {
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #fff;
-            margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.03);
-        }
-        .unit-header {
-            position: sticky;
-            top: -1px;
-            background-color: #fff;
-            z-index: 10;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            border-radius: 8px 8px 0 0;
-        }
-        .unit-pills {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .scrolling-units {
-            max-height: 100%;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        .scrolling-units::-webkit-scrollbar {
-            width: 8px;
-        }
-        .scrolling-units::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        .scrolling-units::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
-        }
-        .scrolling-units::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-        .form-section {
-            display: none;
-        }
-        .form-section.visible {
-            display: block;
-        }
-        .service-list {
-            display: block;
-        }
-        .service-list.hidden {
-            display: none;
-        }
-        #map {
-            height: 300px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
-        }
-        #preview-container img {
-            transition: all 0.3s ease;
-        }
-        #preview-container img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        #preview-container .btn-danger {
-            padding: 2px 8px;
-            line-height: 1;
-        }
-        #preview-container .btn-danger:hover {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-    </style>
+<link rel="stylesheet" href="{{ asset('assets/aos/aos.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}">
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .transition-300 {
+        transition: all 0.3s ease;
+    }
+
+    .dropzone-container {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .dropzone-container:hover {
+        background-color: #f8f9fa;
+        border-color: var(--bs-primary) !important;
+    }
+
+    .service-item .card {
+        transition: all 0.2s ease;
+    }
+
+    .service-item .card:hover {
+        border-color: var(--bs-primary);
+    }
+
+    .unit-section {
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #fff;
+        margin-bottom: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .unit-header {
+        position: sticky;
+        top: -1px;
+        background-color: #fff;
+        z-index: 10;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .unit-pills {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .scrolling-units {
+        max-height: 100%;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+    .scrolling-units::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrolling-units::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .scrolling-units::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+
+    .scrolling-units::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    .form-section {
+        display: none;
+    }
+
+    .form-section.visible {
+        display: block;
+    }
+
+    .service-list {
+        display: block;
+    }
+
+    .service-list.hidden {
+        display: none;
+    }
+
+    #map {
+        height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+    }
+
+    #preview-container img {
+        transition: all 0.3s ease;
+    }
+
+    #preview-container img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    #preview-container .btn-danger {
+        padding: 2px 8px;
+        line-height: 1;
+    }
+
+    #preview-container .btn-danger:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+</style>
 @endsection

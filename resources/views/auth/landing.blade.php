@@ -188,41 +188,48 @@
         }
 
         @media (max-width: 1200px) {
-            html, body{
+
+            html,
+            body {
                 font-size: 14px;
                 /* overflow: hidden; */
             }
 
-            .col-12 img{
+            .col-12 img {
                 max-width: 60%;
                 max-height: auto;
             }
 
-            .col-12 h1{
+            .col-12 h1 {
                 font-size: 20px !important;
             }
-            .col-12 p{
+
+            .col-12 p {
                 font-size: 12px !important;
                 padding: 30px 0 30px 0;
             }
 
-            h2{
+            h2 {
                 font-size: 20px !important;
             }
 
-            h3{
+            h3 {
                 font-size: 14px !important;
                 padding: 10px;
             }
-            h4,h5{
+
+            h4,
+            h5 {
                 font-size: 14px !important;
             }
-            .card-account button{
+
+            .card-account button {
                 width: 5cm !important;
                 height: 1cm !important;
                 font-size: 13px !important;
             }
-            .col-md-4 img{
+
+            .col-md-4 img {
                 max-width: 50%;
                 max-height: auto;
             }
@@ -412,7 +419,7 @@
         <div class="card-account text-center py-5 mb-5 text-dark">
             <h2 class="display-4 fw-bold my-3" data-aos="fade-down" data-aos-duration="3000">Buat Akun Sekarang</h2>
             <div class="mx-auto w-25 my-3" style="height: 10px; background-color: #1572e8;" data-aos="fade-down" data-aos-duration="3000"></div>
-            <h3 class="h3 my-4" data-aos="zoom-in" data-aos-duration="3000">Buat akun dan sampaikan aduan Anda hari ini atau buat lapor aduan sebagai Tamu!</h3> <br><br><br>
+            <h3 class="h3 my-4" data-aos="zoom-in" data-aos-duration="3000">Buat akun dan sampaikan laporan Anda hari ini atau buat laporan sebagai Tamu!</h3> <br><br><br>
             <button class="btn btn-primary text-white fw-bold rounded-pill py-2 shadow mb-3" onclick="window.location.href='{{ route('register') }}'" data-aos="fade-up" data-aos-duration="3000" style="width: 8cm; height: 2cm; font-size: 20px;">
                 Buat Akun
             </button>
