@@ -1402,4 +1402,46 @@ class TicketController extends Controller
             'percentages' => $percentages,
         ]);
     }
+
+    public function getEstimate()
+    {
+        $subquery = DB::table('tickets')
+            ->select('service_id', DB::raw('AVG(TIMESTAMPDIFF(MINUTE, created_at, updated_at)) as avg_duration_minutes'))
+            ->whereNotNull('updated_at')
+            ->groupBy('service_id');
+
+        $services = Service::select('services.*', 'units.unit_name', 'avg_duration_minutes')
+            ->leftJoin('units', 'services.unit_id', '=', 'units.id')
+            ->leftJoinSub($subquery, 'avg_durations', function ($join) {
+                $join->on('services.id', '=', 'avg_durations.service_id');
+            })
+            ->withCount('tickets')
+            ->orderBy('avg_duration_minutes', 'asc')
+            ->get();
+
+        foreach ($services as $svc) {
+            $minutes = $svc->avg_duration_minutes ?? 0;
+            $days = floor($minutes / 1440);
+            $hours = floor(($minutes % 1440) / 60);
+            $mins = floor($minutes % 60);
+
+            if ($days == 0 && $hours == 0 && $mins == 0) {
+                $svc->avg_duration_text = 'N/A';
+            } else {
+                $parts = [];
+                if ($days > 0) {
+                    $parts[] = "{$days} hari";
+                }
+                if ($hours > 0) {
+                    $parts[] = "{$hours} jam";
+                }
+                if ($mins > 0) {
+                    $parts[] = "{$mins} menit";
+                }
+                $svc->avg_duration_text = implode(' ', $parts);
+            }
+        }
+
+        return view('tickets.create', compact('services'));
+    }
 }

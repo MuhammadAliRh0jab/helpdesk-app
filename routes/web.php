@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
         ->name('tickets.created')
         ->middleware('role:2');
     Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
+    Route::get('/tickets/create', [TicketController::class, 'getEstimate'])->name('tickets.create');
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
     Route::post('/tickets/{ticket}/assign', [TicketController::class, 'assign'])
         ->name('tickets.assign')
