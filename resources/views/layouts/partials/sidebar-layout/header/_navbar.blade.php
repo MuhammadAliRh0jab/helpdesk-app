@@ -55,7 +55,7 @@
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
                                 <i class="nav-main-link-icon si si-layers me-2"></i>
-                                Detail Aduan
+                                Detail Laporan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
@@ -67,13 +67,13 @@
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.created') }}">
                                 <i class="nav-main-link-icon si si-clock me-2"></i>
-                                Riwayat Aduan
+                                Riwayat Laporan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
                                 <i class="nav-main-link-icon si si-pencil me-2"></i>
-                                Buat Aduan Baru
+                                Buat Laporan Baru
                             </a>
                         </li>
                         @elseif (auth()->user()->role_id == 3) {{-- Pegawai --}}
@@ -86,19 +86,19 @@
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
                                 <i class="nav-main-link-icon si si-layers me-2"></i>
-                                Detail Aduan
+                                Detail Laporan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.assigned') }}">
                                 <i class="nav-main-link-icon si si-briefcase me-2"></i>
-                                Aduan Ditugaskan
+                                Laporan Ditugaskan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
                                 <i class="nav-main-link-icon si si-pencil me-2"></i>
-                                Buat Aduan Baru
+                                Buat Laporan Baru
                             </a>
                         </li>
                         @elseif (auth()->user()->role_id == 1) {{-- Admin --}}
@@ -111,7 +111,7 @@
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
                                 <i class="nav-main-link-icon si si-layers me-2"></i>
-                                Detail Aduan
+                                Detail Laporan
                             </a>
                         </li>
                         <li class="nav-main-item mb-2">
@@ -137,14 +137,14 @@
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.index') }}">
                                 <i class="nav-main-link-icon si si-layers me-2"></i>
-                                Detail Aduan
+                                Detail Laporan
                             </a>
                         </li>
 
                         <li class="nav-main-item mb-2">
                             <a class="nav-main-link d-flex align-items-center text-dark" href="{{ route('tickets.create') }}">
                                 <i class="nav-main-link-icon si si-pencil me-2"></i>
-                                Buat Aduan Baru
+                                Buat Laporan Baru
                             </a>
                         </li>
                         @endif
@@ -305,7 +305,6 @@
             max-width: 90%;
             margin: 0 auto;
         }
-
     </style>
     <script src="{{asset('assets2/js/oneui.app.min.js')}}"></script>
     <script src="{{asset('assets2/js/plugins/chart.js/chart.umd.js')}}"></script>

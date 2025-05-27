@@ -271,7 +271,7 @@
         <div class="container px-3 py-5" style="margin-top: 90px;">
             <div class="row align-items-center">
                 <div class="col-12 text-center py-10">
-                    <p class="text-uppercase tracking-widest" data-aos="fade-down" data-aos-duration="3000">Selamat Datang di Website Layanan Aduan & Informasi</p><br>
+                    <p class="text-uppercase tracking-widest" data-aos="fade-down" data-aos-duration="3000">Selamat Datang di Website Layanan Pelaporan</p><br>
                     <h1 class="display-4 fw-bold my-4" data-aos="zoom-in" data-aos-duration="3000">HELPDESK PEMERINTAH KOTA BLITAR</h1><br>
                     <p data-aos="fade-up" data-aos-duration="3000">Laporkan masalah Anda dengan cepat, dapatkan solusi tepat, dan akses layanan publik dengan mudah.</p><br>
                 </div>
@@ -302,7 +302,7 @@
                 <div class="col-12 col-md-6 p-4" data-aos="fade-right" data-aos-duration="1000">
                     <h3 class="h3 fw-bold text-dark mb-3">Helpdesk Pemerintah Kota Blitar</h3>
                     <p class="text-muted">
-                        Helpdesk Pemerintah Kota Blitar adalah sistem layanan berbasis teknologi yang <b>berfungsi</b> sebagai pusat dukungan bagi masyarakat dan pegawai pemerintahan dalam menangani berbagai aduan, permintaan informasi, serta bantuan teknis terkait layanan publik.
+                        Helpdesk Pemerintah Kota Blitar adalah sistem layanan berbasis teknologi yang <b>berfungsi</b> sebagai pusat dukungan bagi masyarakat dan pegawai pemerintahan dalam menangani berbagai laporan, permintaan informasi, serta bantuan teknis terkait layanan publik.
                         <br><br>
                         Helpdesk ini <b>bertujuan</b> untuk meningkatkan responsivitas, transparansi, dan efisiensi dalam pelayanan publik dengan menyediakan jalur komunikasi yang mudah diakses. Masyarakat dapat menyampaikan keluhan atau bertanya tentang layanan pemerintah.
                     </p>
@@ -323,7 +323,7 @@
                     <div class="card h-100 shadow" data-aos="fade-down" data-aos-duration="2000">
                         <div class="card-body">
                             <h5 class="card-title fw-bold text-dark">Dukungan di Mana Saja</h5>
-                            <p class="card-text text-muted">Sampaikan aduan Anda kapan saja, di mana saja, dengan cara yang paling nyaman bagi Anda.</p>
+                            <p class="card-text text-muted">Sampaikan laporan Anda kapan saja, di mana saja, dengan cara yang paling nyaman bagi Anda.</p>
                         </div>
                         <div class="card-footer border-0 bg-white">
                             <img src="{{ asset('assets/media/img/dukungan.png') }}" style="width: 300px; height: 300px;">
@@ -345,7 +345,7 @@
                     <div class="card h-100 shadow" data-aos="fade-down" data-aos-duration="2000">
                         <div class="card-body">
                             <h5 class="card-title fw-bold text-dark">Didukung Tim Profesional</h5>
-                            <p class="card-text text-muted">Terdiri dari operator dan petugas teknis berpengalaman yang siap menangani aduan.</p>
+                            <p class="card-text text-muted">Terdiri dari operator dan petugas teknis berpengalaman yang siap menangani laporan Anda.</p>
                         </div>
                         <div class="card-footer border-0 bg-white">
                             <img src="{{ asset('assets/media/img/tim.png') }}" style="width: 300px; height: 300px;">
@@ -372,7 +372,7 @@
                                 <p class="mb-0 fw-bold">Login / Register Akun Anda</p>
                             </div>
                         </div>
-                        <p class="mt-3 text-white-50">Sebelum melaporkan pengaduan Anda, terlebih dahulu lakukan login/register atau lapor tanpa login sebagai tamu</p>
+                        <p class="mt-3 text-white-50">Sebelum Membuat laporan, terlebih dahulu lakukan login/register atau lapor sebagai tamu tanpa perlu login</p>
                     </div>
                 </div>
                 <div class="col-12 col-md-4 mb-4">
@@ -386,7 +386,7 @@
                                 <p class="mb-0 fw-bold">Isi Form dan Ceritakan Kasusnya</p>
                             </div>
                         </div>
-                        <p class="mt-3 text-white-50">Klik Menu "Buat Aduan" dan lanjutkan mengisi formulir pengaduan yang telah disediakan</p>
+                        <p class="mt-3 text-white-50">Klik Menu "Buat Laporan" dan lanjutkan mengisi formulir yang telah disediakan</p>
                     </div>
                 </div>
                 <div class="col-12 col-md-4 mb-4">
@@ -400,7 +400,7 @@
                                 <p class="mb-0 fw-bold">Kirimkan Form Yang sudah terisi</p>
                             </div>
                         </div>
-                        <p class="mt-3 text-white-50">Klik tombol "Kirim" untuk mengirim pengaduan Anda, Anda dapat memantau pengaduan yang dikirim di halaman "Dashboard"</p>
+                        <p class="mt-3 text-white-50">Klik tombol "Kirim" untuk mengirim laporan Anda, Anda dapat memantau laporan yang dikirim di halaman "Dashboard"</p>
                     </div>
                     <br><br>
                 </div>

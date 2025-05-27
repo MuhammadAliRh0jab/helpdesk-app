@@ -24,7 +24,7 @@
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
                                 <dt class="fs-3 fw-bold" id="total-tickets">0</dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Total Aduan</dd>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Total Laporan</dd>
                             </dl>
                             <div class="item item-rounded-lg bg-body-light">
                                 <i class="fas fa-ticket-alt fs-3 text-primary"></i>
@@ -38,7 +38,7 @@
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
                                 <dt class="fs-3 fw-bold" id="pending-tickets">0</dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Aduan Pending</dd>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Laporan Pending</dd>
                             </dl>
                             <div class="item item-rounded-lg bg-body-light">
                                 <i class="fas fa-hourglass-start fs-3 text-warning"></i>
@@ -52,7 +52,7 @@
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
                                 <dt class="fs-3 fw-bold" id="assigned-tickets">0</dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Aduan Ditugaskan</dd>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Laporan Ditugaskan</dd>
                             </dl>
                             <div class="item item-rounded-lg bg-body-light">
                                 <i class="fas fa-user-clock fs-3 text-info"></i>
@@ -66,7 +66,7 @@
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
                                 <dt class="fs-3 fw-bold" id="completed-tickets">0</dt>
-                                <dd class="fs-sm fw-medium text-muted mb-0">Aduan Selesai</dd>
+                                <dd class="fs-sm fw-medium text-muted mb-0">Laporan Selesai</dd>
                             </dl>
                             <div class="item item-rounded-lg bg-body-light">
                                 <i class="fas fa-check-circle fs-3 text-success"></i>
@@ -83,7 +83,7 @@
                 <div class="col-xl-8 col-xxl-8 d-flex flex-column">
                     <div class="block block-rounded flex-grow-1 d-flex flex-column">
                         <div class="block-header block-header-default">
-                            <h3 class="block-title">Statistik Aduan</h3>
+                            <h3 class="block-title">Statistik Laporan</h3>
                             <div class="block-options">
                                 <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
                                     <i class="si si-refresh"></i>
@@ -116,7 +116,7 @@
                 <div class="col-xl-4 col-xxl-4 d-flex flex-column">
                     <div class="block block-rounded flex-grow-1 d-flex flex-column">
                         <div class="block-header block-header-default">
-                            <h3 class="block-title fs-sm text-uppercase">Distribusi Status Aduan</h3>
+                            <h3 class="block-title fs-sm text-uppercase">Distribusi Status Laporan</h3>
                             <div class="block-options">
                                 <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
                                     <i class="si si-refresh"></i>
@@ -151,7 +151,7 @@
             <!-- Ticket List -->
             <div class="block block-rounded">
                 <div class="block-header block-header-default">
-                    <h3 class="block-title">Daftar Aduan</h3>
+                    <h3 class="block-title">Daftar Laporan</h3>
                     <div class="block-options space-x-1">
                         <div class="dropdown d-inline-block">
                             <button type="button" class="btn btn-sm btn-alt-secondary" id="dropdown-recent-orders-filters" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -166,7 +166,7 @@
                             </div>
                         </div>
                         <a class="btn btn-sm btn-alt-primary" href="{{ route('tickets.create') }}">
-                            <i class="fa fa-plus opacity-50 me-1"></i> Buat Aduan
+                            <i class="fa fa-plus opacity-50 me-1"></i> Buat Laporan
                         </a>
                     </div>
                 </div>
@@ -189,7 +189,7 @@
                                 <tr>
                                     <td colspan="8" class="text-center">
                                         <div class="alert alert-info m-0">
-                                            Memuat data aduan...
+                                            Memuat data laporan...
                                         </div>
                                     </td>
                                 </tr>
@@ -227,7 +227,7 @@
                                 <p><strong>Deskripsi:</strong> <span id="modal-description-ID_PLACEHOLDER"></span></p>
                                 <p><strong>Unit Saat Ini:</strong> <span id="modal-unit-name-ID_PLACEHOLDER"></span></p>
                                 <div class="mt-3">
-                                    <strong>Lokasi Aduan:</strong>
+                                    <strong>Lokasi Laporan:</strong>
                                     <div class="d-flex flex-column gap-2 mt-2" id="modal-location-ID_PLACEHOLDER"></div>
                                 </div>
                                 <div class="mt-3">

@@ -287,7 +287,7 @@
 
                     <div class="card shadow border-0 rounded-lg" data-aos="fade-up" data-aos-duration="1000">
                         <h4 class="card-header bg-primary text-white py-3" id="form-title">
-                            <i class="fas fa-edit me-2"></i>Form Aduan {{ isset($service) ? $service->svc_name : '' }}
+                            <i class="fas fa-edit me-2"></i>Form Laporan {{ isset($service) ? $service->svc_name : '' }}
                         </h4>
                         <div class="card-body p-4">
                             <div class="service-list {{ isset($service) ? 'hidden' : '' }}" id="service-list">
@@ -415,7 +415,7 @@
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" id="title" name="title"
                                             placeholder="Judul Aduan" value="{{ old('title') }}" required>
-                                        <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
+                                        <label for="title"><i class="fas fa-heading me-2"></i>Judul Laporan</label>
                                         @error('title')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -435,7 +435,7 @@
                                     <!-- Bagian Peta -->
                                     <div class="mb-4">
                                         <label for="location" class="form-label fw-bold"><i
-                                                class="fas fa-map-marker-alt me-2"></i>Lokasi Aduan (Opsional)</label>
+                                                class="fas fa-map-marker-alt me-2"></i>Lokasi Laporan (Opsional)</label>
                                         <div class="mb-3">
                                             <div id="map"></div>
                                         </div>

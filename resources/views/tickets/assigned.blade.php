@@ -8,8 +8,8 @@
         <div class="content">
             <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center py-2 text-center text-md-start">
                 <div class="flex-grow-1 mb-1 mb-md-0">
-                    <h1 class="h3 fw-bold mb-2">Aduan Ditugaskan</h1>
-                    <h2 class="h6 fw-medium fw-medium text-muted mb-0">Aduan yang ditugaskan harus segera diproses dan dibalas</h2>
+                    <h1 class="h3 fw-bold mb-2">Laporan Ditugaskan</h1>
+                    <h2 class="h6 fw-medium fw-medium text-muted mb-0">Laporan yang ditugaskan harus segera diproses dan dibalas</h2>
                 </div>
             </div>
         </div>
@@ -86,7 +86,7 @@
                                                     <div class="modal-body" style="padding: 0; display: flex; flex-direction: column">
                                                         <div class="chat-container px-4 py-3" id="chat-container-{{ $ticket->id }}" style="flex: 1; overflow-y: auto; background-color: #f9fafb;">
                                                             <div class="mb-4">
-                                                                <strong>Lokasi Aduan:</strong>
+                                                                <strong>Lokasi Laporan:</strong>
                                                                 @if ($ticket->latitude && $ticket->longitude)
                                                                     <div class="d-flex flex-column gap-2 mt-2">
                                                                         <div class="d-flex gap-3">
@@ -223,7 +223,7 @@
                                                         @endif
                                                     </div>
                                                     <div class="mt-3">
-                                                        <strong>Lokasi Aduan:</strong>
+                                                        <strong>Lokasi Laporan:</strong>
                                                         @if ($ticket->latitude && $ticket->longitude)
                                                             <div class="d-flex flex-column gap-2 mt-2">
                                                                 <div class="d-flex gap-3">
@@ -243,7 +243,7 @@
                                         
                                                                             @empty
                                                                             <tr>
-                                                                                <td colspan="7" class="text-center text-muted">Tidak ada aduan yang ditugaskan.</td>
+                                                                                <td colspan="7" class="text-center text-muted">Tidak ada laporan yang ditugaskan.</td>
                                                                             </tr>
                                                                             @endforelse
                                                                         </tbody>
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const ticketId = this.getAttribute('data-ticket-id');
             Swal.fire({
                 title: 'Konfirmasi',
-                text: 'Apakah aduan ini telah selesai?',
+                text: 'Apakah laporkan ini telah selesai?',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Selesai',

@@ -8,15 +8,15 @@
         <div class="content">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center py-2">
                 <div class="flex-grow-1">
-                    <h1 class="h3 fw-bold mb-1">Buat Aduan</h1>
+                    <h1 class="h3 fw-bold mb-1">Buat Laporan</h1>
                     <h2 class="fs-base lh-base fw-medium text-muted mb-0">
-                        Pilih layanan atau isi detail aduan Anda
+                        Pilih layanan atau isi detail Laporan Anda
                     </h2>
                 </div>
                 <nav class="flex-shrink-0 mt-3 mt-sm-0 ms-sm-3" aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-alt">
                         <li class="breadcrumb-item">
-                            <a class="link-fx" href="{{ route('tickets.index') }}">Aduan</a>
+                            <a class="link-fx" href="{{ route('tickets.index') }}">Laporan</a>
                         </li>
                         <li class="breadcrumb-item" aria-current="page">Buat</li>
                     </ol>
@@ -27,7 +27,7 @@
         <div class="card mt-4 col-lg-10 mx-auto shadow-sm border-0 rounded-3 p-3">
             <div class="card-header bg-primary text-white rounded-top">
                 <h3 class="card-title m-0 fs-5" id="form-title">
-                    <i class="fas fa-edit me-2"></i>Form Aduan {{ isset($service) ? $service->svc_name : '' }}
+                    <i class="fas fa-edit me-2"></i>Form Laporan {{ isset($service) ? $service->svc_name : '' }}
                 </h3>
             </div>
             <div class="card-body p-4">
@@ -125,7 +125,7 @@
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="title" name="title"
                                            placeholder="Judul Aduan" value="{{ old('title') }}" required>
-                                    <label for="title"><i class="fas fa-heading me-2"></i>Judul Aduan</label>
+                                    <label for="title"><i class="fas fa-heading me-2"></i>Judul Laporan</label>
                                     @error('title')
                                         <div class="text-danger small mt-1">{{ $message }}</div>
                                     @enderror
@@ -144,7 +144,7 @@
                             </div>
                             <div class="col-12">
                                 <div class="mb-4">
-                                    <label for="location" class="form-label fw-bold"><i class="fas fa-map-marker-alt me-2"></i>Lokasi Aduan (Opsional)</label>
+                                    <label for="location" class="form-label fw-bold"><i class="fas fa-map-marker-alt me-2"></i>Lokasi Laporan (Opsional)</label>
                                     <div class="mb-3">
                                         <div id="map"></div>
                                     </div>
@@ -203,7 +203,7 @@
                                         <i class="fas fa-arrow-left me-2"></i>Kembali
                                     </button>
                                     <button type="submit" class="btn btn-primary btn-lg px-5">
-                                        <i class="fas fa-paper-plane me-2"></i>Kirim Aduan
+                                        <i class="fas fa-paper-plane me-2"></i>Kirim Laporan
                                     </button>
                                 </div>
                             </div>
@@ -214,7 +214,7 @@
         </div>
         <div class="card-footer bg-light text-center py-3">
             <p class="text-muted mb-0">
-                <i class="fas fa-info-circle me-2"></i>Aduan Anda akan diverifikasi oleh tim kami sebelum diproses lebih lanjut
+                <i class="fas fa-info-circle me-2"></i>Laporan Anda akan diverifikasi oleh tim kami sebelum diproses lebih lanjut
             </p>
         </div>
     </main>

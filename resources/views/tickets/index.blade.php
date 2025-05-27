@@ -11,7 +11,7 @@
     @endphp
     @if (!$isPicActive)
         <div class="alert alert-warning p-4 mb-4 rounded">
-            Anda belum ditugaskan sebagai PIC. Anda hanya dapat membuat atau melihat aduan yang Anda buat.
+            Anda belum ditugaskan sebagai PIC. Anda hanya dapat membuat atau melihat Laporan yang Anda buat.
         </div>
     @endif
 @endif
@@ -21,13 +21,13 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center py-2">
                 <div class="flex-grow-1">
-                    <h1 class="h3 fw-bold mb-1">Detail Aduan</h1>
-                    <h2 class="fs-base lh-base fw-medium text-muted mb-0">Aduan yang telah dikirimkan</h2>
+                    <h1 class="h3 fw-bold mb-1">Detail Laporan</h1>
+                    <h2 class="fs-base lh-base fw-medium text-muted mb-0">Laporan yang telah dikirimkan</h2>
                 </div>
                 <nav class="flex-shrink-0 mt-3 mt-sm-0 ms-sm-3" aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-alt">
                         <li class="breadcrumb-item">
-                            <a class="link-fx" href="javascript:void(0)">Aduan</a>
+                            <a class="link-fx" href="javascript:void(0)">Laporan</a>
                         </li>
                         <li class="breadcrumb-item" aria-current="page">List</li>
                     </ol>
@@ -207,7 +207,7 @@
                                                     <p><strong>Unit Asal:</strong> {{ $ticket->original_unit_id ? \App\Models\Unit::find($ticket->original_unit_id)->unit_name : ($ticket->unit->unit_name ?? 'Tidak ditentukan') }}</p>
                                                     <p><strong>Unit Saat Ini:</strong> {{ $ticket->unit->unit_name ?? 'Tidak ditentukan' }}</p>
                                                     <div class="mt-3">
-                                                        <strong>Lokasi Aduan:</strong>
+                                                        <strong>Lokasi Laporan:</strong>
                                                         @if ($ticket->latitude && $ticket->longitude)
                                                             <div class="d-flex flex-column gap-2 mt-2">
                                                                 <div class="d-flex gap-3">
@@ -342,7 +342,7 @@
                             @empty
                                 <tr>
                                     <td colspan="{{ auth()->user()->role_id == 2 ? 10 : 8 }}" class="p-2 text-dark text-center">
-                                        Tidak ada aduan yang ditemukan.
+                                        Tidak ada laporan yang ditemukan.
                                     </td>
                                 </tr>
                             @endforelse
@@ -483,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td colspan="${{{ auth()->user()->role_id == 2 ? 10 : 8 }}}" class="p-2 text-dark text-center">
-                        Tidak ada aduan yang ditemukan.
+                        Tidak ada laporan yang ditemukan.
                     </td>
                 `;
                 ticketsBody.appendChild(row);

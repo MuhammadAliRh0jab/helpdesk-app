@@ -126,7 +126,7 @@
         <div class="col-xl-12 col-xxl-12 d-flex flex-column">
           <div class="block block-rounded flex-grow-1 d-flex flex-column">
             <div class="block-header block-header-default">
-              <h3 class="block-title">Distribusi Pengaduan per Unit</h3>
+              <h3 class="block-title">Distribusi Pelaporan per Unit</h3>
               <div class="block-options">
                 <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
                   <i class="si si-refresh"></i>
@@ -140,7 +140,7 @@
                     <tr>
                       <th>No</th>
                       <th>Nama Dinas/Unit</th>
-                      <th>Jumlah Pengaduan</th>
+                      <th>Jumlah Pelaporan</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -8,7 +8,7 @@
         <div class="content">
             <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center py-2 text-center text-md-start">
                 <div class="flex-grow-1 mb-1 mb-md-0">
-                    <h1 class="h3 fw-bold mb-2">Riwayat Aduan</h1>
+                    <h1 class="h3 fw-bold mb-2">Riwayat Laporan</h1>
                     <h2 class="h6 fw-medium fw-medium text-muted mb-0"></h2>
                 </div>
             </div>
@@ -73,7 +73,7 @@
                                                 <div class="ms-4">
                                                     <h3 class="h5 fw-semibold text-dark">Detail untuk {{ $ticket->ticket_code }}</h3>
                                                     <div class="mt-3 mb-4">
-                                                        <strong>Lokasi Aduan:</strong>
+                                                        <strong>Lokasi Laporan:</strong>
                                                         @if ($ticket->latitude && $ticket->longitude)
                                                             <div class="d-flex flex-column gap-2 mt-2">
                                                                 <div class="d-flex gap-3">
@@ -126,7 +126,7 @@
                                         @empty
                                         <tr>
                                             <td colspan="7" class="p-2 text-dark text-center">
-                                                Anda belum membuat aduan.
+                                                Anda belum membuat Laporan.
                                             </td>
                                         </tr>
                                         @endforelse
